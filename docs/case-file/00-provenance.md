@@ -45,7 +45,7 @@ Project knowledge inventory — corrected 2026-07-13 (later session) after the c
 |---|---|
 | `holmes-spec-v2.md` | ✅ `docs/holmes-spec-v2.md` — re-supplied 2026-07-13, **diffed byte-identical** to repo copy (no surface drift) |
 | `holmes-project-orientation.md` | ✅ `docs/` — re-supplied, **diffed byte-identical** |
-| `wisdom-intuition-knowledge-judgment` map | ✅ v2 at `docs/research/` — 6th file upload pending; epistemic canon references a **v3** ("fully sourced") — version to confirm on receipt |
+| `wisdom-intuition-knowledge-judgment` map | ✅ v2.0 at `docs/research/` — 6th upload received 2026-07-13, **diffed byte-identical** to repo copy. NOTE: `epistemic-canon-Holmes.md` cites "the Map, v3, fully sourced," but project knowledge holds v2.0 — **the v3 reference is dangling** (UNKNOWN whether v3 exists; if it does, it has never been sighted on any surface) |
 | `holmes-vs-wcjbt.md` — boundary/interface contract, named source-of-truth doc | ✅ `docs/holmes-vs-wcjbt.md` — supplied and read in full 2026-07-13 |
 | `triad-canon.md` — shared triad canon (canonical home: WCJBT repo; this is the mandated Holmes-repo mirror) | ✅ `docs/triad-canon.md` — supplied and read in full 2026-07-13 |
 | `epistemic-canon-Holmes.md` — Holmes copy of the shared epistemic canon (Upgrade B: metacognitive-humility layer; `knowability`; confidence→routing firewall) | ✅ `docs/epistemic-canon-Holmes.md` — supplied and read in full 2026-07-13 |
