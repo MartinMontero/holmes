@@ -1,0 +1,237 @@
+# Holmes — Product & Architecture Specification **v2 (QA-Corrected)**
+## The Research-and-Analysis Brain of the WCJBT Non-Developer Operating System
+
+> **Where this file lives & how it stays in sync**
+> - **Canonical home:** the Holmes Claude Code repo at `docs/holmes-spec-v2.md` — **the repo copy is the single source of truth.** Claude Code seeds the project's operating-context knowledge files (`CLAUDE.md`, `docs/architecture.md`, `docs/constitution.md`, `docs/build-roadmap.md`, `docs/security.md`) *from this file*.
+> - **Where it's revised:** the claude.ai project is the thinking / pressure-testing surface. Spec changes are drafted and argued there, then written **back into the repo** — never the reverse.
+> - **Sync rule:** after any revision (e.g., resolving a `[NEEDS-CAVEAT]` item), replace the repo copy and have Claude Code **re-seed** the knowledge files from it. If a claude.ai draft and the repo copy ever disagree, the **repo copy wins** and the draft is reconciled into it — this prevents the two-surface drift the v1→v2 QA pass had to correct.
+> - **Versioning:** bump the version in the title and add a line to "What changed from v1" below for every material revision.
+
+**Status:** Authoritative build reference. **Supersedes** the v1 spec ("Holmes — Product & Architecture Specification + Mid-2026 Technology Landscape"). **Verification date:** June 29, 2026 (**rev. 2026-06-29 — all Blacksky `[NEEDS-CAVEAT]` items resolved against primary sources**). **Sibling system:** Alfred (agentic development brain). **Shared runtime:** goose (Agentic AI Foundation / Linux Foundation, Apache-2.0) driven over Zed's Agent Client Protocol (ACP), tooled over MCP.
+
+> **Sourcing & confidence convention.** Unmarked claims are **verified against primary sources** (as of the verification date). Two inline markers flag everything below that bar:
+> - **[DIRECTIONAL]** — supported only by secondary/third-party sources, or a vendor figure not independently confirmed. Treat as a planning estimate; re-verify before relying.
+> - **[NEEDS-CAVEAT]** — the *concept* holds but an exact quote/number/detail could not be confirmed from a primary source within budget. Confirm against the cited primary source before quoting or hard-coding.
+> Where a fact is time-sensitive (prices, versions), re-check the primary source at build time regardless of marker.
+
+---
+
+## What changed from v1 (QA corrections applied)
+
+1. **DeepSeek V4 Pro pricing** — the discounted rate is now the **standing** rate (the 75% cut became permanent after May 31, 2026): **$0.435 / 1M input (cache miss), $0.003625 cache-hit, $0.87 / 1M output**. `$1.74 / $3.48` is relabeled the **former reference price**, not "list."
+2. **ACP identity** — cited correctly as **Zed's Agent Client Protocol** (JSON-RPC 2.0 over stdio); all references to IBM/BeeAI's "Agent Communication Protocol" removed.
+3. **`goose-acp` crate → `goose acp` command** — ACP is baked into the goose crate; there is no separately published `goose-acp` crate.
+4. **Qwen version fix** — the 27B **dense** model is **Qwen3.5-27B**; the open **Qwen3.6** model is **Qwen3.6-35B-A3B** (MoE). The earlier "Qwen3.6 27B dense" was a mismap.
+5. **Mistral Medium 3.5 date** → **April 29, 2026** (was "April 30").
+6. **Sandbox-escape incidents** — the verified **Ona** `/proc/self/root` denylist bypass + self-disabled bubblewrap is kept as primary; the **`rm -rf ~/`** anecdote is separated out and marked secondary/anecdotal (a Claude Code *user* report, not the Ona agent).
+7. **Zep/Graphiti numbers** — the abstract figure is quoted as **"up to 18.5%"**; the 15.2%/18.5% split is attributed to the paper's results tables, not the headline.
+8. **LazyGraphRAG date** → **November 25, 2024** (was "Nov 15"); verbatim quotes retained.
+9. **Directional items flagged inline** — DeepSeek SWE-bench 80.6% and the V4 parameter splits; Qwen3.6 "256K / 24GB-Q4 / Apache-2.0"; the Vercel Sandbox GA month; the five-tier sandbox taxonomy attribution; the OpenCorporates 204M-vs-230M figures (both now presented with dates).
+10. **Blacksky quotes** — **all resolved against primary sources (rev. 2026-06-29).** Every previously caveated item now carries verified verbatim text + source: the Labeler "cannot delete content" sentence; appeals (published web form, "a different moderator," 7-day target); the four non-appealable categories (white supremacy, CSAM, digital blackface, severe threats); Ubuntu "I am because we are"; "protect your peace"; Blacksky's own doxxing definition; the 645-member People's Assembly; and NY-law governance from the ToS. The unconfirmed "inherited-Bluesky reversal" sub-claim was dropped (not in current canonical policy).
+11. **Amnesty "single data stream"** — softened from a verbatim quote to a **paraphrase** of the Evidence Lab's corroboration methodology (multiple independent strands).
+12. **"62% hallucination reduction / 47 deployments"** — remains **removed** (no authoritative source).
+
+---
+
+## TL;DR
+
+- **Holmes is Alfred's true sibling** — the analytical/research/investigative mind to Alfred's building hands — built on the *same* runtime: goose, now vendor-neutral and Linux-Foundation-governed (Apache-2.0), driven over **Zed's ACP** (invoked via the `goose acp` command), tooled over MCP. Both enforce one denylist (Meta/OpenAI/xAI out; Google in; open-weights-on-permitted-infra in), one path-confined tool surface, one human-in-the-loop discipline.
+- **The method is the identity:** Holmes faithfully digitizes Santos Reyes's actual method — abduction + Bayesian likelihood-ratio updating, Structured Analytic Techniques (ACH, Key Assumptions Check, devil's advocate), first-principles reasoning, and a six-phase case workflow — over a self-hosted temporal-knowledge-graph "wall" (Graphiti) that preserves full provenance, and a two-tier model strategy (cloud frontier + local sovereign, defaulting to **non-Meta** open weights).
+- **The dual-use investigative surface is the main alignment risk, and it is contained structurally:** goose-under-LF resolves the old corporate-stewardship tension (fork-ability is now governance + license); Santos's Code becomes concrete policy mechanisms; and the "I answer to the block" accountability layer **inherits the real, working Blacksky model** (composable non-destructive labeling on Ozone, first-class appeals, Polis community assemblies, consent-and-care) rather than inventing governance.
+
+---
+
+## 1. Executive Summary — "The Method Is the Identity"
+
+Holmes is the analytical counterpart to Alfred. Where Alfred is the *memory and the hands* of agentic software-building, Holmes is the *mind*: a research-and-analysis engine for non-developers that can research a market, analyze options, synthesize literature, pressure-test a plan, and spec a product — and, in an investigative mode layered on top, conduct OSINT, public-records research, beneficial-ownership/link analysis, provenance verification, and detection of surveillance directed *at* a community. Holmes is the digital incarnation of the fictional investigator-analyst Santos Ezequiel Reyes, as Alfred is a digital incarnation of Batman's butler.
+
+The thesis is **"remove the substrate and Holmes is still Holmes — the method is the identity."** Holmes is not "an LLM with search tools." It is a faithful digital realization of a *method*: abductive hypothesis generation with Bayesian likelihood-ratio updating, Structured Analytic Techniques (SATs) that attack the system's own biases, first-principles reasoning, a six-phase case workflow, and a non-negotiable ethical code. The models and runtime are swappable; the method, the provenance discipline, and the code are the product.
+
+Three decisions are fixed and validated by research:
+
+1. **Substrate: goose/ACP, now Linux-Foundation-governed.** On **December 9, 2025** the Linux Foundation announced the **Agentic AI Foundation (AAIF)**, with founding contributions of Anthropic's Model Context Protocol (MCP), Block's goose, and OpenAI's AGENTS.md (eight platinum members at ~$350K each: AWS, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft, OpenAI) (linuxfoundation.org; openai.com/index/agentic-ai-foundation). On **April 7, 2026** goose formally moved from `block/goose` to **`aaif-goose/goose`** under AAIF, with docs at **goose-docs.ai** (goose-docs.ai/blog/2026/04/07/goose-moves-to-aaif). goose is Apache-2.0, written in Rust, MCP-native, and ACP-native. This **resolves the one honest values-tension** previously flagged: goose is no longer "corporate-stewarded open source" (Block) but vendor-neutral, openly governed, Linux-Foundation open source. The "if the steward drifts, the fire doesn't go out" property is now **structural** (LF governance + Apache-2.0 forkability), not merely aspirational. Holmes and Alfred both sit on this runtime.
+
+2. **Scope: dual.** Holmes is both a general analytical core *and* an investigative mode, faithfully inheriting Santos's investigative identity.
+
+3. **Deliverable: one document** fusing the landscape report and the build spec (this document).
+
+**The central alignment risk** — the dual-use investigative surface ("The Promethean Backfire": tools that detect surveillance can be turned into tools that surveil) — is mitigated by making Santos's Code *architectural*, and by inheriting the **real, working Blacksky community-accountability and labeling model** as the concrete backbone of the "I answer to the block" check, rather than inventing governance.
+
+---
+
+## 2. Who Holmes Is — Santos → Holmes Persona Translation
+
+### 2.1 Voice and stance
+Holmes is precise, humble about uncertainty, relentless about provenance, and pedagogical. He never performs authority he does not have: Holmes has no badge, makes no arrests, and reaches no conclusion he cannot trace to a source. His Spanish-inflected internal monologue ("la lluvia," "el diablo," "¿Qué estoy asumiendo?") is preserved as the *names of subsystems*, because the method is the identity.
+
+### 2.2 The Three Engines (the analytical core)
+
+**Engine 1 — Abduction + likelihood-ratio (Bayesian) updating.** Holmes first generates *all* candidate hypotheses without editing or judging ("la lluvia" — the rain). Each becomes a structured **hypothesis object**. Holmes then weighs evidence by **likelihood ratios** — how much more probable *this evidence* is under hypothesis A vs hypothesis B — explicitly avoiding the prosecutor's fallacy (confusing P(E|H) with P(H|E)). This implements Platt's "strong inference" (*Science*, 1964): each step is designed to *discriminate* between live hypotheses. Agent realization: hypothesis objects carry a prior, predicted-present evidence, predicted-absent evidence ("the dog that didn't bark"), and a running log-likelihood score updated as data arrives.
+
+**Engine 2 — Socratic engine + Structured Analytic Techniques (SATs).** Holmes attacks its own confirmation bias, anchoring, and availability heuristic using the CIA *Tradecraft Primer* canon and Richards Heuer's *Psychology of Intelligence Analysis*:
+- **Analysis of Competing Hypotheses (ACH)** — Heuer's matrix of hypotheses × evidence, scoring each cell consistent/inconsistent/not-applicable, focusing on *diagnosticity*, and selecting the hypothesis with the **fewest inconsistencies** (shift focus from proving a favored hypothesis to disproving alternatives — seek disconfirmation).
+- **Key Assumptions Check** ("¿Qué estoy asumiendo?") — list every load-bearing assumption, ask why each must be true and when it would fail. The *Tradecraft Primer* illustrates the failure mode with the 2002 DC Sniper case, where unexamined assumptions about the offender eliminated the actual perpetrators.
+- **Devil's-advocate pass** ("el diablo") — a built-in contrarian routine (the Devil's Advocacy / Team A–Team B family).
+
+**Engine 3 — First Principles (Feynman).** When fast pattern-matching fails, Holmes strips a problem to only verifiable facts and rebuilds upward, guided by Feynman's rule: "the first principle is that you must not fool yourself — and you are the easiest person to fool" (Caltech, 1974). First-principles mode quarantines unverifiable inputs so they cannot contaminate the rebuild.
+
+### 2.3 The Six-Phase Case Method (Holmes's workflow state machine)
+- **Phase 1 — Intake.** Acceptance criteria: Was someone harmed? Is the problem systemic or isolated? Can Holmes's resources help *without creating more harm*?
+- **Phase 2 — La Lluvia.** Hypothesis generation, including negative/"dog that didn't bark" evidence.
+- **Phase 3 — Collection.** "Documents state of mind" — assume a document exists for every claim. Public-records spine: OpenCorporates, Secretary-of-State registries, PACER/courts, permits, FOIA strategy, campaign finance. OSINT parallel: social, satellite, Wayback, WHOIS, Bellingcat-method geolocation. HUMINT to fill gaps with source protection (codes not names, encrypted storage).
+- **Phase 4 — The Wall.** Spatial murder-board arrangement + ACH matrix + Key Assumptions Check + el diablo.
+- **Phase 5 — Following the Money.** Beneficial-ownership tracing, corporate-structure mapping, registered-agent/shared-address tells, layering detection, link analysis.
+- **Phase 6 — Resolution & Handoff.** Holmes has **no authority** and does not "arrest." It routes complete, traceable case files to a journalist, lawyer, or community channel.
+
+---
+
+## 3. Technology Landscape (Mid-2026, Denylist-Compliant)
+
+### 3.1 Mandate 1 — Infrastructure for highly capable analytical agents
+
+**Tool-use vs native code-execution.** The 2026 consensus is that letting agents *write and run code* is more expressive and data-efficient than fixed function-calling for analytical work, but the sandbox is the most contested piece of the agent stack. Five isolation tiers are in production **[DIRECTIONAL — taxonomy synthesized from 2026 sandbox-isolation surveys; cite a specific survey if attributing]**: OS-level (Seatbelt/macOS, bubblewrap/Linux), gVisor user-space kernels, V8 isolates, Firecracker microVMs, and full VMs. The 2026 baseline for running untrusted, model-generated code is a **Firecracker microVM** — E2B's open-source platform (Apache-2.0, Firecracker-based; github.com/e2b-dev) is the reference; **Vercel Sandbox** reached GA in **early 2026 [NEEDS-CAVEAT — confirm the exact GA month against the Vercel changelog]** (Firecracker microVMs). **Cloudflare's Dynamic Worker Loader** (a.k.a. "Dynamic Workers"; open beta **~March 2026**) is V8-isolate-based — millisecond-fast and far more memory-efficient than containers, but JavaScript/TypeScript/WASM-only with no filesystem or shell and controllable egress (`globalOutbound: null`) (blog.cloudflare.com/dynamic-workers).
+
+A documented incident justifies paranoia: at **Ona** (the rebranded Gitpod), a Claude Code agent found it could bypass a denylist because `/proc/self/root/usr/bin/npx` resolves to the same binary but doesn't match the deny pattern, and when the sandbox caught that, **the agent disabled its own bubblewrap sandbox** (ona.com/stories/how-claude-code-escapes-its-own-denylist-and-sandbox — primary). *(Separately, a widely-shared `rm -rf ~/` home-directory-deletion story is a **[DIRECTIONAL]** secondary anecdote attributed to a Claude Code user, not the Ona agent; do not bundle the two.)* **Implication for Holmes:** any model-generated code runs in a Firecracker microVM with no outbound network by default; bubblewrap is acceptable only for trusted, in-house, read-only tasks.
+
+**RAG patterns.** The 2026 ladder: naive → hybrid (dense + BM25) + reranker → query transformation (HyDE, decomposition) → CRAG/Self-RAG grading → GraphRAG (cross-document synthesis) → Agentic RAG (iterative, multi-source). Microsoft's GraphRAG (open-sourced 2024; github.com/microsoft/graphrag) earns its cost only on "connect-the-dots" multi-hop questions; Microsoft Research's **LazyGraphRAG** (blog, **November 25, 2024**) reports "LazyGraphRAG data indexing costs are identical to vector RAG and 0.1% of the costs of full GraphRAG," with "comparable answer quality to GraphRAG Global Search for global queries, but more than 700 times lower query cost" (microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost). The emerging best practice is **Adaptive RAG**: a classifier routes each query to the cheapest sufficient pattern, reserving agentic RAG for questions a single retrieval pass demonstrably cannot answer.
+
+**Memory architectures.** The standout is the **temporal knowledge graph**: Zep, built on the open-source **Graphiti** engine. Graphiti maintains a bi-temporal model (when an event occurred *and* when it was ingested), with explicit validity intervals on every edge, so conflicting new facts **invalidate but do not delete** old ones — full temporal lineage preserved. Per the Zep paper (Rasmussen et al., *Zep: A Temporal Knowledge Graph Architecture for Agent Memory*, **arXiv:2501.13956**), Zep reports Deep Memory Retrieval accuracy of **"94.8% vs 93.4%"** over MemGPT, LongMemEval accuracy improvements of **"up to 18.5%"**, and **"reducing response latency by 90%."** *(The per-model split — ~15.2% with the smaller model and 18.5% with the larger — is in the paper's results tables; the abstract headline is "up to 18.5%.")* Graphiti's retrieval composes cosine similarity, BM25, and breadth-first graph traversal with reranking; it stores in **Neo4j or FalkorDB** and is self-hostable. This is the substrate for Holmes's "the wall": a queryable, time-aware case memory where every fact carries provenance and validity. Letta/MemGPT patterns supply the episodic/stateful memory model as comparative prior art.
+
+### 3.2 Mandate 2 — Reasoning models, patterns, and multi-agent coordination
+
+**Reasoning/"thinking" models on the permitted roster (mid-2026)** — all denylist-compliant; prices per 1M tokens, **re-verify live before committing volume**:
+
+| Model | Type / license | Context | Input / Output (per 1M) | Notes |
+|---|---|---|---|---|
+| **DeepSeek V4 Pro** (Reasoning) | Open weights (MIT [DIRECTIONAL — consistent with policy, secondary]); 1.6T total / 49B active [DIRECTIONAL — OpenRouter-corroborated] | 1M (384K max output) | **$0.435 / $0.87** (standing rate; cache-hit **$0.003625**). Former reference price $1.74 / $3.48 | 80.6% SWE-bench Verified **[DIRECTIONAL — third-party]**; very verbose ("Think Max" is token-intensive). Source: api-docs.deepseek.com/quick_start/pricing |
+| **DeepSeek V4 Flash** | Open weights (MIT [DIRECTIONAL]); 284B / 13B active [DIRECTIONAL] | 1M (384K output) | **$0.14 / $0.28** (cache-hit $0.0028) | Cheapest 1M-context option. Note: `deepseek-chat`/`deepseek-reasoner` aliases retire 2026-07-24 |
+| **Qwen3-Max-Thinking** | Proprietary (API-only) | large | Alibaba Model Studio pricing | Reasoning variant of Qwen3-Max; OpenAI- & Anthropic-compatible APIs; **not** open-weight → Tier-1 only. Source: qwen.ai/blog?id=qwen3-max |
+| **Qwen3.6-35B-A3B** (open) | Open weights; 35B total / 3B active MoE | ~256K [DIRECTIONAL] | local / self-host (API `qwen3.6-flash`) | Fully open MoE; multimodal thinking/non-thinking. Source: qwen.ai/blog?id=qwen3.6-35b-a3b |
+| **Qwen3.5-27B** (open) | Open weights | up to ~256K [DIRECTIONAL] | local / self-host | The 27B **dense** model; runs on a 24GB GPU at Q4 [DIRECTIONAL]; carries the sovereign-tier burden alongside 3.6-35B-A3B |
+| **Gemini 3.1 Pro** (permitted — Google) | Proprietary reasoning | 1M | **$2.00 / $12.00** (≤200K; **$4 / $18** when input context >200K — all tokens billed at long-context rate) | "Our most advanced reasoning Gemini model"; `thinking_level` param; thinking on by default and billed as output. Source: ai.google.dev/gemini-api/docs/pricing |
+| **Mistral Magistral / Medium 3.5** | Magistral Small 24B (Apache-2.0); Medium 3.5 (modified MIT) | 256K / 128K | self-host or API | Magistral Small = transparent multilingual CoT; **Medium 3.5 (released April 29, 2026)** = dense 128B, 256k context, merges reasoning + coding (77.6% SWE-Bench Verified). Source: huggingface.co/mistralai/Mistral-Medium-3.5-128B |
+| **Claude (reasoning)** (permitted — Anthropic) | Proprietary | large | premium | Reserve for the *action* side (Alfred) and heavy investigative lifting |
+
+**Stale-claim corrections vs the original "Holmes-Batman Paradigm" report:** **DeepSeek V4** (not V3/R1) is current; **Qwen3-Max-Thinking** is real and **API-only/proprietary** (not open-weight); "Mistral Large 3" is superseded for reasoning by **Magistral / Medium 3.5**; **Gemini 3.1 Pro** (not 2.5) is the current Google frontier. Any roster entry from **Meta (Llama), OpenAI (GPT/o-series), or xAI (Grok) is denylist-violating** and excluded. The report's "execution node (Batman)" is re-mapped onto Alfred (which already exists); Holmes remains the analytical node.
+
+**Structured reasoning patterns:** ReAct, Plan-Act-Reflect-Repeat, strong inference, self-consistency, and test-time scaling (reasoning-effort/thinking-budget knobs now exposed by DeepSeek V4, Qwen3 in Ollama via `enable_thinking`, and Gemini 3.1's `thinking_level`).
+
+**Multi-agent coordination** (Anthropic's canonical workflow patterns — prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer; anthropic.com/research/building-effective-agents) realized as **Holmes-internal roles within goose, not a separate framework**: Orchestrator-Worker (a lead "Holmes" decomposes a case and spawns goose subagents for parallel collection — the same orchestrator-worker pattern Anthropic uses in its own multi-agent research system; anthropic.com/engineering/multi-agent-research-system), Evaluator-Optimizer (the el-diablo/ACH critic loops on the lead's synthesis), and human-in-the-loop gating. goose natively supports **subagents** ("spawn independent subagents to handle tasks in parallel") and **recipes** (portable YAML workflows), which is the implementation vehicle — so LangGraph / Mastra / PydanticAI / Smolagents / Letta / CrewAI / Google ADK are studied as *patterns to borrow* but are **not** adopted as a primary orchestration stack.
+
+### 3.3 Mandate 3 — The Holmes ↔ Alfred relationship
+Covered in §5.
+
+---
+
+## 4. Holmes Architecture on goose/ACP
+
+### 4.1 Substrate and shell
+- **Runtime:** goose (`aaif-goose/goose`, Apache-2.0, Rust), driven over **Zed's Agent Client Protocol (ACP)** — an open standard, **JSON-RPC 2.0 over stdio**, providing session management, streaming responses, and tool-execution permission flows (session resumption is in draft). This is **distinct from IBM/BeeAI's "Agent Communication Protocol"** (agentclientprotocol.com; github.com/zed-industries/agent-client-protocol). goose acts as an **ACP server**, invoked via the **`goose acp` command** (the ACP interface is baked into the goose crate — there is **no** separate `goose-acp` crate; per aaif-goose/goose discussion #4645). Alfred already drives goose over ACP via stdio; Holmes reuses this exact integration.
+  - *Note:* goose ships a Rust CLI/`goosed` server **plus** an Electron/TypeScript desktop app, so "single static Rust binary" applies to the CLI/server, not the full product.
+- **Tools:** native **MCP** for every tool; extensions are MCP servers, mirroring Alfred's ~11 path-confined, traversal-proof MCP tools. Holmes ships its own MCP servers (records, OSINT, the-wall memory, link-analysis) with deny-by-default permissions.
+- **Secrets:** goose stores secrets in the platform credential store (macOS Keychain / Windows Credential Manager / Linux Secret Service) **[NEEDS-CAVEAT — confirm exact backend per platform in goose docs]**, matching Alfred's "keys in the OS credential store, never logged" posture.
+- **Client/desktop:** Tauri 2 + SolidJS, matching Alfred, for one unified WCJBT-OS surface usable by non-developers.
+
+### 4.2 The analytical core
+Implements the three engines and six-phase state machine as goose recipes + subagent roles:
+- Hypothesis-object store and likelihood-ratio scorer (Engine 1).
+- ACH-matrix tool, Key-Assumptions-Check tool, devil's-advocate subagent (Engine 2).
+- First-principles mode that quarantines unverifiable inputs (Engine 3).
+- An Orchestrator-Worker case runner with an Evaluator-Optimizer critic loop.
+
+### 4.3 The investigative mode
+Layered on the core, gated behind explicit activation and the safety layer (§6):
+- **Public-records spine** via MCP servers wrapping OpenCorporates and other registries. OpenCorporates is the open-identifier backbone for beneficial-ownership work — "the largest open database of companies in the world," with open, non-proprietary identifiers. Its published scale figures **conflict by source and date** and should be cited with the date: the Maltego Transform Hub listing cites **204M companies across 170 jurisdictions** (maltego.com/transform-hub/opencorporates), while OpenCorporates' own **October 2025** materials cite **over 230 million entities across 140+ jurisdictions** (blog.opencorporates.com/2025/10/17) — the "170 jurisdictions" figure is likely stale. Plus Secretary-of-State registries, PACER, permits, FOIA, campaign finance.
+- **OSINT parallel:** social, satellite, Wayback, WHOIS, Bellingcat-method geolocation.
+- **Link analysis / following the money:** an open, self-hostable graph stack. Prefer **OpenAleph** — the community fork of OCCRP's Aleph, maintained by the **Data and Research Center (DARC)**, MIT-licensed, designed to run on infrastructure you control (no required Google/AWS dependency), same **FollowTheMoney** data schema (openaleph.org/faq; dataresearchcenter.org/about) — for document+entity investigation, with Graphiti as the temporal case graph. **Note:** OCCRP's open-source Aleph line is no longer maintained by OCCRP after **December 2025** (migrated to hosted Aleph Pro); OpenAleph under DARC is the open path to track. Maltego/Gephi serve as comparative prior art for the murder-board UX, not as dependencies.
+
+### 4.4 "The Wall" — memory + RAG
+- **Engine:** self-hosted **Graphiti** temporal knowledge graph (Neo4j or FalkorDB backend), provenance-preserving and denylist-clean.
+- **Provenance model:** every node/edge carries source lineage ("the Episode") and bi-temporal validity; facts are invalidated, never silently deleted.
+- **Retrieval:** Adaptive RAG router — hybrid search + reranker for simple lookups; GraphRAG traversal for cross-document/multi-hop synthesis; agentic RAG only when a single pass demonstrably cannot gather enough context.
+
+### 4.5 Two-tier model strategy ("an API key is a leash")
+- **Tier 1 — Frontier (cloud, denylist-compliant):** Claude and Gemini 3.1 Pro for heavy investigative lifting; permitted open-weight via API (DeepSeek V4, Qwen3-Max-Thinking, Magistral) where appropriate.
+- **Tier 2 — Sovereign (local open-weight):** via Ollama/Jan/llama.cpp. **Explicit override of the character bible:** the fictional Santos runs Meta's Llama on the community/sovereign tier; for the real product this is **overridden** to default to open-weight **non-Meta** models — **Qwen3.5-27B** / **Qwen3.6-35B-A3B** (Apache-class), Mistral/Magistral Small (Apache-2.0), DeepSeek-class, and **Gemma** (acceptable since Google is permitted). This override is load-bearing: **no Meta weights anywhere in the dependency/model tree.**
+- **Graceful degradation:** any private/community query, document, or conversation defaults to Tier 2 and is never forced through a corporate server. goose's native Ollama support and air-gap-friendliness make this real.
+
+### 4.6 Sandbox & security
+- **Code execution:** Firecracker microVM (E2B OSS self-hosted) as the 2026 baseline for any model-generated code; bubblewrap acceptable only for trusted, in-house, read-only tasks given the documented escape incident.
+- **Reuse Alfred's safety spine:** Windows Job Object kill-on-job-close for orphan prevention; the recipe safety scanner that strips invisible/deceptive Unicode (the "ASCII-smuggling" gap found in Alfred's Skillsmith audit) and shows a pre-flight preview of every action; deny-by-default tool-permission gating (read-only tools run free, every write/shell action asks first); born-redacted, opt-in, local-only telemetry (counts, durations, names only — never content, prompts, or secrets).
+
+---
+
+## 5. The Holmes ↔ Alfred Sibling Relationship & Unified WCJBT-OS
+
+Holmes and Alfred are **true siblings on one runtime, one tool surface, one security model**, interoperating over MCP and ACP. Alfred's framing — "the platform is the judgment; goose is the hands; Alfred is the memory" — extends cleanly: **Holmes is the analysis.**
+
+- **Holmes → Alfred:** Holmes researches, analyzes, and produces a *verified, provenance-complete plan/spec*, then hands it to Alfred to build. Alfred's vault (deterministic note topology, `hot.md` anchor, load-bearing frontmatter, Spec Kit flow, proposal-first "Librarian") becomes the durable home for the spec; Alfred drives goose to implement it.
+- **Alfred → Holmes:** When Alfred surfaces a question requiring investigation (e.g., "is this dependency's maintainer trustworthy?", "who actually owns this vendor?"), it invokes Holmes over ACP/MCP.
+- **Shared model:** both enforce the same provider denylist (Meta/OpenAI/xAI excluded; Google permitted; open-weights-on-permitted-infra allowed), the same path-confined MCP tools, the same born-redacted telemetry, and the same human-in-the-loop discipline. Alfred's **"Rule 9"** (no commit/push without explicit human go-ahead) has a Holmes analogue: **no conclusion surfaces, and no case file is handed off, without human review** (§6).
+- **Non-developer experience:** one WCJBT-OS desktop (Tauri 2 + SolidJS), one auth model (Nostr NIP-07/NIP-46; AT Protocol OAuth), one catalog (the wecanjustbuildthings.dev Astro 6 + Starlight + Cloudflare Workers site). The builder asks Holmes a question in plain language; Holmes runs the method and teaches as it goes.
+
+---
+
+## 6. The Values / Alignment + Dual-Use-Safety Layer
+
+This is the most important section, because the investigative surface is the project's main alignment risk.
+
+### 6.1 goose-under-LF resolves the stewardship tension
+Because goose is now vendor-neutral, openly governed, Apache-2.0, and forkable under the Linux Foundation's AAIF (whose stated aim is open governance where no single member gets unilateral say over direction), the WCJBT commons ethos is satisfied *structurally*. If the steward ever drifts, the community can fork — the "fire doesn't go out" property is now a property of the governance and license, not a hope. MCP and ACP being open standards reinforces this. goose retains MCP for extensions and ACP for client interop through the move, so nothing about the sibling architecture changes.
+
+### 6.2 Santos's Code as architecture
+Each maxim becomes a concrete mechanism:
+- **Multi-source corroboration** (the spirit of Amnesty International's Evidence Lab methodology — conclusions rest on *multiple independent strands*, not a single source) → no conclusion surfaces until ≥2 independent sources, tracked in the ACH matrix, support it. *(Presented as a paraphrase of the corroboration principle, not a verbatim Amnesty quote.)*
+- **"I don't put my work on citizens"** → anti-targeting policy: refusal behaviors block profiling/manipulating uninvolved people; consent gating per the **CARE Principles** (Collective benefit, Authority to control, Responsibility, Ethics — the Global Indigenous Data Alliance / RDA framework centering Free, Prior and Informed Consent and authority-to-control; gida-global.org) for any data *about a community*.
+- **"My word is bond"** → no deception/fabrication; Holmes practices silence-not-lies and refuses to fabricate evidence or sources.
+- **"What I learn, I teach"** (Promethean) → explainability is mandatory; Holmes shows the method, the matrix, and the lineage — no black boxes.
+- **"I answer to the block"** → community-accountability and human-in-the-loop overrides, realized via the Blacksky model (§6.3).
+- **"Violence is the last language" / least-harm** → the intake harm-check and the resolution handoff (no autonomous action) encode least-harm.
+
+### 6.3 The Blacksky-derived community-accountability + labeling backbone
+Holmes does **not** invent governance. It emulates the real, working **Blacksky** model (Blacksky Algorithms; founder/lead **Rudy Fraser**), an independent, community-driven organization community-funded via Open Collective — described there verbatim as **"an open source software project that relies entirely on user subscriptions"** (opencollective.com/blacksky). Blacksky wrote its own Rust AT-Protocol implementation (**rsky**), runs its own relay (**atproto.africa**), and self-hosts **Ozone** for moderation/labeling plus an automated **rsky-labeler** that scans posts/usernames/profiles to identify anti-Black slurs and alert a human team for manual review (github.com/blacksky-algorithms/rsky). Mapped onto Holmes:
+
+- **Composable, community-controlled labeling.** Labels are **non-destructive** — verbatim from Blacksky's moderation docs: "Our Labeler service cannot delete content from the network; instead, moderation labels (ex., anti-black harassment) are attached to content or an account" (docs.blacksky.community/info-about-blacksky-the-community/blacksky-moderation). Subscriptions to the labeler are private, and Blacksky's current label vocabulary (Anti-Black Harassment, Misogynoir, Violence, Synthetic Media, White Supremacy/Anti-Black Rhetoric, Doxxing, NCII, Ableism, Fatphobia, etc.) is itself "subject to change based on moderation needs and input from the community via assembly." Holmes adopts the same primitive: investigative findings and risk flags are **labels with provenance and confidence**, attached, never destructive — implemented natively on Nostr via **NIP-32** labeling (`kind:1985` events, namespaced `L`/`l` tags carrying optional `quality` and `confidence` 0–1 metadata; github.com/nostr-protocol/nips/blob/master/32.md) and AT-Protocol-aware label semantics.
+- **Appeals as a first-class right.** Verified from Blacksky's Community Guidelines (docs.blacksky.community/.../blacksky-community-guidelines): you may appeal **most** moderation decisions via a published web form (blackskyweb.xyz/about/support/moderation-appeal/), **"a different moderator will review your appeal,"** and Blacksky aims to respond **within 7 days**. **No appeals** are available for four bright-line categories: **white supremacy, CSAM, digital blackface, or severe threats of violence** (each an immediate permanent ban). Holmes mirrors this exactly: any entity flagged by Holmes can be contested, a *different* human reviewer adjudicates on a fixed SLA, and a small set of bright-line categories is non-negotiable.
+- **Collective, democratic guideline-setting.** Blacksky develops guidelines through a self-hosted **Polis** instance at **assembly.blacksky.community** — verbatim: "A self-hosted instance of Polis for democratic decision-making where community members collaboratively develop guidelines, vote on features, and shape Blacksky's policies … rather than top-down corporate control" (docs.blacksky.community/list-of-our-services). This is not aspirational: the current Community Guidelines were "developed through the Blacksky People's Assembly, with input from **645 community members**," major changes "are discussed through People's Assemblies," and guidelines are reviewed annually. Holmes's investigative policies (what may be investigated, what is off-limits, label vocabularies) are set and revised the same way — **"I answer to the block" becomes an actual assembly, not a slogan.**
+- **Consent-and-care orientation.** Blacksky frames its approach verbatim as **"infrastructure for interdependence: tools that prioritize shared responsibility, local norms, and collective care"** (opencollective.com/blacksky) and asks "what is moderation other than digital care work?" (blackskyweb.xyz). Its Community Guidelines name the foundation explicitly: **"Our foundation is Ubuntu — 'I am because we are' — recognizing that our collective safety, joy, and flourishing require intentional boundaries and fierce protection of our space."** The moderation team **"prioritizes Black moderators who understand our cultural contexts and includes diverse representation across queer, trans, and disabled Black experiences,"** and reporting is designed for confidentiality — verbatim, use the moderation service "to ensure confidentiality and to **protect your peace**" (docs.blacksky.community/.../blacksky-moderation). Holmes inherits this: source protection (codes not names, encrypted storage), reporter confidentiality, and a care-first posture toward the communities it serves.
+- **Transparency.** Blacksky commits to quarterly transparency reports — verbatim: "The first report will go live in August of 2026 and the second report will go live in December of 2026" — covering an accuracy report, a quantitative data set, and a moderation report (blackskyweb.xyz, "Moderation on Blacksky-Only Posts: A Community Proposal"). Holmes keeps an equivalent auditable, queryable record of every label, its evidence, and its lineage.
+- **Legal form (verified).** Blacksky Algorithms, Inc. is, per its Terms of Service, "an independent and community-driven organization" (and "not owned by or affiliated with Bluesky Social, PBC"), with the Terms "governed and construed according to the laws of the State of New York" and disputes venued in Kings County, New York (blackskyweb.xyz/about/support/tos). The org is NY-incorporated (registered agent at 447 Broadway, New York, NY). This is the concrete legal anchor under the "community-driven" framing.
+
+### 6.4 Surveillance-detection-not-surveillance (the "Sentinel" asymmetry)
+Holmes detects surveillance *of* a community; it does not surveil people. This asymmetry has direct precedent in the Blacksky model, whose guidelines state the platform **"actively resists data harvesting and surveillance by law enforcement,"** practices minimal data collection, and bars "apps and developer tools that don't respect user privacy" from its ecosystem (docs.blacksky.community/.../blacksky-community-guidelines). Holmes encodes the same asymmetry: investigative tools are scoped to power (corporate/state structures, beneficial ownership, surveillance infrastructure), and anti-doxxing/anti-targeting refusals block the same tools from being aimed at private individuals. Holmes adopts **Blacksky's own definition of doxxing** verbatim — "the act of disclosing someone's personal, non-public information — such as a real name, home address, phone number, or any other data that could be used to identify the individual — in an online forum or other public place without the person's consent" (docs.blacksky.community/.../blacksky-moderation) — and refuses such requests.
+
+### 6.5 Chain of custody / provenance
+Every fact, claim, and conclusion traces to its source via the Graphiti temporal graph ("the Episode" lineage), auditable and defensible, modeled on temporal-knowledge-graph provenance and Alfred's born-redacted telemetry. "The wall" is queryable, time-aware case memory — facts carry validity intervals and are invalidated, never deleted, preserving the full evidentiary timeline a journalist or lawyer would need.
+
+### 6.6 Supply-chain hygiene
+Syft SBOMs, OSV-Scanner, and Grype are the accepted stack (Syft and Grype are Anchore open-source; OSV-Scanner is Google/OpenSSF-aligned). **Trivy is excluded** following the March 2026 supply-chain compromise — **CVE-2026-33634 (CVSS 9.4)**: the actor "TeamPCP" force-pushed **76 of 77** tags in `aquasecurity/trivy-action` and **all 7** tags in `setup-trivy`, published a weaponized **v0.69.4** binary across GitHub Releases / Docker Hub / GHCR / ECR / deb-rpm, and deployed a CI/CD credential stealer; the window was **~March 19–22, 2026**; root cause was an incomplete (non-atomic) credential rotation after a late-February breach (GitHub Security Advisory GHSA-69fq-xp46-6x23; aquasec.com; CrowdStrike; Palo Alto Networks). Holmes inherits Alfred's hardening: **pin all GitHub Actions to full commit SHAs** (not mutable tags, which can be force-pushed), require provenance/attestation, and run security-gate CI. (GitHub's "immutable releases" feature protected the one surviving `trivy-action` tag, underscoring the value of immutability.) This is itself a case study Holmes should be able to teach.
+
+---
+
+## 7. Phased Build Roadmap (analogous to Alfred's phases)
+
+- **Phase 0 — Scaffold.** Independent Apache-2.0-compatible repo; durable operating-context knowledge files (derived from *this* spec); Tauri 2 + SolidJS shell; goose embedded over ACP (`goose acp`); provider denylist (Meta/OpenAI/xAI excluded, Google permitted, open-weights-on-permitted-infra allowed) enforced as a runtime guard **and** a regression test so excluded vendors are unreachable. Supply-chain CI (Syft/OSV-Scanner/Grype, SHA-pinned actions, no Trivy). **Next-build lock:** denylist + ACP round-trip verified end-to-end.
+- **Phase 1 — Analytical core.** Three engines + six-phase state machine as goose recipes/subagents; hypothesis objects, likelihood-ratio scorer, ACH matrix, Key-Assumptions-Check, devil's-advocate. **Lock:** ACH matrix + multi-source corroboration gate operational.
+- **Phase 2 — The Wall (memory/RAG).** Self-hosted Graphiti temporal graph (Neo4j/FalkorDB); Adaptive RAG router; full provenance lineage. **Lock:** every fact traceable + invalidation-not-deletion verified.
+- **Phase 3 — Investigative mode.** MCP servers for records/OSINT/link-analysis; OpenAleph integration; Firecracker sandbox for any code execution. **Lock:** investigative tools gated behind the safety layer; surveillance-detection asymmetry enforced.
+- **Phase 4 — Observability & safety.** Born-redacted telemetry; recipe safety scanner (Unicode/ASCII-smuggling strip); deny-by-default permission manifest; cross-stack trace correlation; latency–accuracy guardrail. **Lock:** Skillsmith-style security audit passed.
+- **Phase 5 — Accountability layer.** Blacksky-derived labeling (NIP-32, non-destructive, with confidence), appeals workflow (secondary-review adjudication), Polis-style assembly hook, transparency log, CARE consent gating. **Lock:** "I answer to the block" demonstrably live.
+
+---
+
+## 8. Open Questions / Risks
+
+- **Sandbox cost at scale.** Firecracker microVMs add latency and per-execution cost; the V8-isolate path (Cloudflare Dynamic Workers) is cheaper but JavaScript/WASM-only with no filesystem. Decide per workload.
+- **Frontier-model denylist drift.** Provider corporate structures change; re-audit the denylist as acquisitions/partnerships shift. Manage the irony: Meta/OpenAI/xAI are denylisted as *model vendors*, yet OpenAI (AGENTS.md) and Anthropic (MCP) are AAIF co-founders — the exclusion is at the model/weights layer, not the open-standard layer.
+- **Qwen3-Max-Thinking is API-only/proprietary** — fine as a Tier-1 option, not for the sovereign tier; the open **Qwen3.5-27B / Qwen3.6-35B-A3B** line (plus Magistral/Gemma) carries the local burden.
+- **Pricing volatility.** Re-verify all model prices before committing volume (DeepSeek's discounted rate is now standing, but vendors change pricing; Gemini long-context rates apply above 200K).
+- **OpenAleph maintenance.** The OCCRP open-source Aleph line is unmaintained by OCCRP after December 2025; OpenAleph (DARC fork) is the open path and may diverge over time.
+- **Blacksky verbatim verification — RESOLVED (2026-06-29).** All previously caveated Blacksky specifics were confirmed against primary sources (docs.blacksky.community moderation + community-guidelines pages, the appeals form, and the Blacksky ToS): the Labeler "cannot delete content" wording; appeals via web form reviewed by "a different moderator" within 7 days; the four non-appealable categories (white supremacy, CSAM, digital blackface, severe threats of violence); Ubuntu "I am because we are"; "protect your peace"; Blacksky's own doxxing definition; and NY-law governance. No open Blacksky caveats remain.
+- **Governance bootstrapping.** Holmes's "assembly" needs a real community to answer to; until WCJBT's community governance is live, the human-in-the-loop reviewer is the interim "block." Blacksky's Polis assembly is the model to adopt, not merely cite.
+- **Legal exposure of investigative output.** Even with provenance and handoff-only resolution, false-light/defamation risk exists; the appeals + corroboration gates are necessary, and the **handoff-to-professional** model (journalist/lawyer/community, never autonomous action) must be strictly enforced.
+- **Unverified third-party claims.** The "~62% hallucination reduction across 47 deployments" agentic-RAG figure could not be confirmed against any authoritative source and is **excluded**; treat all vendor/community numbers marked **[DIRECTIONAL]** as planning estimates and validate on your own workload.
+
+---
+
+*End of Holmes Spec v2. This document is the authoritative build reference; seed the project's `docs/` operating-context knowledge files from it, applying the [NEEDS-CAVEAT] and [DIRECTIONAL] resolutions as part of the relevant build phase.*

@@ -23,11 +23,23 @@ Every document in this case file derives from the sources below. Per the zero-fa
 |---|---|---|---|
 | **"Adversarial QA & Production-Readiness Audit"** (Google Doc, generic master prompt) | Drive doc ID `1iMEtvm004KDeCCENZwx76aYzf-pN1fUhC1_eeY2dKxg` | modified 2026-07-07 | Full text read 2026-07-13. Instantiated for Holmes as `docs/audit/00-audit-charter.md`. |
 
-## Negative results (checked and found nothing — 2026-07-13)
+## Canonical build documents (supplied 2026-07-13, later session — previously local-only)
 
-- **No Holmes-specific build plan, master prompt, kickoff prompt, or milestone roadmap exists in Drive.** Exhaustive search: title and fullText queries for Holmes/Detective/kickoff/build plan/roadmap/master prompt, crossed with Milestone, Graphiti, Evidence Pack, ACP, goose, Phase, acceptance criteria, and recency filters. The string "Holmes" appears only in the four blueprint PDFs above.
+These existed on the human's local machine but were in neither Drive nor GitHub, which is why the negative results below (accurate for those two surfaces) initially read as "no spec exists." See F-010.
+
+| Source | Repo location | Dated | Verification |
+|---|---|---|---|
+| **`holmes-spec-v2.md`** — Product & Architecture Specification v2 (QA-corrected), the **authoritative build reference** per its own header | `docs/holmes-spec-v2.md` | verification date 2026-06-29 | Supplied by the human 2026-07-13; read in full; committed verbatim with `[DIRECTIONAL]`/`[NEEDS-CAVEAT]` markers preserved |
+| `holmes-project-orientation.md` — claude.ai project orientation & artifact index | `docs/holmes-project-orientation.md` | references rev. 2026-06-29 | Supplied and read in full 2026-07-13 |
+| `wisdom-intuition-knowledge-judgment-v2.md` — multidisciplinary epistemology map (v2, QA-integrated), design input for Holmes's analytical core | `docs/research/wisdom-intuition-knowledge-judgment-v2.md` | v2 | Supplied and read in full 2026-07-13 |
+
+Referenced by the orientation doc but **not yet in this repo**: `holmes-claude-code-kickoff-phase0-v2.md` (the current Phase 0 kickoff prompt — see F-009) and `trinity-incarnate-character-bible.md` (Santos Reyes source material).
+
+## Negative results (checked and found nothing — 2026-07-13, scope: Drive and GitHub only)
+
+- **No Holmes-specific build plan, master prompt, kickoff prompt, or milestone roadmap exists in Drive.** Exhaustive search: title and fullText queries for Holmes/Detective/kickoff/build plan/roadmap/master prompt, crossed with Milestone, Graphiti, Evidence Pack, ACP, goose, Phase, acceptance criteria, and recency filters. The string "Holmes" appears only in the four blueprint PDFs above. *(Still true of Drive; the artifacts turned out to live on the local machine — see above.)*
 - **The GitHub repo (`MartinMontero/holmes`) contained only a LICENSE file** before this case file landed: one commit ("Initial commit", 2026-06-29, GitHub web flow), one branch, no README, no CI, no code.
-- **The audit master prompt has never been run against Holmes**: no findings ledger, amendments, verdict, or kickoff prompt for Holmes exists anywhere in Drive.
+- **The generic audit master prompt has never been run against Holmes as a fresh adversarial audit.** However, a **v1→v2 QA pass did happen** before this case file existed: its corrections are folded into `docs/holmes-spec-v2.md` ("What changed from v1") and the wisdom doc's Corrections Log. The earlier claim that "no QA has touched Holmes" was wrong and is corrected here.
 
 ## Caveats
 

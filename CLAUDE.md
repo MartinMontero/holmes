@@ -1,8 +1,14 @@
 # CLAUDE.md — Standing orders for any agent working in this repository
 
-This repo is the case file and (eventually) the implementation of **Holmes**, the evidence-and-verification agent of the Non-Dev Builder OS. Until the adversarial audit produces a READY verdict, this repo is documentation-only: do not scaffold application code.
+This repo is the case file and (eventually) the implementation of **Holmes**, the research-and-analysis brain of the WCJBT Non-Dev Builder OS and sibling of Alfred. Core thesis: **"the method is the identity."**
 
-## Standing gates (non-negotiable)
+## Source of truth
+
+**`docs/holmes-spec-v2.md` is the authoritative build reference.** Where anything in this file, the case-file docs, or your memory disagrees with the spec, the spec wins. Revisions are drafted on the claude.ai pressure-testing surface and written back here; **the repo copy wins** on any disagreement (sync rule in the spec's header). Preserve `[DIRECTIONAL]` and `[NEEDS-CAVEAT]` markers — never silently harden caveated claims into facts.
+
+This repo is documentation-only until Phase 0 runs from its kickoff prompt (`holmes-claude-code-kickoff-phase0-v2.md`, not yet committed — F-009) with explicit human go-ahead. Do not scaffold application code before that.
+
+## Standing gates (non-negotiable — the constitution, per the orientation doc + spec)
 
 1. **Zero fabrication.** Every external factual claim gets a primary source with a date, or an explicit `UNVERIFIED` tag. Never fill gaps with plausible detail.
 2. **Epistemic labels** on all claims in any document you write here:
@@ -11,10 +17,15 @@ This repo is the case file and (eventually) the implementation of **Holmes**, th
    - `ASSUMED` — flag it
    - `UNKNOWN` — becomes a research item
 3. **Evidence or it didn't happen.** Every finding quotes its source (file + section) or states `ABSENT` explicitly. Distinguish "I checked and found nothing" from "I didn't check."
-4. **Licensing gate.** Target posture is AGPL-3.0-or-later or GPL-3.0, end to end, including dependency compatibility. *The current LICENSE (Apache-2.0) violates this gate — see D-01; do not relicense without explicit human approval.*
-5. **Vendor gate.** No Meta, OpenAI, or xAI anywhere — direct or transitive: SDKs, models, APIs, infra. Google is permitted. Violations are Blockers.
-6. **Rule 9 — consent before consequence.** Proposals until approved. Nothing destructive or irreversible (relicensing, force-pushes, deletions, publishing, spending) without explicit human go-ahead.
+4. **Licensing — UNDER D-01, do not assume.** The generic audit gate says AGPL/GPL; the spec (§7 Phase 0) says "Apache-2.0-compatible repo"; the current LICENSE is Apache-2.0. Which governs is a human decision (D-01, open). Do not relicense or add license headers until it's decided.
+5. **Vendor gate — a denylist, not an allowlist.** No Meta, OpenAI, or xAI anywhere — direct or transitive: SDKs, models, APIs, infra, **model weights** (no Llama even locally). Google is permitted; open-weights-on-permitted-infra permitted. Violations are Blockers. Once code exists, the denylist is a runtime guard *and* a regression test.
+6. **Rule 9 — consent before consequence.** Proposals until approved. No commit/push without explicit go-ahead when building; nothing destructive or irreversible (relicensing, force-pushes, deletions, publishing, spending) without explicit human go-ahead, ever.
 7. **RPI.** Research → Plan → Implement, in that order, every time.
+8. **Path-confined, deny-by-default tools.** Read-only tools may run free; every write/shell action asks first.
+9. **Born-redacted, local-only telemetry.** Counts, durations, names — never content, prompts, or secrets.
+10. **Supply-chain hygiene.** Syft SBOMs, OSV-Scanner, Grype; **no Trivy** (CVE-2026-33634); pin GitHub Actions to full commit SHAs.
+11. **Surveillance-detection-not-surveillance.** Anti-doxxing refusals are permanent; tools scoped to power, never private citizens.
+12. **"I answer to the block."** Blacksky-style community accountability + human-in-the-loop; until the assembly exists, the human reviewer is the interim block.
 
 ## Holmes product invariants (from the blueprint — apply once code exists)
 

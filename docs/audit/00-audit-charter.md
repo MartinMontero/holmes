@@ -10,11 +10,11 @@ Instantiated 2026-07-13 from the master prompt "Adversarial QA & Production-Read
 
 **INTENT:** A local-first investigative agent that verifies claims and dependencies for non-developer builders, producing cited Evidence Packs with confidence scores and knowability ratings; it never authors blueprints and never writes application code.
 
-**DEPLOY TARGET:** UNKNOWN — blueprint implies self-hosted/local-first (Goose runtime, self-hosted Graphiti, local microVM vaults). Pinning this down is decision D-02; the audit should force it.
+**DEPLOY TARGET:** Local-first desktop per `docs/holmes-spec-v2.md` §4.1: Tauri 2 + SolidJS shell embedding goose over ACP; self-hosted Graphiti (Neo4j/FalkorDB); Firecracker (E2B OSS) for model-generated code. *(Updated 2026-07-13 when the spec landed; D-02 narrows to the remaining sandbox-vs-OS question: Firecracker requires Linux/KVM — spec §8 flags per-workload choice.)*
 
 **OUT OF SCOPE:** Building WCJBT (the Architect) or Alfred (the Builder); the wecanjustbuildthings.dev catalog site. Their interfaces to Holmes are in scope.
 
-**CONSTRAINT OVERRIDES:** None. All standing gates apply. Note: the repo's current LICENSE is Apache-2.0, a known licensing-gate violation logged as F-001/D-01 — the audit should treat the AGPL/GPL posture as the target, not the status quo.
+**CONSTRAINT OVERRIDES:** The licensing gate is suspended pending D-01 — the generic template demands AGPL/GPL, but spec §7 Phase 0 specifies an "Apache-2.0-compatible repo" and the current LICENSE is Apache-2.0. The audit should surface the implications of each option, not presume either. All other gates apply unchanged. **Primary KB document: `docs/holmes-spec-v2.md` (authoritative); the case-file docs and blueprint decks are context. Preserve `[DIRECTIONAL]`/`[NEEDS-CAVEAT]` markers.**
 
 ## Mission
 

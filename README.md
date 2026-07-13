@@ -14,35 +14,46 @@ Holmes investigates dependencies, verifies claims, and flags risks. It produces 
 
 > Holmes never authors the blueprint. Holmes never writes application code. It only observes, deduces, and supplies verifiable evidence.
 
-## Project status: CASE FILE OPEN — nothing built yet
+## Project status: SPEC'D, PRE-PHASE-0 — no code yet
 
-This repository currently contains **no code**. What it contains is the case file: the verified knowledge base distilled from the design blueprints, the adversarial audit charter that gates the build, and the ledgers that every finding, amendment, and human decision will be recorded in.
+This repository contains **no code yet**, but it now holds the canonical documents:
 
-The build does not start until the audit (see below) produces a verdict and a kickoff prompt. That is deliberate — it is Holmes's own methodology applied to Holmes.
+- **`docs/holmes-spec-v2.md`** — the authoritative build reference (QA-corrected v2, verification date 2026-06-29): goose/ACP substrate, the three analytical engines + six-phase case method, Graphiti "Wall," two-tier model strategy, the Blacksky-derived accountability layer, and the **Phase 0–5 build roadmap**. The repo copy is the single source of truth.
+- **`docs/holmes-project-orientation.md`** — the project map and operating loop (Claude Code builds and emits readouts; the claude.ai project pressure-tests them against the spec).
+- The **case file** (below) — provenance, the blueprint knowledge base, and the audit ledgers.
+
+The build starts when Phase 0 runs from its kickoff prompt (`holmes-claude-code-kickoff-phase0-v2.md` — not yet committed, see F-009) with explicit human go-ahead, per Rule 9.
 
 ## The case file
 
 ```
 docs/
+  holmes-spec-v2.md                  CANONICAL build spec (source of truth)
+  holmes-project-orientation.md      Project map, custom instructions, build loop
+  research/
+    wisdom-intuition-knowledge-judgment-v2.md   Epistemology map (analytical-core design input)
   case-file/
     00-provenance.md     Where every source document lives, and when it was verified
-    01-blueprint-kb.md   The Holmes blueprint, distilled, with epistemic labels per claim
-    02-triad-context.md  What the sibling blueprints say about Holmes's role and constraints
+    01-blueprint-kb.md   The Holmes blueprint deck, distilled, with epistemic labels per claim
+    02-triad-context.md  What the sibling blueprint decks say about Holmes's role and constraints
   audit/
     00-audit-charter.md  The Adversarial QA & Production-Readiness Audit, instantiated for Holmes
-    findings-ledger.md   F-### findings (seeded with pre-audit findings)
+    findings-ledger.md   F-### findings (seeded; several resolved by the spec landing)
     amendments.md        A-## amendments (empty until the audit runs)
-    decisions.md         D-## decisions reserved for the human (seeded)
+    decisions.md         D-## decisions reserved for the human (D-01…D-05 open)
   roadmap/
-    build-phases.md      PROPOSED build phasing — a pre-audit draft, replaced by audit Phase 6 output
+    build-phases.md      SUPERSEDED pointer → the real roadmap is spec §7 (Phases 0–5)
 ```
 
 ## Standing gates
 
-All work in this repo is governed by the gates in [CLAUDE.md](CLAUDE.md): zero fabrication with epistemic labels, evidence-or-it-didn't-happen, the AGPL/GPL licensing gate, the vendor gate (no Meta, OpenAI, or xAI — direct or transitive), Rule 9 (consent before consequence), and RPI (Research → Plan → Implement).
+All work in this repo is governed by the constitution in [CLAUDE.md](CLAUDE.md): zero fabrication with epistemic labels, evidence-or-it-didn't-happen, the vendor denylist (no Meta, OpenAI, or xAI — direct, transitive, or as model weights; Google permitted), Rule 9 (consent before consequence), RPI, path-confined tools, born-redacted telemetry, supply-chain hygiene (no Trivy, SHA-pinned Actions), and surveillance-detection-not-surveillance.
 
-⚠️ **Known gate violation at repo creation:** the current LICENSE is Apache-2.0, which conflicts with the licensing gate. See finding F-001 and decision D-01 — relicensing is a human call and has not been made yet.
+⚠️ **Open licensing decision (D-01):** the LICENSE is Apache-2.0; the generic audit gate says AGPL/GPL, while spec §7 says "Apache-2.0-compatible repo." Which governs is a human call — undecided.
 
-## Next step
+## Next steps
 
-Run the audit: open a claude.ai project with `docs/case-file/` as the knowledge base, paste `docs/audit/00-audit-charter.md` as the first message, and reply `GO` phase by phase. Phase 7 produces the go/no-go verdict; Phase 6 produces the kickoff prompt that starts the actual build.
+1. Commit `holmes-claude-code-kickoff-phase0-v2.md` (F-009) and the character bible if it should be versioned.
+2. Decide D-01 (license) and D-05 (Phase 0 smoke-test mode: cloud Tier-1 vs offline Tier-2).
+3. Optionally run the fresh adversarial audit (`docs/audit/00-audit-charter.md`) as a pre-Phase-0 gate — D-04.
+4. Run **Phase 0 — Scaffold** from the kickoff prompt; it stops at the Rule-9 checkpoint and emits a readout for pressure-testing.
