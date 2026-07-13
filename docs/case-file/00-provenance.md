@@ -52,6 +52,10 @@ Project knowledge inventory — corrected 2026-07-13 (later session) after the c
 
 Still missing from the repo (chat attachments, not project knowledge — see F-009/F-011): `holmes-claude-code-kickoff-phase0-v2.md`, `holmes-denylist-acceptance-criteria.md`, `holmes-spec-v2.1-diff.md`, `Iterative quality validation process.md`. Also referenced but never sighted: `claude-code-epistemic-integration-prompt.md` (named in the epistemic canon as its build-instructions companion) and `trinity-incarnate-character-bible.md`.
 
+## The master build loop (supplied 2026-07-13)
+
+**`docs/prompts/holmes-master-build-loop-v2.md`** — the single driving prompt for Phases 0→RC, supplied by the human 2026-07-13, read in full, committed verbatim (its footer names this repo its canonical home). It supersedes the earlier "kickoff" entry point and references three further upstream artifacts never sighted here: a **kickoff v3** (Phase 0 cites "kickoff v3 §4" — supersedes the v2 tracked by F-009), the **2026-07-13 second-pass audit report** (companion doc; its verdict "SHIP WITH FIXES" is cited at Gate Zero §3.0a but the report itself is uncommitted — per zero-fabrication, that verdict is `UNVERIFIED` until the report lands in `docs/audit/`), and the AC doc `holmes-denylist-acceptance-criteria.md` (pre-flight-blocking). Its facts ledger (§8) carries dated, marker-disciplined claims (DeepSeek re-verified 2026-07-13; Kuzu archived 2025-10-10; Qwen3.7-Max Tier-1-only) that update spec v2 §3 — carried as canon-authored-upstream, persisted verbatim.
+
 ## Negative results (checked and found nothing — 2026-07-13, scope: Drive and GitHub only)
 
 - **No Holmes-specific build plan, master prompt, kickoff prompt, or milestone roadmap exists in Drive.** Exhaustive search: title and fullText queries for Holmes/Detective/kickoff/build plan/roadmap/master prompt, crossed with Milestone, Graphiti, Evidence Pack, ACP, goose, Phase, acceptance criteria, and recency filters. The string "Holmes" appears only in the four blueprint PDFs above. *(Still true of Drive; the artifacts turned out to live on the local machine — see above.)*
