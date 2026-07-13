@@ -35,6 +35,25 @@ These existed on the human's local machine but were in neither Drive nor GitHub,
 
 Referenced by the orientation doc but **not yet in this repo**: `holmes-claude-code-kickoff-phase0-v2.md` (the current Phase 0 kickoff prompt — see F-009) and `trinity-incarnate-character-bible.md` (Santos Reyes source material).
 
+## The claude.ai Holmes project (third surface, confirmed 2026-07-13)
+
+A claude.ai project ("Holmes — Manage the build of the holmes research aid…") exists as the pressure-testing surface. Its instructions are committed verbatim at `docs/holmes-claude-project-instructions.md` (supplied by the human 2026-07-13, read in full). Its GitHub connector tracks `MartinMontero/holmes` @ **`main`** — see F-012.
+
+Project knowledge observed via screenshot 2026-07-13 (line counts as displayed; contents **not read** unless committed here — listing is evidence of existence, not of content):
+
+| In project knowledge | In this repo? |
+|---|---|
+| `holmes-spec-v2.md` (238 lines) | ✅ `docs/holmes-spec-v2.md` |
+| `wisdom-intuition-knowledge-judgment-v2.md` (297 lines) | ✅ `docs/research/` |
+| `holmes-project-orientation.md` (per instructions §Source of truth) | ✅ `docs/` |
+| `holmes-vs-wcjbt.md` (235 lines) — boundary/interface contract, named a **source-of-truth doc** in the instructions | ❌ F-011 |
+| `triad-canon.md` (94 lines) | ❌ F-011 |
+| `epistemic-canon-Holmes.md` (83 lines) | ❌ F-011 |
+| `holmes-denylist-acceptance-criteria.md` (66 lines) | ❌ F-011 |
+| `holmes-spec-v2.1-diff.md` (174 lines) — **implies spec has advanced past the committed v2** | ❌ F-011 |
+| `Iterative quality validation process.md` (67 lines) | ❌ F-011 |
+| `holmes-claude-code-kickoff-phase0-v2(2).md` + "Holmes — Claude Code Desktop Kicko…" (99 lines) | ❌ F-009 |
+
 ## Negative results (checked and found nothing — 2026-07-13, scope: Drive and GitHub only)
 
 - **No Holmes-specific build plan, master prompt, kickoff prompt, or milestone roadmap exists in Drive.** Exhaustive search: title and fullText queries for Holmes/Detective/kickoff/build plan/roadmap/master prompt, crossed with Milestone, Graphiti, Evidence Pack, ACP, goose, Phase, acceptance criteria, and recency filters. The string "Holmes" appears only in the four blueprint PDFs above. *(Still true of Drive; the artifacts turned out to live on the local machine — see above.)*
