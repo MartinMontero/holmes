@@ -39,20 +39,18 @@ Referenced by the orientation doc but **not yet in this repo**: `holmes-claude-c
 
 A claude.ai project ("Holmes — Manage the build of the holmes research aid…") exists as the pressure-testing surface. Its instructions are committed verbatim at `docs/holmes-claude-project-instructions.md` (supplied by the human 2026-07-13, read in full). Its GitHub connector tracks `MartinMontero/holmes` @ **`main`** — see F-012.
 
-Project knowledge observed via screenshot 2026-07-13 (line counts as displayed; contents **not read** unless committed here — listing is evidence of existence, not of content):
+Project knowledge inventory — corrected 2026-07-13 (later session) after the claude.ai project itself enumerated its knowledge folder: it holds exactly **six files**, all now supplied and reconciled. The four other artifacts visible in the earlier screenshot (`holmes-denylist-acceptance-criteria.md`, `holmes-spec-v2.1-diff.md`, `Iterative quality validation process.md`, `holmes-claude-code-kickoff-phase0-v2(2).md`) are **chat attachments** in the project's "Optimized Holmes Project build prompt" conversation, *not* project knowledge — claude.ai confirmed it cannot return them verbatim (retrieval yields excerpts only), so the originals must come from where they were drafted.
 
 | In project knowledge | In this repo? |
 |---|---|
-| `holmes-spec-v2.md` (238 lines) | ✅ `docs/holmes-spec-v2.md` |
-| `wisdom-intuition-knowledge-judgment-v2.md` (297 lines) | ✅ `docs/research/` |
-| `holmes-project-orientation.md` (per instructions §Source of truth) | ✅ `docs/` |
-| `holmes-vs-wcjbt.md` (235 lines) — boundary/interface contract, named a **source-of-truth doc** in the instructions | ❌ F-011 |
-| `triad-canon.md` (94 lines) | ❌ F-011 |
-| `epistemic-canon-Holmes.md` (83 lines) | ❌ F-011 |
-| `holmes-denylist-acceptance-criteria.md` (66 lines) | ❌ F-011 |
-| `holmes-spec-v2.1-diff.md` (174 lines) — **implies spec has advanced past the committed v2** | ❌ F-011 |
-| `Iterative quality validation process.md` (67 lines) | ❌ F-011 |
-| `holmes-claude-code-kickoff-phase0-v2(2).md` + "Holmes — Claude Code Desktop Kicko…" (99 lines) | ❌ F-009 |
+| `holmes-spec-v2.md` | ✅ `docs/holmes-spec-v2.md` — re-supplied 2026-07-13, **diffed byte-identical** to repo copy (no surface drift) |
+| `holmes-project-orientation.md` | ✅ `docs/` — re-supplied, **diffed byte-identical** |
+| `wisdom-intuition-knowledge-judgment` map | ✅ v2 at `docs/research/` — 6th file upload pending; epistemic canon references a **v3** ("fully sourced") — version to confirm on receipt |
+| `holmes-vs-wcjbt.md` — boundary/interface contract, named source-of-truth doc | ✅ `docs/holmes-vs-wcjbt.md` — supplied and read in full 2026-07-13 |
+| `triad-canon.md` — shared triad canon (canonical home: WCJBT repo; this is the mandated Holmes-repo mirror) | ✅ `docs/triad-canon.md` — supplied and read in full 2026-07-13 |
+| `epistemic-canon-Holmes.md` — Holmes copy of the shared epistemic canon (Upgrade B: metacognitive-humility layer; `knowability`; confidence→routing firewall) | ✅ `docs/epistemic-canon-Holmes.md` — supplied and read in full 2026-07-13 |
+
+Still missing from the repo (chat attachments, not project knowledge — see F-009/F-011): `holmes-claude-code-kickoff-phase0-v2.md`, `holmes-denylist-acceptance-criteria.md`, `holmes-spec-v2.1-diff.md`, `Iterative quality validation process.md`. Also referenced but never sighted: `claude-code-epistemic-integration-prompt.md` (named in the epistemic canon as its build-instructions companion) and `trinity-incarnate-character-bible.md`.
 
 ## Negative results (checked and found nothing — 2026-07-13, scope: Drive and GitHub only)
 
