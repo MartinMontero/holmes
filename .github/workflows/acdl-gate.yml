@@ -1,0 +1,61 @@
+# AC-DL joint gate (AC-DL-1 §7 + AC-DL-2 criterion 7).
+# The only denylist-compliant state: all criteria applicable in-phase green
+# in the same CI run. Guard tests run hermetically (loopback only) in
+# release mode. No third-party actions are used anywhere in this workflow,
+# so the SHA-pinning rule (constitution #7) is satisfied by construction.
+name: acdl-gate
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acdl-joint-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (action-free)
+        run: |
+          git init .
+          git fetch --depth 1 https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} "$GITHUB_SHA"
+          git checkout --detach FETCH_HEAD
+
+      - name: Toolchain evidence
+        run: |
+          rustc --version
+          cargo --version
+
+      - name: "AC-DL-1 sections 1-5 and 7 — hermetic guard tests, release mode"
+        run: cargo test --release --locked -p holmes-guard
+
+      - name: "AC-DL-1 section 6 — SCHEDULED, visibly (not skipped)"
+        run: |
+          echo "AC-DL-1 section 6 (memory-layer default-config egress criterion) is"
+          echo "SCHEDULED to Phase 2 lock 2b: unsatisfiable before the memory layer"
+          echo "exists (audit blocker F2). Recorded here every run so the deferral"
+          echo "cannot silently become an omission."
+
+      - name: "AC-DL-2 criterion 6 — positive control: the real tree passes"
+        run: cargo run --release --locked -p holmes-guard --bin acdl2-scan -- --root .
+
+      - name: "AC-DL-2 criterion 5 — negative control: planted lockfile fails"
+        run: |
+          set +e
+          cargo run --release --locked -p holmes-guard --bin acdl2-scan -- \
+            --root . --lockfile crates/holmes-guard/tests/fixtures/planted.lock \
+            > planted-report.txt 2>&1
+          status=$?
+          set -e
+          cat planted-report.txt
+          if [ "$status" -eq 0 ]; then
+            echo "NEGATIVE CONTROL FAILED TO FIRE: planted lockfile passed the gate"
+            exit 1
+          fi
+          grep -q "verdict: FAIL" planted-report.txt
+          echo "negative control fired as required (exit $status)"
