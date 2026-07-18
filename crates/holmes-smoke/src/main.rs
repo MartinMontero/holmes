@@ -77,7 +77,13 @@ fn parse_args() -> Args {
     args
 }
 
-fn send_request(stdin: &mut ChildStdin, frames: &mut Vec<Value>, id: u64, method: &str, params: Value) -> std::io::Result<()> {
+fn send_request(
+    stdin: &mut ChildStdin,
+    frames: &mut Vec<Value>,
+    id: u64,
+    method: &str,
+    params: Value,
+) -> std::io::Result<()> {
     let msg = json!({"jsonrpc": "2.0", "id": id, "method": method, "params": params});
     frames.push(msg.clone());
     stdin.write_all(msg.to_string().as_bytes())?;
@@ -117,7 +123,12 @@ fn wait_response(
                     if let Some(req_id) = v.get("id") {
                         // Agent→client request; not needed for the smoke.
                         let req_id = req_id.clone();
-                        send_error_reply(stdin, frames, &req_id, "holmes-smoke supports no client methods");
+                        send_error_reply(
+                            stdin,
+                            frames,
+                            &req_id,
+                            "holmes-smoke supports no client methods",
+                        );
                     } else if v["method"] == "session/update" {
                         collect_text_chunks(&v["params"]["update"], chunks);
                     }
@@ -141,7 +152,10 @@ fn wait_response(
 }
 
 fn collect_text_chunks(update: &Value, chunks: &mut String) {
-    let kind = update.get("sessionUpdate").and_then(Value::as_str).unwrap_or("");
+    let kind = update
+        .get("sessionUpdate")
+        .and_then(Value::as_str)
+        .unwrap_or("");
     if kind == "agent_message_chunk" || kind == "agent_thought_chunk" {
         if let Some(text) = update
             .get("content")
@@ -171,7 +185,8 @@ fn harvest_config_pair(v: &Value, provider: &mut Option<String>, model: &mut Opt
                     *model = Some(current.to_owned());
                 }
             }
-            map.values().for_each(|val| harvest_config_pair(val, provider, model));
+            map.values()
+                .for_each(|val| harvest_config_pair(val, provider, model));
         }
         Value::Array(items) => items
             .iter()
@@ -187,7 +202,10 @@ fn harvest_model_ids(v: &Value, out: &mut Vec<String>) {
         Value::Object(map) => {
             for (k, val) in map {
                 let key = k.to_ascii_lowercase();
-                if (key == "model" || key == "model_id" || key == "modelid" || key == "current_model")
+                if (key == "model"
+                    || key == "model_id"
+                    || key == "modelid"
+                    || key == "current_model")
                     && val.is_string()
                 {
                     out.push(val.as_str().unwrap().to_owned());
@@ -225,7 +243,10 @@ fn main() {
             eprintln!("holmes-smoke: --credential-env {key} is not set in the environment");
             std::process::exit(2);
         });
-        CredentialVar { key: key.clone(), value }
+        CredentialVar {
+            key: key.clone(),
+            value,
+        }
     });
 
     let sanitized = match sanitized_spawn(&SpawnSpec {
@@ -246,11 +267,17 @@ fn main() {
     let mut command = sanitized.command;
     let stderr_path = home.join("goose-stderr.log");
     let stderr_file = std::fs::File::create(&stderr_path).expect("stderr log");
-    command.stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(stderr_file);
+    command
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(stderr_file);
     let mut child = match command.spawn() {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("holmes-smoke: failed to spawn {}: {e}", args.goose.display());
+            eprintln!(
+                "holmes-smoke: failed to spawn {}: {e}",
+                args.goose.display()
+            );
             std::process::exit(4);
         }
     };
@@ -280,33 +307,70 @@ fn main() {
     let mut response_text = String::new();
 
     let run = (|| -> Result<Value, String> {
-        send_request(&mut stdin, &mut frames, 1, "initialize", json!({
-            "protocolVersion": 1,
-            "clientCapabilities": {},
-            "clientInfo": {"name": "holmes-smoke", "version": "0.1.0"}
-        }))
+        send_request(
+            &mut stdin,
+            &mut frames,
+            1,
+            "initialize",
+            json!({
+                "protocolVersion": 1,
+                "clientCapabilities": {},
+                "clientInfo": {"name": "holmes-smoke", "version": "0.1.0"}
+            }),
+        )
         .map_err(|e| format!("write initialize: {e}"))?;
-        let init = wait_response(&rx, &mut stdin, &mut frames, &mut response_text, 1, deadline)?;
+        let init = wait_response(
+            &rx,
+            &mut stdin,
+            &mut frames,
+            &mut response_text,
+            1,
+            deadline,
+        )?;
 
-        send_request(&mut stdin, &mut frames, 2, "session/new", json!({
-            "cwd": home.display().to_string(),
-            "mcpServers": []
-        }))
+        send_request(
+            &mut stdin,
+            &mut frames,
+            2,
+            "session/new",
+            json!({
+                "cwd": home.display().to_string(),
+                "mcpServers": []
+            }),
+        )
         .map_err(|e| format!("write session/new: {e}"))?;
-        let new_session =
-            wait_response(&rx, &mut stdin, &mut frames, &mut response_text, 2, deadline)?;
+        let new_session = wait_response(
+            &rx,
+            &mut stdin,
+            &mut frames,
+            &mut response_text,
+            2,
+            deadline,
+        )?;
         let session_id = new_session["result"]["sessionId"]
             .as_str()
             .ok_or("session/new returned no sessionId")?
             .to_owned();
 
-        send_request(&mut stdin, &mut frames, 3, "session/prompt", json!({
-            "sessionId": session_id,
-            "prompt": [{"type": "text", "text": args.prompt}]
-        }))
+        send_request(
+            &mut stdin,
+            &mut frames,
+            3,
+            "session/prompt",
+            json!({
+                "sessionId": session_id,
+                "prompt": [{"type": "text", "text": args.prompt}]
+            }),
+        )
         .map_err(|e| format!("write session/prompt: {e}"))?;
-        let prompt_resp =
-            wait_response(&rx, &mut stdin, &mut frames, &mut response_text, 3, deadline)?;
+        let prompt_resp = wait_response(
+            &rx,
+            &mut stdin,
+            &mut frames,
+            &mut response_text,
+            3,
+            deadline,
+        )?;
 
         Ok(json!({"initialize": init, "prompt": prompt_resp}))
     })();
@@ -338,9 +402,12 @@ fn main() {
         json!({"source": "reported-model-id", "model": m,
                "l1b": match verdict { Ok(_) => "permitted".to_owned(), Err(d) => format!("DENIED: {d}") }})
     }));
-    let post_handshake_denied = post_handshake
-        .iter()
-        .any(|v| v["l1b"].as_str().map(|s| s.starts_with("DENIED")).unwrap_or(false));
+    let post_handshake_denied = post_handshake.iter().any(|v| {
+        v["l1b"]
+            .as_str()
+            .map(|s| s.starts_with("DENIED"))
+            .unwrap_or(false)
+    });
 
     let events: Vec<Value> = proxy
         .events()

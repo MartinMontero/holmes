@@ -100,11 +100,24 @@ fn c5_negative_control_planted_lock_fails_the_gate() {
     let mut report = ScanReport::default();
     scan_lock_text(PLANTED_LOCK, "planted.lock", &mut report);
     assert!(!report.clean(), "planted excluded deps must fail the gate");
-    let subjects: Vec<_> = report.violations.iter().map(|v| v.subject.as_str()).collect();
-    for planted in ["async-openai", "tiktoken-rs", "litellm", "openrouter", "llama-cpp-2"] {
+    let subjects: Vec<_> = report
+        .violations
+        .iter()
+        .map(|v| v.subject.as_str())
+        .collect();
+    for planted in [
+        "async-openai",
+        "tiktoken-rs",
+        "litellm",
+        "openrouter",
+        "llama-cpp-2",
+    ] {
         assert!(subjects.contains(&planted), "{planted} not flagged");
     }
-    assert!(!subjects.contains(&"serde"), "clean package wrongly flagged");
+    assert!(
+        !subjects.contains(&"serde"),
+        "clean package wrongly flagged"
+    );
     assert!(
         !subjects.contains(&"holmes-guard"),
         "clean package wrongly flagged"

@@ -53,15 +53,42 @@ pub struct PermittedHost {
 /// Hosts the L1a proxy permits; everything else is denied at the boundary.
 /// Loopback is scoped to the Ollama default port only.
 pub const PERMITTED_EGRESS_HOSTS: &[PermittedHost] = &[
-    PermittedHost { host: "api.anthropic.com", port: 443 },
-    PermittedHost { host: "generativelanguage.googleapis.com", port: 443 },
-    PermittedHost { host: "api.deepseek.com", port: 443 },
-    PermittedHost { host: "dashscope.aliyuncs.com", port: 443 },
-    PermittedHost { host: "dashscope-intl.aliyuncs.com", port: 443 },
-    PermittedHost { host: "api.mistral.ai", port: 443 },
-    PermittedHost { host: "127.0.0.1", port: 11434 },
-    PermittedHost { host: "localhost", port: 11434 },
-    PermittedHost { host: "::1", port: 11434 },
+    PermittedHost {
+        host: "api.anthropic.com",
+        port: 443,
+    },
+    PermittedHost {
+        host: "generativelanguage.googleapis.com",
+        port: 443,
+    },
+    PermittedHost {
+        host: "api.deepseek.com",
+        port: 443,
+    },
+    PermittedHost {
+        host: "dashscope.aliyuncs.com",
+        port: 443,
+    },
+    PermittedHost {
+        host: "dashscope-intl.aliyuncs.com",
+        port: 443,
+    },
+    PermittedHost {
+        host: "api.mistral.ai",
+        port: 443,
+    },
+    PermittedHost {
+        host: "127.0.0.1",
+        port: 11434,
+    },
+    PermittedHost {
+        host: "localhost",
+        port: 11434,
+    },
+    PermittedHost {
+        host: "::1",
+        port: 11434,
+    },
 ];
 
 /// Environment variables that can select, credential, or re-route a provider

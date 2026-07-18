@@ -100,7 +100,11 @@ fn s4_absolute_form_http_to_planted_excluded_port_is_blocked() {
 #[test]
 fn s4_excluded_vendor_hostname_denied_without_any_network_activity() {
     let proxy = EgressProxy::spawn(ProxyConfig::default()).expect("spawn proxy");
-    for target in ["api.openai.com:443", "api.x.ai:443", "graph.facebook.com:443"] {
+    for target in [
+        "api.openai.com:443",
+        "api.x.ai:443",
+        "graph.facebook.com:443",
+    ] {
         let req = format!("CONNECT {target} HTTP/1.1\r\nHost: {target}\r\n\r\n");
         let response = send_and_read(proxy.addr(), req.as_bytes());
         assert!(
@@ -109,7 +113,10 @@ fn s4_excluded_vendor_hostname_denied_without_any_network_activity() {
         );
     }
     // Denials precede DNS/connect: every recorded event is a denial.
-    assert!(proxy.events().iter().all(|e| e.decision == Decision::Denied));
+    assert!(proxy
+        .events()
+        .iter()
+        .all(|e| e.decision == Decision::Denied));
     proxy.shutdown();
 }
 
@@ -179,7 +186,10 @@ fn s5_positive_control_permitted_loopback_tunnel_round_trips() {
     );
     assert!(response.contains("planted"), "got: {response}");
 
-    assert!(hits.load(Ordering::SeqCst) >= 2, "planted server not reached");
+    assert!(
+        hits.load(Ordering::SeqCst) >= 2,
+        "planted server not reached"
+    );
     assert!(proxy
         .events()
         .iter()

@@ -64,7 +64,10 @@ fn s3_poisoned_parent_environment_is_stripped_wholesale() {
             "GOOSE_PROVIDER" => assert_eq!(sanitized.env.get(*key).unwrap(), "anthropic"),
             "GOOSE_MODEL" => assert_eq!(sanitized.env.get(*key).unwrap(), "claude-sonnet-5"),
             "HTTP_PROXY" | "HTTPS_PROXY" | "http_proxy" | "https_proxy" => {
-                assert_eq!(sanitized.env.get(*key).unwrap(), &format!("http://{}", proxy_addr()));
+                assert_eq!(
+                    sanitized.env.get(*key).unwrap(),
+                    &format!("http://{}", proxy_addr())
+                );
             }
             _ => assert!(
                 !sanitized.env.contains_key(*key),
@@ -80,7 +83,11 @@ fn s3_poisoned_parent_environment_is_stripped_wholesale() {
         sanitized.env.get("HOME").unwrap(),
         &home.display().to_string()
     );
-    assert!(sanitized.env.get("XDG_CONFIG_HOME").unwrap().starts_with(&home.display().to_string()));
+    assert!(sanitized
+        .env
+        .get("XDG_CONFIG_HOME")
+        .unwrap()
+        .starts_with(&home.display().to_string()));
     assert_eq!(sanitized.env.get("GOOSE_DISABLE_KEYRING").unwrap(), "1");
 
     for key in [
