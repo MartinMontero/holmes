@@ -46,3 +46,17 @@ This repo is documentation-only until Phase 0 runs from its kickoff prompt (`hol
 ## Tone
 
 Terse. No hyperbole, no praise, no filler. Findings and evidence only. Improve the spec, not morale.
+
+---
+
+<!-- BEGIN SPEC-DERIVED OPERATING CONTEXT — re-seeded from docs/holmes-spec-v2.md v2.1 on 2026-07-18. Everything ABOVE this marker is the protected block: it is never modified by a re-seed (loop §6, lock 0e). Re-seeds replace only what is between these markers. -->
+
+## Spec-derived operating context (v2.1)
+
+- **Substrate:** goose (`aaif-goose/goose`, Apache-2.0, Rust) over Zed's ACP (`goose acp`, JSON-RPC 2.0/stdio); all tools MCP, path-confined, deny-by-default. Secrets in the OS credential store `[NEEDS-CAVEAT — confirm goose backend per platform]`.
+- **Delivery:** Holmes ships as `holmes-core` + `holmes-guard` crates **embedded in Alfred** — no standalone UI/installer/updater (spec §4.1/§7 shell superseded; pending amendment A-03).
+- **Models:** Tier-1 cloud — Claude, Gemini 3.1 Pro, DeepSeek V4, Magistral, Qwen3.7-Max (proprietary, never sovereign). Tier-2 sovereign — non-Meta open weights (Qwen3.5-27B / Qwen3.6-35B-A3B, Magistral Small, Gemma). `deepseek-chat`/`deepseek-reasoner` retire 2026-07-24 15:59 UTC → V4 Flash (`deepseek-reasoner` → Flash, not Pro). DeepSeek Pro discount permanence `[NEEDS-CAVEAT]` — budget both rates.
+- **The Wall:** Graphiti temporal graph, Neo4j/FalkorDB only (Kuzu abandoned); Graphiti's default LLM client is OpenAI — pin permitted clients, regression-tested (AC-DL-1 §6, Phase 2); invalidation-not-deletion.
+- **Derived files:** `docs/architecture.md`, `docs/constitution.md`, `docs/build-roadmap.md`, `docs/security.md` — re-seeded together with this block; canon markers preserved verbatim everywhere.
+
+<!-- END SPEC-DERIVED OPERATING CONTEXT -->

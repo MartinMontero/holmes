@@ -4,9 +4,9 @@
 
 ## Git state
 
-- Current branch: `claude/holmes-launch-runbook-kwtkta` (session/working branch)
-- `origin/main` head: `7ecbc67` (16 commits — verified superset of the 2026-07-13 3-commit observation; no rewrite)
-- Ancestry: FF-OK (`git merge-base --is-ancestor origin/main HEAD` true at pre-flight after the D-07 branch restart)
+- Current branch: `claude/holmes-launch-runbook-kwtkta` (session/working branch; restarted from `main` after PR #4 merged — clean fast-forward, no force needed)
+- `origin/main` head: `957e369` (post-PR-#4 merge `71e4009` + three uploads: audit report, v2.1 diff; no rewrite)
+- Ancestry: FF-OK
 - Landing mechanics: PR-only to `main`, explicit go-ahead (D-08); connector re-sync after every canon merge (F-012)
 
 ## Gate Zero (loop §3.0) — CLEARED 2026-07-18
@@ -22,7 +22,7 @@
 
 - **3.0 Gate Zero:** ✅ cleared (above)
 - **3.1 Land canon on `main`:** ✅ staged — canon + AC doc (normalized to `docs/acceptance/`, sha256 verified across the move) + Gate-Zero ledger updates on the session branch; **phase PR open, merge awaits go-ahead**
-- **3.2 Spec v2.1:** ⛔ SKIPPED-WITH-APPROVAL (Martin, 2026-07-18) — spec still v2; `holmes-spec-v2.1-diff.md` ABSENT on disk; E1–E14 not improvised. **F-014** (open). Unblocks when the human supplies the diff file.
+- **3.2 Spec v2.1:** ✅ executed 2026-07-18 (second pass, after the human landed `docs/holmes-spec-v2.1-diff.md` on `main`) — E1–E14 applied exactly (each FIND matched once, verified pre-edit); spec title **v2.1**; markers post-apply 10× `[NEEDS-CAVEAT]` / 11× `[DIRECTIONAL]`; derived knowledge files re-seeded (`CLAUDE.md` marked block, `docs/architecture.md`, `docs/constitution.md`, `docs/build-roadmap.md`, `docs/security.md`). **F-014 RESOLVED.** Standing spec amendments carried: A-02, A-03, A-04, A-05.
 - **3.3 Alias audit:** ✅ executed 2026-07-18 — see table below
 - **3.4 Roadmap reconciliation:** ✅ `docs/roadmap/build-phases.md` replaced with the loop-§6 derivation; dropped-unique item flagged as **A-03** (Tauri shell → spec revision pending)
 
@@ -59,11 +59,12 @@ No application code exists (`git ls-files`: docs + governance only; no `crates/`
 
 ## Staging obligations — human
 
-1. 2026-07-13 second-pass audit report → `docs/audit/` (D-06 note; provenance doc marks its verdict UNVERIFIED until the file lands)
-2. `holmes-spec-v2.1-diff.md` → unblocks Task 3.2 (F-014)
-3. Provider key visible in-container (D-05 residual)
-4. goose availability (see Environment)
+1. ~~2026-07-13 second-pass audit report~~ — **landed 2026-07-18** (`docs/audit/holmes-master-build-loop-v1-second-pass-audit.md`; verdict verified on disk, D-06 note updated)
+2. ~~`holmes-spec-v2.1-diff.md`~~ — **landed and applied 2026-07-18** (F-014 resolved)
+3. Provider key visible in-container (D-05 residual) — still open
+4. goose availability (see Environment) — still open
+5. Still-unlocated upstream artifacts (F-011/F-009): kickoff v2, `Iterative quality validation process.md`, `claude-code-epistemic-integration-prompt.md`
 
 ## Resume point
 
-Next session: `git fetch origin` → verify provider key + goose → complete pre-flight items 4/6 → begin **Phase 0 build** (lock 0a first: guard skeleton + AC-DL CI) — or apply `holmes-spec-v2.1-diff.md` first if supplied (Task 3.2).
+Next session: `git fetch origin` → verify provider key + goose (pre-flight items 4/6, the two remaining blockers) → begin **Phase 0 build** (lock 0a first: guard skeleton + AC-DL CI). Task 0 is complete — 3.0 through 3.4 all executed.
