@@ -121,6 +121,33 @@ fn s4_excluded_vendor_hostname_denied_without_any_network_activity() {
 }
 
 #[test]
+fn s2a_named_excluded_endpoints_denied_at_guard_level() {
+    // v3 §2(a): the representative excluded set — at minimum api.openai.com,
+    // a Meta Llama API host, and api.x.ai — is each blocked at the egress
+    // layer (a guard-level 403, not a downstream 401/404, not "unconfigured").
+    let proxy = EgressProxy::spawn(ProxyConfig::default()).expect("spawn proxy");
+    for (label, host) in [
+        ("OpenAI", "api.openai.com"),
+        ("Meta Llama API", "api.llama.com"),
+        ("xAI", "api.x.ai"),
+    ] {
+        let req = format!("CONNECT {host}:443 HTTP/1.1\r\nHost: {host}:443\r\n\r\n");
+        let response = send_and_read(proxy.addr(), req.as_bytes());
+        assert!(
+            response.starts_with("HTTP/1.1 403") && response.contains("egress denied"),
+            "{label} host {host} must be denied at the guard level, got: {response}"
+        );
+    }
+    // Every recorded event for these is a denial — the boundary refused
+    // before any DNS/connect to the excluded host.
+    assert!(proxy
+        .events()
+        .iter()
+        .all(|e| e.decision == Decision::Denied));
+    proxy.shutdown();
+}
+
+#[test]
 fn s4_fail_closed_on_malformed_and_unsupported_forms() {
     let proxy = EgressProxy::spawn(ProxyConfig::default()).expect("spawn proxy");
     for req in [

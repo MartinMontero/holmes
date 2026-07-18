@@ -1,0 +1,27 @@
+# AC-DL-2 §3 fixture: an excluded package pulled in TRANSITIVELY, to prove the
+# gate names the dependency path (root -> middle -> offender), not just the
+# package. Non-canonical filename so tree discovery never sweeps it.
+version = 4
+
+[[package]]
+name = "holmes-app"
+version = "0.1.0"
+dependencies = [
+ "middleware-lib",
+ "serde",
+]
+
+[[package]]
+name = "middleware-lib"
+version = "2.3.0"
+dependencies = [
+ "async-openai",
+]
+
+[[package]]
+name = "async-openai"
+version = "0.20.0"
+
+[[package]]
+name = "serde"
+version = "1.0.219"

@@ -13,7 +13,7 @@ pub const EXEMPT_PATHS: &[(&str, &str)] = &[
     ),
     (
         "crates/holmes-guard/tests/",
-        "planted negative-control fixtures (AC-DL-2 §5) and denial assertions",
+        "planted positive-control fixtures (AC-DL-2 §4) and denial assertions",
     ),
 ];
 

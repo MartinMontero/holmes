@@ -41,10 +41,7 @@ jobs:
           echo "exists (audit blocker F2). Recorded here every run so the deferral"
           echo "cannot silently become an omission."
 
-      - name: "AC-DL-2 criterion 6 — positive control: the real tree passes"
-        run: cargo run --release --locked -p holmes-guard --bin acdl2-scan -- --root .
-
-      - name: "AC-DL-2 criterion 5 — negative control: planted lockfile fails"
+      - name: "AC-DL-2 positive control (v3 section 4) — planted lockfile fires the gate"
         run: |
           set +e
           cargo run --release --locked -p holmes-guard --bin acdl2-scan -- \
@@ -54,8 +51,11 @@ jobs:
           set -e
           cat planted-report.txt
           if [ "$status" -eq 0 ]; then
-            echo "NEGATIVE CONTROL FAILED TO FIRE: planted lockfile passed the gate"
+            echo "POSITIVE CONTROL FAILED TO FIRE: planted lockfile passed the gate"
             exit 1
           fi
           grep -q "verdict: FAIL" planted-report.txt
-          echo "negative control fired as required (exit $status)"
+          echo "positive control fired as required (exit $status)"
+
+      - name: "AC-DL-2 negative control (v3 section 5) — the real tree passes untouched"
+        run: cargo run --release --locked -p holmes-guard --bin acdl2-scan -- --root .

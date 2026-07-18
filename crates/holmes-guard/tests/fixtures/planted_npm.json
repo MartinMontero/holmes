@@ -1,0 +1,10 @@
+{
+  "name": "holmes-ui",
+  "lockfileVersion": 3,
+  "packages": {
+    "": { "name": "holmes-ui" },
+    "node_modules/react": { "version": "18.3.0" },
+    "node_modules/openai": { "version": "4.20.0" },
+    "node_modules/litellm-proxy": { "version": "1.0.0" }
+  }
+}

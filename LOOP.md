@@ -42,7 +42,8 @@ CI: `.github/workflows/acdl-gate.yml` — one job, same run: release-mode hermet
 
 ## Evidence (executed 2026-07-18, this container)
 
-- `cargo test --release --locked -p holmes-guard` → **33 passed, 0 failed** (4 unit + 7 proxy + 8 resolution + 5 spawn + 1 structural + 8 scanner), after +5 regression tests from the adversarial pass (F-017…F-020). clippy clean, `cargo fmt --check` clean.
+- `cargo test --release --locked -p holmes-guard` → **40 passed, 0 failed** (4 unit + 8 proxy + 8 resolution + 5 spawn + 1 structural + 14 scanner), after adversarial-pass regressions (F-017…F-020) and v3-conformance deltas (F-021…F-024). clippy clean, `cargo fmt --check` clean.
+- v3 AC doc normalized: root v3 (sha256 `7124772b…4a1ae4bd`, gate-verified) → `docs/acceptance/`, root removed, v2 to history. Controls per v3 convention: positive (planted lockfile) → FAIL/exit 1; negative (real tree) → CLEAN/exit 0. Dependency-path emitted (§3); multi-ecosystem discovery (§1); documented seed table (§2).
 - Positive control → `packages scanned: 13 / files scanned: 20 / verdict: CLEAN`, exit 0, 6 exemptions listed.
 - Negative control → 5 violations (async-openai, tiktoken-rs, llama-cpp-2 = namespace; litellm, openrouter = router), `verdict: FAIL`, exit 1.
 - A-01 sweep → zero hits in `crates/`, `.github/`, `Cargo.toml`, `Cargo.lock`.

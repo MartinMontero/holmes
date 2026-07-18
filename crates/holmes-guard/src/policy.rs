@@ -203,21 +203,6 @@ pub fn excluded_model_token(token: &str) -> bool {
         || is_o_series(token)
 }
 
-/// True when a single lowercase token names an excluded vendor namespace.
-/// Same substring rule and `ollama` carve-out as [`excluded_model_token`]
-/// (o-series omitted — package names are not model ids, and single-letter+
-/// digit names are common and innocent).
-pub fn excluded_namespace_token(token: &str) -> bool {
-    (token.contains("llama") && token != "ollama")
-        || token.contains("gpt")
-        || token.contains("grok")
-        || token == "openai"
-        || token == "tiktoken"
-        || token == "xai"
-        || token == "meta"
-        || token == "facebook"
-}
-
 /// OpenAI o-series reasoning ids: "o" followed only by 1–3 digits.
 fn is_o_series(token: &str) -> bool {
     let Some(rest) = token.strip_prefix('o') else {
@@ -284,11 +269,9 @@ mod tests {
     #[test]
     fn ollama_and_groq_tokens_are_not_false_positives() {
         assert!(!excluded_model_token("ollama"));
-        assert!(!excluded_namespace_token("ollama"));
         assert!(!excluded_model_token("groq"));
-        assert!(!excluded_namespace_token("metadata"));
-        // The ollama carve-out is exact: ollama-family package tokens survive.
-        assert!(!excluded_namespace_token("ollama"));
+        // Package-name namespace matching (with the same ollama carve-out)
+        // lives in and is tested by the AC-DL-2 scanner seed table.
     }
 
     #[test]

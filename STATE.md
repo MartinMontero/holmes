@@ -26,8 +26,8 @@
 
 | Lock | Status | Evidence (executed 2026-07-18, this container) |
 |---|---|---|
-| **0a** — AC-DL-1 §§1–5, §7 | **VERIFIED (local, release, hermetic)** | `cargo test --release --locked -p holmes-guard` → **33 passed / 0 failed** (resolution §2/§5, proxy §4/§5 with planted proxy-honoring server + planted upstream forward proxy, spawn §3, structural §1, unit; incl. 5 regression tests from the adversarial pass). §6 SCHEDULED to lock 2b, recorded visibly in CI. CI-run leg pending first CI trigger (workflow landed: `.github/workflows/acdl-gate.yml`, action-free) |
-| **0b** — AC-DL-2 all seven | **VERIFIED (local, release)** | Positive control: 13 packages / 20 files / CLEAN / exit 0, exemptions listed. Negative control: planted lockfile → 5 violations / FAIL / exit 1. Criteria 1–7 each covered by a named test (`tests/acdl2_scanner.rs`); c7 = joint workflow, same run as 0a. Router seed now token-scoped (F-018 fix) |
+| **0a** — AC-DL-1 §§1–5, §7 | **VERIFIED (local, release, hermetic) — v3-conformant** | `cargo test --release --locked -p holmes-guard` → **40 passed / 0 failed** (resolution §2/§5, proxy §2a/§4/§5 with planted proxy-honoring server + planted upstream forward proxy + named-endpoint denial, spawn §3, structural §1, unit; incl. regression + v3-delta tests). §6 SCHEDULED to lock 2b, recorded visibly in CI. CI-run leg pending first CI trigger (workflow landed: `.github/workflows/acdl-gate.yml`, action-free) |
+| **0b** — AC-DL-2 all seven | **VERIFIED (local, release) — v3-conformant** | v3 control convention: **positive** control (planted lockfile) → FAIL / exit 1; **negative** control (real tree, lockfile discovery) → CLEAN / exit 0. Multi-ecosystem lockfile walk (§1), documented seed table with rationale (§2), dependency-path in failure output (§3 — `pulled in via holmes-app -> middleware-lib -> async-openai`). Criteria 1–7 each covered by named tests; c7 = joint workflow, same run as 0a |
 | **0c** — ACP round-trip | **PARTIAL — BLOCKED on model access** | Harness `holmes-smoke` executed against real goose 1.43.0 via L2: initialize + session/new complete; goose-reported pair (`ollama`/`gemma3:1b`) L1b-permitted post-handshake; 12/12 egress events `localhost:11434 allowed` through L1a; excluded-provider run denied exit 3. Model-response leg needs a Tier-1 key in-container **or** Tier-2 model egress (ollama.com 403). Never faked |
 | **0d** — embedding contract | ABSENT — not in this session's instructed scope | — |
 | **0e** — full CI (SBOM/scanners) | PARTIAL — AC-DL joint gate landed (action-free ⇒ SHA-pinning trivially satisfied); Syft/OSV/Grype not yet wired | — |
@@ -58,8 +58,8 @@
 
 ## Staging obligations — human
 
-1. **Provider access for lock 0c** (D-05 residual): inject `ANTHROPIC_API_KEY` (or `GOOGLE_API_KEY`) at container start, **or** open egress for Ollama + a permitted Gemma/Qwen weight. Then: `holmes-smoke --goose <abs> --provider <p> --model <m> --credential-env KEY --transcript ...`
-2. **F-015**: supply AC doc v3 or confirm the v2 re-derivation is current.
+1. **Provider access for lock 0c** (D-05 residual): **STILL BLOCKED this session** — `ANTHROPIC_API_KEY` remains unset in-container (keyless probe → 401; no key file). The human reports the key is saved in the environment config, but it is not injected into *this* container. Inject it at container start (or open egress for Ollama + a permitted Gemma/Qwen weight), then: `holmes-smoke --goose /home/user/goose-src/target/release/goose --provider <p> --model <m> --credential-env KEY --transcript ...`
+2. ~~**F-015**: supply AC doc v3~~ — **RESOLVED 2026-07-18**: v3 landed at root, normalized into `docs/acceptance/` (hash-gated), root removed, v2 to history; v3-conformance pass closed F-021…F-024.
 3. Mark the `acdl-gate` workflow a **required status check** on `main` (branch protection is repo-settings, human-owned) — completes AC-DL-2 c7's "required gate" clause.
 4. Still-unlocated upstream artifacts (F-009/F-011): kickoff v2, `Iterative quality validation process.md`, `claude-code-epistemic-integration-prompt.md`.
 5. DeepSeek alias primary re-verification (api-docs.deepseek.com egress) — carry to next open-egress session and Phase RC.
