@@ -77,10 +77,19 @@ pub fn scan_lock_text(text: &str, location: &str, report: &mut ScanReport) {
     }
 }
 
-/// §2 + §4 verdict for a single package name.
+/// §2 + §4 verdict for a single package name. Both checks are token-scoped
+/// (split on non-alphanumeric boundaries): a seed router name appearing as a
+/// token — `litellm-proxy`, `openrouter-py`, `litellm_router`,
+/// `litellm-proxy-extras` — is a router violation, matching how §2 already
+/// treats namespace tokens. An unrelated name whose single token merely
+/// embeds the seed (`litellmish`) still passes: no new false positives.
 pub fn check_package_name(name: &str, location: &str, out: &mut Vec<Violation>) {
     let normalized = name.trim().to_ascii_lowercase();
-    if ROUTER_GATEWAY_PACKAGES.contains(&normalized.as_str()) {
+    let tokens = policy::tokenize(&normalized);
+    if tokens
+        .iter()
+        .any(|t| ROUTER_GATEWAY_PACKAGES.contains(&t.as_str()))
+    {
         out.push(Violation {
             kind: ViolationKind::RouterGatewayPackage,
             subject: normalized,
@@ -88,10 +97,7 @@ pub fn check_package_name(name: &str, location: &str, out: &mut Vec<Violation>) 
         });
         return;
     }
-    if policy::tokenize(&normalized)
-        .iter()
-        .any(|t| policy::excluded_namespace_token(t))
-    {
+    if tokens.iter().any(|t| policy::excluded_namespace_token(t)) {
         out.push(Violation {
             kind: ViolationKind::ExcludedNamespacePackage,
             subject: normalized,

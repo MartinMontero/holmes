@@ -188,23 +188,29 @@ pub fn provider_excluded(provider: &str) -> bool {
 }
 
 /// True when a single lowercase token names an excluded model family
-/// (llama*, gpt-*/o-series, grok*) or an excluded vendor id.
+/// (llama, gpt/o-series, grok) or an excluded vendor id. Excluded families
+/// match *anywhere* in the token, not just at its start: `tokenize` splits
+/// only on non-alphanumeric boundaries, so a concatenated id like
+/// `qwenllama` is one token — a start-anchored check would let it slip past
+/// deny-by-default after a permitted prefix. The `ollama` carve-out keeps
+/// the permitted provider from tripping the `llama` substring.
 pub fn excluded_model_token(token: &str) -> bool {
-    token.starts_with("llama")
+    (token.contains("llama") && token != "ollama")
         || token.contains("gpt")
-        || token.starts_with("grok")
+        || token.contains("grok")
         || token == "openai"
         || token == "xai"
         || is_o_series(token)
 }
 
-/// True when a single lowercase token names an excluded vendor namespace
-/// (package-name granularity; o-series excluded here — package names are not
-/// model ids, and single-letter+digit names are common and innocent).
+/// True when a single lowercase token names an excluded vendor namespace.
+/// Same substring rule and `ollama` carve-out as [`excluded_model_token`]
+/// (o-series omitted — package names are not model ids, and single-letter+
+/// digit names are common and innocent).
 pub fn excluded_namespace_token(token: &str) -> bool {
-    token.starts_with("llama")
+    (token.contains("llama") && token != "ollama")
         || token.contains("gpt")
-        || token.starts_with("grok")
+        || token.contains("grok")
         || token == "openai"
         || token == "tiktoken"
         || token == "xai"
@@ -281,5 +287,22 @@ mod tests {
         assert!(!excluded_namespace_token("ollama"));
         assert!(!excluded_model_token("groq"));
         assert!(!excluded_namespace_token("metadata"));
+        // The ollama carve-out is exact: ollama-family package tokens survive.
+        assert!(!excluded_namespace_token("ollama"));
+    }
+
+    #[test]
+    fn excluded_family_matches_mid_token_not_just_at_start() {
+        // A concatenated id that begins with a permitted prefix but embeds an
+        // excluded family mid-token must still be caught (deny-by-default
+        // backstop; regression for the start-anchored hole).
+        for token in ["qwenllama", "mistralgrok", "gemmagrok", "mistralllama70b"] {
+            assert!(
+                excluded_model_token(token),
+                "{token} embeds an excluded family and must be flagged"
+            );
+        }
+        assert!(model_family_excluded("qwenllama"));
+        assert!(model_family_excluded("gemma-grok-merge"));
     }
 }

@@ -314,24 +314,62 @@ fn handle_conn(mut client: TcpStream, cfg: ProxyConfig, events: Arc<Mutex<Vec<Eg
         if !policy::host_permitted(&host, port) {
             return deny(&mut client, &events, &host, port);
         }
-        record(&events, &host, port, Decision::Allowed);
-        let transport = match (&cfg.upstream, is_loopback_host(&host)) {
-            (Some(up), false) => split_host_port(up, 3128)
-                .ok_or_else(|| std::io::Error::other("bad upstream"))
-                .and_then(|(h, p)| connect_direct(&h, p)),
-            _ => connect_direct(&host, port),
-        };
-        match transport {
-            Ok(mut upstream) => {
-                if upstream.write_all(&buf).is_err() {
-                    return;
+        match (&cfg.upstream, is_loopback_host(&host)) {
+            (Some(up), false) => {
+                // Through an upstream forward proxy the transport re-parses
+                // every request and would dispatch a pipelined or keep-alive
+                // continuation to an unvalidated host. Fail closed: forward
+                // exactly the one validated request and copy only the
+                // response back — never splice client->upstream, and never
+                // let bytes past this request's head reach the proxy.
+                if head_end < buf.len() {
+                    return deny(
+                        &mut client,
+                        &events,
+                        "<pipelined-http-through-upstream>",
+                        port,
+                    );
                 }
-                splice(client, upstream);
+                record(&events, &host, port, Decision::Allowed);
+                let transport = split_host_port(up, 3128)
+                    .ok_or_else(|| std::io::Error::other("bad upstream"))
+                    .and_then(|(h, p)| connect_direct(&h, p));
+                match transport {
+                    Ok(mut upstream) => {
+                        if upstream.write_all(&buf[..head_end]).is_err() {
+                            return;
+                        }
+                        // Response direction only.
+                        let mut client_out = client;
+                        let _ = std::io::copy(&mut upstream, &mut client_out);
+                        let _ = client_out.shutdown(Shutdown::Both);
+                    }
+                    Err(_) => {
+                        let _ = client.write_all(
+                            b"HTTP/1.1 502 Bad Gateway\r\nConnection: close\r\nContent-Length: 0\r\n\r\n",
+                        );
+                    }
+                }
             }
-            Err(_) => {
-                let _ = client.write_all(
-                    b"HTTP/1.1 502 Bad Gateway\r\nConnection: close\r\nContent-Length: 0\r\n\r\n",
-                );
+            _ => {
+                // Direct to the permitted origin's own socket: keep-alive and
+                // any pipelined bytes stay confined to that one host, which
+                // serves or rejects them itself — an origin does not forward
+                // onward, so this leg cannot re-dispatch to another host.
+                record(&events, &host, port, Decision::Allowed);
+                match connect_direct(&host, port) {
+                    Ok(mut upstream) => {
+                        if upstream.write_all(&buf).is_err() {
+                            return;
+                        }
+                        splice(client, upstream);
+                    }
+                    Err(_) => {
+                        let _ = client.write_all(
+                            b"HTTP/1.1 502 Bad Gateway\r\nConnection: close\r\nContent-Length: 0\r\n\r\n",
+                        );
+                    }
+                }
             }
         }
     } else {

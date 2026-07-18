@@ -139,6 +139,97 @@ fn s4_fail_closed_on_malformed_and_unsupported_forms() {
     proxy.shutdown();
 }
 
+/// A planted upstream forward proxy: records the raw bytes of every
+/// connection it accepts, so a smuggled second request would be visible in
+/// what it received.
+fn planted_forward_proxy() -> (SocketAddr, Arc<std::sync::Mutex<Vec<u8>>>) {
+    let listener = TcpListener::bind(("127.0.0.1", 0)).expect("bind forward proxy");
+    let addr = listener.local_addr().unwrap();
+    let seen = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let thread_seen = Arc::clone(&seen);
+    thread::spawn(move || {
+        for conn in listener.incoming() {
+            let Ok(mut conn) = conn else { break };
+            let _ = conn.set_read_timeout(Some(Duration::from_secs(2)));
+            let mut buf = [0u8; 4096];
+            while let Ok(n) = conn.read(&mut buf) {
+                if n == 0 {
+                    break;
+                }
+                thread_seen.lock().unwrap().extend_from_slice(&buf[..n]);
+            }
+            let _ = conn.write_all(
+                b"HTTP/1.1 200 OK\r\nContent-Length: 8\r\nConnection: close\r\n\r\nupstream",
+            );
+            let _ = conn.shutdown(Shutdown::Both);
+        }
+    });
+    (addr, seen)
+}
+
+#[test]
+fn s4_pipelined_request_through_upstream_forward_proxy_is_blocked() {
+    // Regression for the forward-proxy re-dispatch hole: an absolute-form
+    // request to a permitted host, pipelined with a second request to an
+    // EXCLUDED host, must not let the second reach the re-parsing upstream.
+    let (upstream, seen) = planted_forward_proxy();
+    let proxy = EgressProxy::spawn(ProxyConfig {
+        upstream: Some(upstream.to_string()),
+    })
+    .expect("spawn proxy");
+
+    // First target permitted (api.anthropic.com:443 is in the allowlist);
+    // second smuggled to an excluded vendor.
+    let pipelined = "GET http://api.anthropic.com:443/v1 HTTP/1.1\r\nHost: api.anthropic.com:443\r\n\r\n\
+                     GET http://api.openai.com:443/exfil HTTP/1.1\r\nHost: api.openai.com:443\r\n\r\n";
+    let response = send_and_read(proxy.addr(), pipelined.as_bytes());
+    assert!(
+        response.starts_with("HTTP/1.1 403"),
+        "pipelined smuggling must fail closed, got: {response}"
+    );
+    let seen_bytes = seen.lock().unwrap().clone();
+    let seen_str = String::from_utf8_lossy(&seen_bytes);
+    assert!(
+        !seen_str.contains("openai"),
+        "excluded host reached the upstream forward proxy: {seen_str:?}"
+    );
+    assert!(proxy
+        .events()
+        .iter()
+        .any(|e| e.decision == Decision::Denied));
+    proxy.shutdown();
+}
+
+#[test]
+fn s5_single_request_through_upstream_forward_proxy_still_works() {
+    // The fix must not break legitimate single-request forwarding: one
+    // absolute-form request to a permitted host reaches the upstream once
+    // and its response returns.
+    let (upstream, seen) = planted_forward_proxy();
+    let proxy = EgressProxy::spawn(ProxyConfig {
+        upstream: Some(upstream.to_string()),
+    })
+    .expect("spawn proxy");
+    let response = send_and_read(
+        proxy.addr(),
+        b"GET http://api.anthropic.com:443/v1 HTTP/1.1\r\nHost: api.anthropic.com:443\r\nConnection: close\r\n\r\n",
+    );
+    assert!(
+        response.contains("upstream"),
+        "no upstream response: {response}"
+    );
+    let seen_str = String::from_utf8_lossy(&seen.lock().unwrap()).into_owned();
+    assert!(
+        seen_str.contains("api.anthropic.com"),
+        "upstream saw: {seen_str:?}"
+    );
+    assert!(proxy
+        .events()
+        .iter()
+        .any(|e| e.decision == Decision::Allowed && e.host == "api.anthropic.com"));
+    proxy.shutdown();
+}
+
 #[test]
 fn s5_positive_control_permitted_loopback_tunnel_round_trips() {
     // The one host:port the compiled allowlist permits on loopback is the

@@ -108,6 +108,26 @@ fn s2_retired_deepseek_alias_ids_do_not_resolve() {
 }
 
 #[test]
+fn s2_concatenated_excluded_family_after_permitted_prefix_denies() {
+    // Regression: an id that starts with a permitted family prefix but embeds
+    // an excluded family mid-token (single tokenize unit) must deny, not pass
+    // on the permitted prefix.
+    for (provider, model) in [
+        ("ollama", "qwenllama"),
+        ("mistral", "mistralgrok"),
+        ("ollama", "gemmagrok"),
+        ("ollama", "mistralllama70b"),
+    ] {
+        match resolve(provider, model) {
+            Err(Denial::ExcludedModelFamily(_)) => {}
+            other => {
+                panic!("{provider}/{model} embeds an excluded family and must deny, got {other:?}")
+            }
+        }
+    }
+}
+
+#[test]
 fn s2_normalization_does_not_open_holes() {
     assert!(resolve(" Anthropic ", "CLAUDE-Sonnet-5").is_ok());
     assert!(resolve("OPENAI", "claude-sonnet-5").is_err());

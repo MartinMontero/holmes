@@ -96,6 +96,32 @@ fn c4_router_gateway_seed_list_fires() {
 }
 
 #[test]
+fn c4_router_seed_matches_real_world_variant_names() {
+    // Regression: exact whole-name matching let variant/transitive spellings
+    // (litellm-proxy-extras is an actual litellm transitive dep) evade §4.
+    let mut out = Vec::new();
+    for variant in [
+        "litellm-proxy",
+        "litellm-proxy-extras",
+        "openrouter-py",
+        "litellm_router",
+    ] {
+        check_package_name(variant, "fixture", &mut out);
+    }
+    assert_eq!(out.len(), 4, "variant router names must all fire: {out:?}");
+    assert!(out
+        .iter()
+        .all(|v| v.kind == ViolationKind::RouterGatewayPackage));
+
+    // A name that merely embeds the seed as a substring within one token is
+    // not a router and must still pass — no new false positives.
+    let mut clean = Vec::new();
+    check_package_name("litellmish", "fixture", &mut clean);
+    check_package_name("openrouterish", "fixture", &mut clean);
+    assert!(clean.is_empty(), "false positives: {clean:?}");
+}
+
+#[test]
 fn c5_negative_control_planted_lock_fails_the_gate() {
     let mut report = ScanReport::default();
     scan_lock_text(PLANTED_LOCK, "planted.lock", &mut report);
