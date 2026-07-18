@@ -5,7 +5,7 @@
 **Journeys**
 1. Gate Zero cleared with human answers recorded as D-items — ✅ (D-01, D-05–D-08)
 2. Canon + AC doc staged and normalized; ledger updates on branch; phase PR opened — ✅ (PR merge = human go-ahead, pending)
-3. Task 3.2 blocked path: diff file absent → stop-report → ledger → skip — ✅ (F-014)
+3. Task 3.2 blocked path: diff file absent → stop-report → ledger → skip — ✅ (F-014); then **executed on second pass** 2026-07-18 after the diff landed: E1–E14 applied exactly, derived files re-seeded, F-014 resolved
 4. Task 3.3 audit: sweep → assess each hit → flag cross-repo → attempt live primary — ✅ (primary blocked, recorded honestly)
 5. Task 3.4: roadmap derived from §6; dropped-unique flagged — ✅ (A-03)
 
