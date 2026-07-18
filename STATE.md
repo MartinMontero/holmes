@@ -26,11 +26,15 @@
 
 | Lock | Status | Evidence (executed 2026-07-18, this container) |
 |---|---|---|
-| **0a** — AC-DL-1 §§1–5, §7 | **VERIFIED (local, release, hermetic)** | `cargo test --release --locked -p holmes-guard` → 28 passed / 0 failed (resolution §2/§5, proxy §4/§5 with planted proxy-honoring server, spawn §3, structural §1, unit). §6 SCHEDULED to lock 2b, recorded visibly in CI. CI-run leg pending first push (workflow landed: `.github/workflows/acdl-gate.yml`, action-free) |
-| **0b** — AC-DL-2 all seven | **VERIFIED (local, release)** | Positive control: 13 packages / 20 files / CLEAN / exit 0, exemptions listed. Negative control: planted lockfile → 5 violations / FAIL / exit 1. Criteria 1–7 each covered by a named test (`tests/acdl2_scanner.rs`); c7 = joint workflow, same run as 0a |
+| **0a** — AC-DL-1 §§1–5, §7 | **VERIFIED (local, release, hermetic)** | `cargo test --release --locked -p holmes-guard` → **33 passed / 0 failed** (resolution §2/§5, proxy §4/§5 with planted proxy-honoring server + planted upstream forward proxy, spawn §3, structural §1, unit; incl. 5 regression tests from the adversarial pass). §6 SCHEDULED to lock 2b, recorded visibly in CI. CI-run leg pending first CI trigger (workflow landed: `.github/workflows/acdl-gate.yml`, action-free) |
+| **0b** — AC-DL-2 all seven | **VERIFIED (local, release)** | Positive control: 13 packages / 20 files / CLEAN / exit 0, exemptions listed. Negative control: planted lockfile → 5 violations / FAIL / exit 1. Criteria 1–7 each covered by a named test (`tests/acdl2_scanner.rs`); c7 = joint workflow, same run as 0a. Router seed now token-scoped (F-018 fix) |
 | **0c** — ACP round-trip | **PARTIAL — BLOCKED on model access** | Harness `holmes-smoke` executed against real goose 1.43.0 via L2: initialize + session/new complete; goose-reported pair (`ollama`/`gemma3:1b`) L1b-permitted post-handshake; 12/12 egress events `localhost:11434 allowed` through L1a; excluded-provider run denied exit 3. Model-response leg needs a Tier-1 key in-container **or** Tier-2 model egress (ollama.com 403). Never faked |
 | **0d** — embedding contract | ABSENT — not in this session's instructed scope | — |
 | **0e** — full CI (SBOM/scanners) | PARTIAL — AC-DL joint gate landed (action-free ⇒ SHA-pinning trivially satisfied); Syft/OSV/Grype not yet wired | — |
+
+## Adversarial self-verification (2026-07-18)
+
+7 skeptics attacked each guard property; every reported defect re-reproduced against source before acceptance. 3 claims held (L2 env-strip, BYOK invariant, born-redacted output). 4 confirmed defects **fixed + regression-locked this session**: F-017 (MAJOR, L1a forward-proxy re-dispatch), F-018 (MAJOR, AC-DL-2 router exact-match evasion), F-019 (MINOR, mid-token excluded-family hole), F-020 (MINOR, §1 structural test fidelity). See findings-ledger.
 
 ## Environment (this container)
 
