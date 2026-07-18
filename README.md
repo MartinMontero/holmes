@@ -40,7 +40,7 @@ docs/
     00-audit-charter.md  The Adversarial QA & Production-Readiness Audit, instantiated for Holmes
     findings-ledger.md   F-### findings (seeded; several resolved by the spec landing)
     amendments.md        A-## amendments (empty until the audit runs)
-    decisions.md         D-## decisions reserved for the human (D-01…D-05 open)
+    decisions.md         D-## decisions reserved for the human (D-01/D-05…D-08 decided; D-02–D-04 open)
   roadmap/
     build-phases.md      SUPERSEDED pointer → the real roadmap is spec §7 (Phases 0–5)
 ```
@@ -49,11 +49,11 @@ docs/
 
 All work in this repo is governed by the constitution in [CLAUDE.md](CLAUDE.md): zero fabrication with epistemic labels, evidence-or-it-didn't-happen, the vendor denylist (no Meta, OpenAI, or xAI — direct, transitive, or as model weights; Google permitted), Rule 9 (consent before consequence), RPI, path-confined tools, born-redacted telemetry, supply-chain hygiene (no Trivy, SHA-pinned Actions), and surveillance-detection-not-surveillance.
 
-⚠️ **Open licensing decision (D-01):** the LICENSE is Apache-2.0; the generic audit gate says AGPL/GPL, while spec §7 says "Apache-2.0-compatible repo." Which governs is a human call — undecided.
+**License (D-01, decided 2026-07-18):** Holmes is licensed **AGPL-3.0-or-later**, matching Alfred — the LICENSE file carries the GNU AGPL v3 text, and the "or any later version" option applies per the notice convention in its How-to-Apply section. Ratified by the human at Gate Zero with `Alfred/LICENSE` quoted as evidence (`docs/audit/decisions.md` D-01; resolves F-001).
 
 ## Next steps
 
-1. Commit `holmes-claude-code-kickoff-phase0-v2.md` (F-009) and the character bible if it should be versioned.
-2. Decide D-01 (license) and D-05 (Phase 0 smoke-test mode: cloud Tier-1 vs offline Tier-2).
-3. Optionally run the fresh adversarial audit (`docs/audit/00-audit-charter.md`) as a pre-Phase-0 gate — D-04.
-4. Run **Phase 0 — Scaffold** from the kickoff prompt; it stops at the Rule-9 checkpoint and emits a readout for pressure-testing.
+1. ~~Decide D-01 (license) and D-05 (smoke-test mode)~~ — both decided 2026-07-18 at Gate Zero (`docs/audit/decisions.md`).
+2. Stage the still-missing upstream artifacts: the 2026-07-13 second-pass audit report (→ `docs/audit/`), `holmes-spec-v2.1-diff.md` (F-011/F-014), and `holmes-claude-code-kickoff-phase0-v2.md` (F-009) if it remains relevant alongside the master build loop.
+3. Optionally run the fresh adversarial audit (`docs/audit/00-audit-charter.md`) — D-04, still open.
+4. Continue the **Master Build Loop v2** (`docs/prompts/holmes-master-build-loop-v2.md`): Phase 0 build begins at the next session with a provider key in the environment; every phase stops at its Rule-9 checkpoint and emits a readout for pressure-testing.
