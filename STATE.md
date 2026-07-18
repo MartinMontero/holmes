@@ -1,11 +1,11 @@
 # STATE.md — Holmes build state (loop §5)
 
-**Updated:** 2026-07-18 (Session 1 of the Master Build Loop v2) · **Maintainer:** the loop; refreshed at every checkpoint.
+**Updated:** 2026-07-18 (Session 2 — Phase 0 build, locks 0a/0b/0c) · **Maintainer:** the loop; refreshed at every checkpoint.
 
 ## Git state
 
-- Current branch: `claude/holmes-launch-runbook-kwtkta` (session/working branch; restarted from `main` after PR #4 merged — clean fast-forward, no force needed)
-- `origin/main` head: `957e369` (post-PR-#4 merge `71e4009` + three uploads: audit report, v2.1 diff; no rewrite)
+- Current branch: `claude/phase-0-holmes-guard-build-va1er0` (session/working branch, started from `origin/main` `f8b43a3` — clean, FF-OK)
+- `origin/main` head: `f8b43a3` (merge of PR #5 — Task 0 session landed with explicit go-ahead)
 - Ancestry: FF-OK
 - Landing mechanics: PR-only to `main`, explicit go-ahead (D-08); connector re-sync after every canon merge (F-012)
 
@@ -13,58 +13,57 @@
 
 | Call | Decision | Record |
 |---|---|---|
-| (a) Charter verdict | 2026-07-13 second-pass audit accepted (SHIP WITH FIXES) | D-06 · audit report file itself still ABSENT from `docs/audit/` — staging obligation |
-| (b) D-01 license | AGPL-3.0-or-later ratified; `Alfred/LICENSE` quoted from disk; LICENSE swapped byte-identical to Alfred's (`d8a6cc31…96bee`) | D-01, F-001 |
-| (c) Git reconciliation | Branch restart + one `--force-with-lease` push approved and executed; nothing lost | D-07 |
+| (a) Charter verdict | 2026-07-13 second-pass audit accepted (SHIP WITH FIXES) | D-06 · report on disk `docs/audit/` |
+| (b) D-01 license | AGPL-3.0-or-later ratified; LICENSE byte-identical to Alfred's | D-01, F-001 |
+| (c) Git reconciliation | Branch restart + one approved `--force-with-lease`; nothing lost | D-07 |
 | (d) Discipline | Confirmed | D-08 |
 
-## Task 0 status (loop §3)
+## Task 0 status (loop §3) — COMPLETE
 
-- **3.0 Gate Zero:** ✅ cleared (above)
-- **3.1 Land canon on `main`:** ✅ staged — canon + AC doc (normalized to `docs/acceptance/`, sha256 verified across the move) + Gate-Zero ledger updates on the session branch; **phase PR open, merge awaits go-ahead**
-- **3.2 Spec v2.1:** ✅ executed 2026-07-18 (second pass, after the human landed `docs/holmes-spec-v2.1-diff.md` on `main`) — E1–E14 applied exactly (each FIND matched once, verified pre-edit); spec title **v2.1**; markers post-apply 10× `[NEEDS-CAVEAT]` / 11× `[DIRECTIONAL]`; derived knowledge files re-seeded (`CLAUDE.md` marked block, `docs/architecture.md`, `docs/constitution.md`, `docs/build-roadmap.md`, `docs/security.md`). **F-014 RESOLVED.** Standing spec amendments carried: A-02, A-03, A-04, A-05.
-- **3.3 Alias audit:** ✅ executed 2026-07-18 — see table below
-- **3.4 Roadmap reconciliation:** ✅ `docs/roadmap/build-phases.md` replaced with the loop-§6 derivation; dropped-unique item flagged as **A-03** (Tauri shell → spec revision pending)
+3.0 ✅ · 3.1 ✅ (landed via PR #5) · 3.2 ✅ (spec v2.1, E1–E14, derived files re-seeded; F-014 resolved) · 3.3 ✅ (alias audit; primary re-verification still egress-blocked — carry) · 3.4 ✅ (roadmap reconciled; A-03). Standing spec amendments: A-02…A-05 (+ A-05 note: `GOOSE_DISABLE_KEYRING` now primary-cited from source @ `8e78960e`, `crates/goose/src/config/base.rs`).
 
-### Task 3.3 — alias audit results (2026-07-18)
+## Phase 0 lock inventory (loop §6)
 
-Scope: every config, doc, and reference; `deepseek-chat` / `deepseek-reasoner` retire 2026-07-24 15:59 UTC, both routing to V4 Flash (`deepseek-reasoner` → Flash, not Pro — per A-01).
+| Lock | Status | Evidence (executed 2026-07-18, this container) |
+|---|---|---|
+| **0a** — AC-DL-1 §§1–5, §7 | **VERIFIED (local, release, hermetic) — v3-conformant** | `cargo test --release --locked -p holmes-guard` → **40 passed / 0 failed** (resolution §2/§5, proxy §2a/§4/§5 with planted proxy-honoring server + planted upstream forward proxy + named-endpoint denial, spawn §3, structural §1, unit; incl. regression + v3-delta tests). §6 SCHEDULED to lock 2b, recorded visibly in CI. CI-run leg pending first CI trigger (workflow landed: `.github/workflows/acdl-gate.yml`, action-free) |
+| **0b** — AC-DL-2 all seven | **VERIFIED (local, release) — v3-conformant** | v3 control convention: **positive** control (planted lockfile) → FAIL / exit 1; **negative** control (real tree, lockfile discovery) → CLEAN / exit 0. Multi-ecosystem lockfile walk (§1), documented seed table with rationale (§2), dependency-path in failure output (§3 — `pulled in via holmes-app -> middleware-lib -> async-openai`). Criteria 1–7 each covered by named tests; c7 = joint workflow, same run as 0a |
+| **0c** — ACP round-trip | **PARTIAL — BLOCKED on model access** | Harness `holmes-smoke` executed against real goose 1.43.0 via L2: initialize + session/new complete; goose-reported pair (`ollama`/`gemma3:1b`) L1b-permitted post-handshake; 12/12 egress events `localhost:11434 allowed` through L1a; excluded-provider run denied exit 3. Model-response leg needs a Tier-1 key in-container **or** Tier-2 model egress (ollama.com 403). Never faked |
+| **0d** — embedding contract | ABSENT — not in this session's instructed scope | — |
+| **0e** — full CI (SBOM/scanners) | PARTIAL — AC-DL joint gate landed (action-free ⇒ SHA-pinning trivially satisfied); Syft/OSV/Grype not yet wired | — |
 
-- **Holmes repo: no configs or code exist — zero call sites bind the aliases.** Every hit is documentation: spec L107 (informational note, dated, accurate), loop L60/L145 (the audit instruction + dated facts ledger), runbook §0/§2 (migration guidance), AC doc (provider names only, no aliases), ledgers/provenance (meta-references). **No fixes required in-repo; nothing hard-codes the promo rate as the only rate.**
-- Spec pricing phrasing observation (no action): L21 "became permanent" is the spec's strongest pricing claim; the spec itself tempers it at L228 ("vendors change pricing") and the loop's facts ledger carries `[NEEDS-CAVEAT]` on permanence. Budget-both-rates remains the binding rule (loop L60).
-- **Sibling repos:** no alias hits in `wecanjustbuildthings.dev`. One Alfred hit: `src/lib/provider-policy.test.ts:88` uses `deepseek-chat` (and L77 `deepseek-r1`) as string fixtures in provider-policy tests — no API call, retirement breaks nothing; **flagged (not modified) as an Alfred-side freshness note** (see cross-repo obligations).
-- **Primary re-verification 2026-07-18: BLOCKED** — `api-docs.deepseek.com` returns 403 through this environment's egress. UNVERIFIED-live today; carrying the 2026-07-13 primary verification (loop §8) and 2026-07-16 secondary re-corroboration (runbook §0). Re-verify at next session with open egress, and at Phase RC ("alias audit re-confirmed post-2026-07-24").
+## Adversarial self-verification (2026-07-18)
+
+7 skeptics attacked each guard property; every reported defect re-reproduced against source before acceptance. 3 claims held (L2 env-strip, BYOK invariant, born-redacted output). 4 confirmed defects **fixed + regression-locked this session**: F-017 (MAJOR, L1a forward-proxy re-dispatch), F-018 (MAJOR, AC-DL-2 router exact-match evasion), F-019 (MINOR, mid-token excluded-family hole), F-020 (MINOR, §1 structural test fidelity). See findings-ledger.
 
 ## Environment (this container)
 
-- Provider key: ABSENT in-container (D-05 residual — secrets inject at container start; Tier-1 cloud decided; re-verify next container)
-- goose: NOT INSTALLED — install approved but blocked by network policy (cross-owner GitHub 403, crates.io blocked). Remedies: new session with `aaif-goose/goose` as an initial source, or vendored binary.
-- Siblings on disk: `Alfred` @ `1801bc3`, `wecanjustbuildthings.dev` @ `563220a` (shallow clones, symlinked beside `holmes`)
-
-## Phase 0 lock inventory (loop §6) — all ABSENT
-
-No application code exists (`git ls-files`: docs + governance only; no `crates/`, no `.github/workflows/`). Locks 0a, 0b, 0c, 0d, 0e: **ABSENT** — nothing built, nothing claimed. Build begins next session (needs provider key in-container; goose install).
+- Provider key: **ABSENT** (`ANTHROPIC_API_KEY` unset; only `ANTHROPIC_BASE_URL=https://api.anthropic.com`, keyless probe → 401; no Google key; D-05 residual)
+- goose: **INSTALLED from source** — origin `aaif-goose/goose` @ `8e78960e535ab7f34630e7c5921a42f146cbc9f4` (Apache-2.0, verified on disk), v1.43.0, binary **`/home/user/goose-src/target/release/goose`** (trimmed: `--no-default-features --features rustls-tls` — no V8/code-mode, telemetry, aws-providers, system-keyring, updater). Container-ephemeral: rebuild per session or vendor.
+- **Do not `cargo install goose-cli`** — the crates.io name is a squatter (F-016).
+- Ollama: install blocked (ollama.com + GitHub release egress 403) — Tier-2 local smoke unavailable here.
+- Siblings: `Alfred` / `wecanjustbuildthings.dev` **ABSENT from this container** (fresh clone, no symlinks). D-01 evidence already ledgered; no Alfred-touching work in scope.
 
 ## Cross-repo obligations — Alfred
 
 | Obligation | Status |
 |---|---|
-| Artifact-level guard CI test (runs in Alfred's CI) | OPEN — [DIRECTIONAL], never verified; read-only verification pass not yet run |
-| OS/artifact-level egress enforcement | OPEN — [DIRECTIONAL] |
+| Artifact-level guard CI test (runs in Alfred's CI) | OPEN — [DIRECTIONAL] |
+| OS/artifact-level egress enforcement (L1a residual: hostile binary ignoring proxy env) | OPEN — restated in `holmes-guard` docs + `docs/security.md` |
 | Signed update channel with rollback | OPEN — [DIRECTIONAL] |
 | Memory/resurfacing channel | OPEN — [DIRECTIONAL] |
-| First-run rendering (tool-approval UX surface) | OPEN — recorded per loop §6 Phase 2.5(iii) |
-| `holmes-guard` adoption retiring `provider-lockdown.ts` (strippable TS guard) | OPEN — design obligation from Phase 0 |
-| Freshness note: `src/lib/provider-policy.test.ts` L77/L88 use stale/retiring model-id fixtures (`deepseek-r1`, `deepseek-chat`) | NOTED 2026-07-18 — cosmetic; string-policy test, no API call; fix opportunistically Alfred-side |
+| First-run rendering (tool-approval UX surface) | OPEN |
+| `holmes-guard` adoption retiring `provider-lockdown.ts` | OPEN — adoption surface now real: `policy::PROVIDER_SELECTING_ENV_VARS`, `spawn::sanitized_spawn`, readable policy tables |
+| Freshness note: `src/lib/provider-policy.test.ts` stale model-id fixtures | NOTED 2026-07-18 — cosmetic |
 
 ## Staging obligations — human
 
-1. ~~2026-07-13 second-pass audit report~~ — **landed 2026-07-18** (`docs/audit/holmes-master-build-loop-v1-second-pass-audit.md`; verdict verified on disk, D-06 note updated)
-2. ~~`holmes-spec-v2.1-diff.md`~~ — **landed and applied 2026-07-18** (F-014 resolved)
-3. Provider key visible in-container (D-05 residual) — still open
-4. goose availability (see Environment) — still open
-5. Still-unlocated upstream artifacts (F-011/F-009): kickoff v2, `Iterative quality validation process.md`, `claude-code-epistemic-integration-prompt.md`
+1. **Provider access for lock 0c** (D-05 residual): **STILL BLOCKED this session** — `ANTHROPIC_API_KEY` remains unset in-container (keyless probe → 401; no key file). The human reports the key is saved in the environment config, but it is not injected into *this* container. Inject it at container start (or open egress for Ollama + a permitted Gemma/Qwen weight), then: `holmes-smoke --goose /home/user/goose-src/target/release/goose --provider <p> --model <m> --credential-env KEY --transcript ...`
+2. ~~**F-015**: supply AC doc v3~~ — **RESOLVED 2026-07-18**: v3 landed at root, normalized into `docs/acceptance/` (hash-gated), root removed, v2 to history; v3-conformance pass closed F-021…F-024.
+3. Mark the `acdl-gate` workflow a **required status check** on `main` (branch protection is repo-settings, human-owned) — completes AC-DL-2 c7's "required gate" clause.
+4. Still-unlocated upstream artifacts (F-009/F-011): kickoff v2, `Iterative quality validation process.md`, `claude-code-epistemic-integration-prompt.md`.
+5. DeepSeek alias primary re-verification (api-docs.deepseek.com egress) — carry to next open-egress session and Phase RC.
 
 ## Resume point
 
-Next session: `git fetch origin` → verify provider key + goose (pre-flight items 4/6, the two remaining blockers) → begin **Phase 0 build** (lock 0a first: guard skeleton + AC-DL CI). Task 0 is complete — 3.0 through 3.4 all executed.
+Phase 0 checkpoint reached on the session branch (locks 0a/0b green locally; 0c harness proven, model leg blocked). Next: human reviews checkpoint readout → phase PR to `main` on explicit go-ahead → complete 0c when provider access exists → 0d/0e (embedding contract; SBOM/scanner CI). Every fresh session: `git fetch origin` first.

@@ -1,0 +1,6 @@
+# AC-DL-2 §1 Python-ecosystem fixture (requirements format).
+graphiti-core==0.3.0
+openai==1.12.0
+tiktoken==0.5.2
+litellm==1.30.0
+qwen-agent==0.1.0
