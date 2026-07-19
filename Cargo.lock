@@ -3,6 +3,13 @@
 version = 4
 
 [[package]]
+name = "holmes-core"
+version = "0.1.0"
+dependencies = [
+ "holmes-guard",
+]
+
+[[package]]
 name = "holmes-guard"
 version = "0.1.0"
 

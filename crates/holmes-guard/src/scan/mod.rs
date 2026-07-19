@@ -412,7 +412,7 @@ fn parse_pip(text: &str) -> Vec<LockPackage> {
             continue;
         }
         let name = t
-            .split(|c: char| matches!(c, '=' | '>' | '<' | '~' | '!' | '[' | ';' | ' '))
+            .split(['=', '>', '<', '~', '!', '[', ';', ' '])
             .next()
             .unwrap_or("")
             .trim();

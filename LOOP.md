@@ -3,6 +3,8 @@
 **Updated:** 2026-07-18 · Maintained per loop §1. Prior stage (Task 0 documentation loop) preserved in git history at `main`.
 
 > **Session-3 follow-on (2026-07-19):** lock **0e** — an explicit *non-goal* of this build stage (below) — subsequently had its CVE gate wired in `.github/workflows/supply-chain.yml` (Syft SBOM + OSV-Scanner primary + Grype cross-check; no Trivy). Live status and evidence: `STATE.md` lock 0e.
+>
+> **Session-4 follow-on (2026-07-19, Phase 0 close):** 0e CVE gate proven in CI (landed via PR #7); lock **0d** built (`crates/holmes-core` embedding contract — §6.2 types + validation, consumer + structural tests, workspace suite wired into the acdl-gate CI job); goose rebuild scripted (`scripts/build-goose.sh`, pin + provenance + sha256; F-016 honored); lock **0c** status lives in `STATE.md` (per-lock evidence there). F-025 ledgered (reword-over-exemption precedent).
 
 ## Scope
 
