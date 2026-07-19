@@ -1,0 +1,768 @@
+{
+  "egress_events": [
+    {
+      "decision": "allowed",
+      "host": "api.anthropic.com",
+      "port": 443
+    }
+  ],
+  "frames": [
+    {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "initialize",
+      "params": {
+        "clientCapabilities": {},
+        "clientInfo": {
+          "name": "holmes-smoke",
+          "version": "0.1.0"
+        },
+        "protocolVersion": 1
+      }
+    },
+    {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "agentCapabilities": {
+          "auth": {},
+          "loadSession": true,
+          "mcpCapabilities": {
+            "acp": false,
+            "http": true,
+            "sse": false
+          },
+          "promptCapabilities": {
+            "audio": false,
+            "embeddedContext": true,
+            "image": true
+          },
+          "sessionCapabilities": {
+            "close": {},
+            "list": {}
+          }
+        },
+        "agentInfo": {
+          "name": "goose",
+          "version": "1.43.0"
+        },
+        "authMethods": [
+          {
+            "description": "Run `goose configure` to set up your AI provider and API key",
+            "id": "goose-provider",
+            "name": "Configure Provider"
+          }
+        ],
+        "protocolVersion": 1
+      }
+    },
+    {
+      "id": 2,
+      "jsonrpc": "2.0",
+      "method": "session/new",
+      "params": {
+        "cwd": "/tmp/holmes-smoke-2614",
+        "mcpServers": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "sessionUpdate": "usage_update",
+          "size": 1000000,
+          "used": 0
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "availableCommands": [
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "List available prompts, optionally filtered by extension",
+              "name": "prompts"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Execute a prompt or show its info with --info",
+              "name": "prompt"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Compact the conversation history",
+              "name": "compact"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Clear the conversation history",
+              "name": "clear"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "List installed skills and other available sources",
+              "name": "skills"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Check that your Goose setup is working",
+              "name": "doctor"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Set a goal the agent must satisfy before finishing, or clear with /goal off",
+              "name": "goal"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Set a goal the agent pursues relentlessly until max_turns, or clear with /grind off",
+              "name": "grind"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Show session status: model, provider, mode, and token usage",
+              "name": "status"
+            },
+            {
+              "_meta": {
+                "commandType": "Skill"
+              },
+              "description": "Reference goose documentation to create, configure, or explain goose-specific features like recipes, extensions, sessions, and providers. You MUST fetch relevant goose docs before answering. You MUST NOT rely on training data or assumptions for any goose-specific fields, values, names, syntax, or commands.",
+              "name": "goose-doc-guide"
+            }
+          ],
+          "sessionUpdate": "available_commands_update"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "jsonrpc": "2.0",
+      "result": {
+        "_meta": {
+          "extensionResults": [
+            {
+              "name": "tom",
+              "success": true
+            },
+            {
+              "name": "todo",
+              "success": true
+            },
+            {
+              "name": "apps",
+              "success": true
+            },
+            {
+              "name": "analyze",
+              "success": true
+            },
+            {
+              "name": "summon",
+              "success": true
+            },
+            {
+              "name": "Extension Manager",
+              "success": true
+            },
+            {
+              "name": "developer",
+              "success": true
+            },
+            {
+              "name": "skills",
+              "success": true
+            }
+          ],
+          "workingDir": "/tmp/holmes-smoke-2614"
+        },
+        "configOptions": [
+          {
+            "currentValue": "anthropic",
+            "id": "provider",
+            "name": "Provider",
+            "options": [
+              {
+                "name": "Goose (Default)",
+                "value": "goose"
+              },
+              {
+                "name": "Alibaba (Qwen)",
+                "value": "alibaba"
+              },
+              {
+                "name": "Amp",
+                "value": "amp-acp"
+              },
+              {
+                "name": "Anthropic",
+                "value": "anthropic"
+              },
+              {
+                "name": "Atomic Chat",
+                "value": "atomic_chat"
+              },
+              {
+                "name": "Avian",
+                "value": "avian"
+              },
+              {
+                "name": "Azure OpenAI",
+                "value": "azure_openai"
+              },
+              {
+                "name": "Cerebras",
+                "value": "cerebras"
+              },
+              {
+                "name": "ChatGPT Codex",
+                "value": "chatgpt_codex"
+              },
+              {
+                "name": "Claude Code",
+                "value": "claude-acp"
+              },
+              {
+                "name": "Claude Code CLI",
+                "value": "claude-code"
+              },
+              {
+                "name": "OpenAI Codex CLI",
+                "value": "codex"
+              },
+              {
+                "name": "Codex CLI",
+                "value": "codex-acp"
+              },
+              {
+                "name": "GitHub Copilot CLI (ACP)",
+                "value": "copilot-acp"
+              },
+              {
+                "name": "Cursor Agent",
+                "value": "cursor-agent"
+              },
+              {
+                "name": "DeepSeek",
+                "value": "custom_deepseek"
+              },
+              {
+                "name": "Tensorix",
+                "value": "custom_tensorix"
+              },
+              {
+                "name": "Databricks",
+                "value": "databricks"
+              },
+              {
+                "name": "Databricks AI Gateway",
+                "value": "databricks_v2"
+              },
+              {
+                "name": "EmpirioLabs AI",
+                "value": "empiriolabs"
+              },
+              {
+                "name": "Fireworks AI",
+                "value": "fireworks-ai"
+              },
+              {
+                "name": "FuturMix",
+                "value": "futurmix"
+              },
+              {
+                "name": "GCP Vertex AI",
+                "value": "gcp_vertex_ai"
+              },
+              {
+                "name": "Gemini CLI",
+                "value": "gemini-cli"
+              },
+              {
+                "name": "Gemini",
+                "value": "gemini_oauth"
+              },
+              {
+                "name": "GitHub Copilot",
+                "value": "github_copilot"
+              },
+              {
+                "name": "Google Gemini (API Key)",
+                "value": "google"
+              },
+              {
+                "name": "Groq (d)",
+                "value": "groq"
+              },
+              {
+                "name": "Hugging Face",
+                "value": "huggingface"
+              },
+              {
+                "name": "iFlytek Spark",
+                "value": "iflytek"
+              },
+              {
+                "name": "iFlytek Astron MaaS",
+                "value": "iflytek_astron"
+              },
+              {
+                "name": "Inception",
+                "value": "inception"
+              },
+              {
+                "name": "Kimi Code",
+                "value": "kimi_code"
+              },
+              {
+                "name": "LiteLLM",
+                "value": "litellm"
+              },
+              {
+                "name": "Llama Swap",
+                "value": "llama_swap"
+              },
+              {
+                "name": "LM Studio",
+                "value": "lmstudio"
+              },
+              {
+                "name": "Meta",
+                "value": "meta"
+              },
+              {
+                "name": "MiniMax",
+                "value": "minimax"
+              },
+              {
+                "name": "Mistral AI",
+                "value": "mistral"
+              },
+              {
+                "name": "Moonshot",
+                "value": "moonshot"
+              },
+              {
+                "name": "NanoGPT",
+                "value": "nano-gpt"
+              },
+              {
+                "name": "NEAR AI Cloud",
+                "value": "nearai"
+              },
+              {
+                "name": "Novita AI",
+                "value": "novita"
+              },
+              {
+                "name": "NVIDIA",
+                "value": "nvidia"
+              },
+              {
+                "name": "Ollama",
+                "value": "ollama"
+              },
+              {
+                "name": "Ollama Cloud",
+                "value": "ollama_cloud"
+              },
+              {
+                "name": "oMLX",
+                "value": "omlx"
+              },
+              {
+                "name": "OpenAI",
+                "value": "openai"
+              },
+              {
+                "name": "OpenCode Go",
+                "value": "opencode_go"
+              },
+              {
+                "name": "OpenRouter",
+                "value": "openrouter"
+              },
+              {
+                "name": "OrcaRouter",
+                "value": "orcarouter"
+              },
+              {
+                "name": "OVHcloud",
+                "value": "ovhcloud"
+              },
+              {
+                "name": "Perplexity",
+                "value": "perplexity"
+              },
+              {
+                "name": "Pi",
+                "value": "pi-acp"
+              },
+              {
+                "name": "Routstr",
+                "value": "routstr"
+              },
+              {
+                "name": "Sakana AI",
+                "value": "sakana"
+              },
+              {
+                "name": "SaladCloud AI Gateway",
+                "value": "saladcloud"
+              },
+              {
+                "name": "Scaleway",
+                "value": "scaleway"
+              },
+              {
+                "name": "Snowflake",
+                "value": "snowflake"
+              },
+              {
+                "name": "VMware Tanzu Platform",
+                "value": "tanzu_ai"
+              },
+              {
+                "name": "Tetrate Agent Router Service",
+                "value": "tetrate"
+              },
+              {
+                "name": "Together AI",
+                "value": "together"
+              },
+              {
+                "name": "Venice.ai",
+                "value": "venice"
+              },
+              {
+                "name": "Vercel AI Gateway",
+                "value": "vercel_ai_gateway"
+              },
+              {
+                "name": "xAI",
+                "value": "xai"
+              },
+              {
+                "name": "xAI (SuperGrok Subscription)",
+                "value": "xai_oauth"
+              },
+              {
+                "name": "Z.AI",
+                "value": "zai"
+              },
+              {
+                "name": "Zhipu AI",
+                "value": "zhipu"
+              }
+            ],
+            "type": "select"
+          },
+          {
+            "category": "mode",
+            "currentValue": "auto",
+            "id": "mode",
+            "name": "Mode",
+            "options": [
+              {
+                "description": "Automatically approve tool calls",
+                "name": "auto",
+                "value": "auto"
+              },
+              {
+                "description": "Ask before every tool call",
+                "name": "approve",
+                "value": "approve"
+              },
+              {
+                "description": "Ask only for sensitive tool calls",
+                "name": "smart_approve",
+                "value": "smart_approve"
+              },
+              {
+                "description": "Chat only, no tool calls",
+                "name": "chat",
+                "value": "chat"
+              }
+            ],
+            "type": "select"
+          },
+          {
+            "category": "model",
+            "currentValue": "claude-sonnet-5",
+            "id": "model",
+            "name": "Model",
+            "options": [
+              {
+                "name": "Claude Sonnet 5",
+                "value": "claude-sonnet-5"
+              },
+              {
+                "name": "Claude Fable 5",
+                "value": "claude-fable-5"
+              },
+              {
+                "name": "Claude Opus 4.8",
+                "value": "claude-opus-4-8"
+              },
+              {
+                "name": "Claude Opus 4.7",
+                "value": "claude-opus-4-7"
+              },
+              {
+                "name": "Claude Sonnet 4.6",
+                "value": "claude-sonnet-4-6"
+              },
+              {
+                "name": "Claude Opus 4.6",
+                "value": "claude-opus-4-6"
+              },
+              {
+                "name": "Claude Opus 4.5 (latest)",
+                "value": "claude-opus-4-5-20251101"
+              },
+              {
+                "name": "Claude Haiku 4.5 (latest)",
+                "value": "claude-haiku-4-5-20251001"
+              },
+              {
+                "name": "Claude Sonnet 4.5 (latest)",
+                "value": "claude-sonnet-4-5-20250929"
+              },
+              {
+                "name": "Claude Opus 4.1 (latest)",
+                "value": "claude-opus-4-1-20250805"
+              }
+            ],
+            "type": "select"
+          },
+          {
+            "category": "thought_level",
+            "currentValue": "off",
+            "description": "Controls reasoning effort for models that support extended thinking.",
+            "id": "thinking_effort",
+            "name": "Thinking effort",
+            "options": [
+              {
+                "name": "off",
+                "value": "off"
+              },
+              {
+                "name": "low",
+                "value": "low"
+              },
+              {
+                "name": "medium",
+                "value": "medium"
+              },
+              {
+                "name": "high",
+                "value": "high"
+              },
+              {
+                "name": "max",
+                "value": "max"
+              }
+            ],
+            "type": "select"
+          }
+        ],
+        "modes": {
+          "availableModes": [
+            {
+              "description": "Automatically approve tool calls",
+              "id": "auto",
+              "name": "auto"
+            },
+            {
+              "description": "Ask before every tool call",
+              "id": "approve",
+              "name": "approve"
+            },
+            {
+              "description": "Ask only for sensitive tool calls",
+              "id": "smart_approve",
+              "name": "smart_approve"
+            },
+            {
+              "description": "Chat only, no tool calls",
+              "id": "chat",
+              "name": "chat"
+            }
+          ],
+          "currentModeId": "auto"
+        },
+        "sessionId": "20260719_1"
+      }
+    },
+    {
+      "id": 3,
+      "jsonrpc": "2.0",
+      "method": "session/prompt",
+      "params": {
+        "prompt": [
+          {
+            "text": "Reply with the single word: pong",
+            "type": "text"
+          }
+        ],
+        "sessionId": "20260719_1"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": "run_669d30d3-9138-405b-b30d-8038e8ece4b3"
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "messageCount": 1,
+            "userSetName": false
+          },
+          "sessionUpdate": "session_info_update",
+          "title": "Ping pong game",
+          "updatedAt": "2026-07-19T18:57:51+00:00"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784487471,
+              "messageId": "msg_011CdBvnujfnTraeYPc3MQoM"
+            }
+          },
+          "content": {
+            "text": "p",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784487471,
+              "messageId": "msg_011CdBvnujfnTraeYPc3MQoM"
+            }
+          },
+          "content": {
+            "text": "ong",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": null
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "cost": {
+            "amount": 0.018889,
+            "currency": "USD"
+          },
+          "sessionUpdate": "usage_update",
+          "size": 1000000,
+          "used": 7565
+        }
+      }
+    },
+    {
+      "id": 3,
+      "jsonrpc": "2.0",
+      "result": {
+        "stopReason": "end_turn",
+        "usage": {
+          "inputTokens": 7561,
+          "outputTokens": 4,
+          "totalTokens": 7565
+        }
+      }
+    }
+  ],
+  "goose_binary": "/home/user/goose-src/target/release/goose",
+  "harness": "holmes-smoke 0.1.0",
+  "post_handshake_l1b": [
+    {
+      "l1b": "permitted",
+      "model": "claude-sonnet-5",
+      "provider": "anthropic",
+      "source": "configOptions"
+    }
+  ],
+  "pre_handshake_l1b": "permitted",
+  "resolved": {
+    "model": "claude-sonnet-5",
+    "provider": "anthropic"
+  },
+  "response_text": "pong",
+  "stderr_log": "/tmp/holmes-smoke-2614/goose-stderr.log",
+  "verdict": "ROUND-TRIP COMPLETE"
+}
