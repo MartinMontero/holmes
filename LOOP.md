@@ -1,6 +1,29 @@
-# LOOP.md — Phase 0, build stage (locks 0a/0b/0c; session branch `claude/phase-0-holmes-guard-build-va1er0`)
+# LOOP.md — Phase 1, build stage (locks 1a–1d; session branch `claude/claude-code-git-bash-path-f30buf`)
 
-**Updated:** 2026-07-18 · Maintained per loop §1. Prior stage (Task 0 documentation loop) preserved in git history at `main`.
+**Updated:** 2026-07-19 · Maintained per loop §1. Prior stages (Task 0 documentation loop; Phase 0 build) preserved in git history at `main`.
+
+## Phase 1 scope
+
+Build the analytical core's deterministic legs in `holmes-core::analysis` — hypothesis objects + LR scorer (Engine 1), ACH matrix + KAC (Engine 2), first-principles quarantine (Engine 3), the six-phase case state machine, and the lock-1a emission gate (≥2-independent-source corroboration + A-07 knowability/limits) — with the model-side legs as recipes (`recipes/`) and the `holmes-case` harness. Recipe safety scan (lock 1d) live from the first recipe. **Non-goals:** calibration/knowability *gating* (2.5), the Wall (Phase 2), investigative tools (Phase 3), any Alfred-side change.
+
+## Phase 1 gates (exact commands; exit 0 unless stated)
+
+```
+cargo test --release --locked --workspace
+cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path recipes
+cargo run --release --locked -p holmes-guard --bin recipe-scan -- \
+  --path crates/holmes-guard/tests/fixtures/planted_recipe_smuggled.yaml  # MUST exit 1
+holmes-case --goose <bin> --provider anthropic --model claude-sonnet-5 \
+  --credential-env MY_ANTHROPIC_API_KEY --transcript <path>              # lock 1b, live
+```
+
+## Phase 1 evidence (executed 2026-07-19, this container)
+
+Live per-lock status: `STATE.md` Phase 1 inventory. Highlights: workspace suite green in release `--locked` (analysis unit + lock tests + prior 49); lock 1b live case CASE COMPLETE exit 0 (4 hypotheses, 12/12 ACH cells, honest 3-way tie reported, egress 1/1 allowed; transcript in `docs/audit/evidence/`); recipe scan controls both firing; canon §5 firewall structural test in place (caught its own doc comment during the build — reworded per F-025 precedent).
+
+---
+
+# Prior stage record — Phase 0 (2026-07-18, closed 2026-07-19)
 
 > **Session-3 follow-on (2026-07-19):** lock **0e** — an explicit *non-goal* of this build stage (below) — subsequently had its CVE gate wired in `.github/workflows/supply-chain.yml` (Syft SBOM + OSV-Scanner primary + Grype cross-check; no Trivy). Live status and evidence: `STATE.md` lock 0e.
 >

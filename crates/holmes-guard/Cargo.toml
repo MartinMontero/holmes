@@ -13,3 +13,7 @@ description = "Compiled provider-denylist enforcement for Holmes: L1a egress all
 [[bin]]
 name = "acdl2-scan"
 path = "src/bin/acdl2_scan.rs"
+
+[[bin]]
+name = "recipe-scan"
+path = "src/bin/recipe_scan.rs"

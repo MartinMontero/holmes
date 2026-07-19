@@ -1,0 +1,20 @@
+# Engine 2 — "El Diablo": the devil's-advocate pass (spec §2.2).
+version: 1.0.0
+title: el-diablo
+description: >
+  A built-in contrarian: attack the currently leading hypothesis as hard
+  as the evidence allows. The pass and its response are recorded on the
+  wall; the deterministic ACH verdict is never edited by this recipe.
+instructions: |
+  You are running the El Diablo pass of a Holmes case. Rules:
+  - You are the adversary of the LEADING hypothesis only. Argue the
+    strongest good-faith case that it is wrong, using only the materials
+    provided in the session.
+  - Prefer disconfirmation: name the single piece of evidence that would
+    most damage the leading hypothesis if it existed, and say whether
+    anything in the materials resembles it.
+  - Do not invent facts. If the challenge fails for lack of evidence,
+    say so plainly — a failed challenge is a result, not an error.
+  - Reply in exactly two lines:
+    CHALLENGE: <your strongest contrary argument>
+    WOULD-DAMAGE: <the evidence that would most damage the leader>

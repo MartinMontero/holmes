@@ -62,3 +62,22 @@ jobs:
 
       - name: "Lock 0d — embedding contract: workspace tests (consumer + structural)"
         run: cargo test --release --locked --workspace
+
+      - name: "Lock 1d — recipe safety scan, negative control (real recipes clean)"
+        run: cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path recipes
+
+      - name: "Lock 1d — recipe safety scan, positive control (planted smuggled recipe fires)"
+        run: |
+          set +e
+          cargo run --release --locked -p holmes-guard --bin recipe-scan -- \
+            --path crates/holmes-guard/tests/fixtures/planted_recipe_smuggled.yaml \
+            > recipe-planted-report.txt 2>&1
+          status=$?
+          set -e
+          cat recipe-planted-report.txt
+          if [ "$status" -eq 0 ]; then
+            echo "POSITIVE CONTROL FAILED TO FIRE: planted smuggled recipe passed"
+            exit 1
+          fi
+          grep -q "verdict: FAIL" recipe-planted-report.txt
+          echo "positive control fired as required (exit $status)"
