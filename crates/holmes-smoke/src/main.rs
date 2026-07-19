@@ -17,7 +17,7 @@
 
 use holmes_guard::proxy::{Decision, EgressProxy, ProxyConfig};
 use holmes_guard::resolution;
-use holmes_guard::spawn::{sanitized_spawn, CredentialVar, SpawnSpec};
+use holmes_guard::spawn::{sanitized_spawn, CredentialVar, SpawnSpec, PROVIDER_CREDENTIAL_KEYS};
 use serde_json::{json, Value};
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
@@ -238,13 +238,38 @@ fn main() {
     let home = std::env::temp_dir().join(format!("holmes-smoke-{}", std::process::id()));
     std::fs::create_dir_all(&home).expect("create isolated home");
 
-    let credential = args.credential_env.as_ref().map(|key| {
-        let value = std::env::var(key).unwrap_or_else(|_| {
-            eprintln!("holmes-smoke: --credential-env {key} is not set in the environment");
+    // BYOK: `--credential-env` names the *operator's* variable holding the
+    // credential value (platform env stores often reserve the vendor's own
+    // key name, so operators store under e.g. MY_<ACCEPTED_KEY>). The value
+    // is injected through the L2 seam under the provider's accepted key —
+    // and only when the operator's name embeds that accepted key, so a
+    // cross-provider credential still refuses here (journey 9), before the
+    // seam re-checks the injected key itself.
+    let credential = args.credential_env.as_ref().map(|operator_key| {
+        let value = std::env::var(operator_key).unwrap_or_else(|_| {
+            eprintln!(
+                "holmes-smoke: --credential-env {operator_key} is not set in the environment"
+            );
             std::process::exit(2);
         });
+        let accepted = PROVIDER_CREDENTIAL_KEYS
+            .iter()
+            .find(|(p, _)| *p == resolved.provider)
+            .and_then(|(_, keys)| {
+                keys.iter().find(|accepted| {
+                    operator_key == **accepted || operator_key.ends_with(&format!("_{accepted}"))
+                })
+            });
+        let Some(accepted_key) = accepted else {
+            eprintln!(
+                "holmes-smoke: credential denial: operator variable '{operator_key}' does not \
+                 name a credential for provider '{}'",
+                resolved.provider
+            );
+            std::process::exit(3);
+        };
         CredentialVar {
-            key: key.clone(),
+            key: (*accepted_key).to_owned(),
             value,
         }
     });
