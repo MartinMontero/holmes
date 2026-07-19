@@ -1,0 +1,16 @@
+[package]
+name = "holmes-wall"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "The Wall — Holmes's bi-temporal case memory on Neo4j (owned subset per D-12; invalidation-not-deletion), supervised-backend lifecycle, and weight-provenance verification. Permitted clients only; no Graphiti, no excluded-vendor SDKs."
+
+[dependencies]
+holmes-guard = { path = "../holmes-guard" }
+neo4rs = "0.8.0"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "time"] }
+sha2 = "0.10"
+
+[dev-dependencies]
+tempfile = "3"

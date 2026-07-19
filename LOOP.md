@@ -1,6 +1,30 @@
-# LOOP.md — Phase 1, build stage (locks 1a–1d; session branch `claude/claude-code-git-bash-path-f30buf`)
+# LOOP.md — Phase 2, build stage (The Wall, locks 2a–2e; session branch `claude/claude-code-git-bash-path-f30buf`)
 
-**Updated:** 2026-07-19 · Maintained per loop §1. Prior stages (Task 0 documentation loop; Phase 0 build) preserved in git history at `main`.
+**Updated:** 2026-07-19 · Maintained per loop §1. Prior stages (Task 0 documentation loop; Phase 0 build; Phase 1 analytical core) preserved in git history at `main`.
+
+## Phase 2 scope
+
+The Wall — Holmes's bi-temporal case memory. Per D-12 (Graphiti dropped, F-027), the *owned subset* on Neo4j Community Edition (D-09) via `neo4rs`: bi-temporal validity + invalidation-not-deletion + provenance (2a), AC-DL-1 §6 at the memory layer (2b), ingestion-quality scorer + failure-rate evidence (2c), supervised backend lifecycle (2d), weight-provenance verify-before-load (2e). **Non-goals:** the Phase-2.5 safety layer, investigative tools (Phase 3), any Alfred-side change, adopting Graphiti or any excluded-vendor dependency.
+
+## Phase 2 gates (exact commands)
+
+```
+cargo test --release --locked --workspace                    # 101 tests
+cargo run --release --locked -p holmes-guard --bin acdl2-scan -- --root .   # CLEAN (neo4rs tree)
+cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path recipes  # CLEAN
+grep -ciE '^name = "(openai|posthog|graphiti|tiktoken)' Cargo.lock          # MUST be 0
+# live legs (open-egress host only):
+HOLMES_NEO4J_URI=neo4j://127.0.0.1:7687 HOLMES_NEO4J_PASSWORD=… cargo test -p holmes-wall lock2a
+holmes-ingest --goose <bin> --provider anthropic --model claude-sonnet-5 --credential-env MY_ANTHROPIC_API_KEY
+```
+
+## Phase 2 evidence
+
+Live per-lock status: `STATE.md` Phase 2 inventory. Highlights: bi-temporal invalidation-not-deletion proven hermetically (`InMemoryWall`) + Cypher no-delete audit; AC-DL-1 §6 landed (default memory layer local-only; live L1a 403 for the excluded canary — the §6 marker flipped SCHEDULED→EXECUTING); 2c live 6/6 grounded on the smoke model; supervised-child no-orphan + weight-provenance fail-closed proven hermetically; F-028 (self-catch) resolved by the F-025 reword precedent with zero new exemptions. Live Neo4j + Tier-2-Ollama legs carried (in-container egress-blocked, same wall as 0c/0e).
+
+---
+
+# Prior stage record — Phase 1 (2026-07-19)
 
 ## Phase 1 scope
 

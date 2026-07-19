@@ -34,12 +34,16 @@ jobs:
       - name: "AC-DL-1 sections 1-5 and 7 — hermetic guard tests, release mode"
         run: cargo test --release --locked -p holmes-guard
 
-      - name: "AC-DL-1 section 6 — SCHEDULED, visibly (not skipped)"
+      - name: "AC-DL-1 section 6 — EXECUTING (landed at Phase 2 lock 2b)"
         run: |
           echo "AC-DL-1 section 6 (memory-layer default-config egress criterion) is"
-          echo "SCHEDULED to Phase 2 lock 2b: unsatisfiable before the memory layer"
-          echo "exists (audit blocker F2). Recorded here every run so the deferral"
-          echo "cannot silently become an omission."
+          echo "no longer SCHEDULED: the memory layer exists (crates/holmes-wall)."
+          echo "Its default config reaches no cloud endpoint, and the excluded"
+          echo "canary endpoint is denied at L1a even if forced. Proven by the tests"
+          echo "run in the workspace suite step below:"
+          echo "  holmes_wall::memory (default reaches no excluded endpoint; excluded"
+          echo "  provider unrepresentable) + tests/wall_locks::lock2b (live L1a 403 +"
+          echo "  Denied event for the excluded canary host)."
 
       - name: "AC-DL-2 positive control (v3 section 4) — planted lockfile fires the gate"
         run: |

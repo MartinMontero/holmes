@@ -10,8 +10,13 @@ publish = false
 [dependencies]
 holmes-core = { path = "../holmes-core" }
 holmes-guard = { path = "../holmes-guard" }
+holmes-wall = { path = "../holmes-wall" }
 serde_json = "1"
 
 [[bin]]
 name = "holmes-case"
 path = "src/bin/holmes_case.rs"
+
+[[bin]]
+name = "holmes-ingest"
+path = "src/bin/holmes_ingest.rs"
