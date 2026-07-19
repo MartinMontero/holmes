@@ -2,6 +2,8 @@
 
 **Updated:** 2026-07-18 · Maintained per loop §1. Prior stage (Task 0 documentation loop) preserved in git history at `main`.
 
+> **Session-3 follow-on (2026-07-19):** lock **0e** — an explicit *non-goal* of this build stage (below) — subsequently had its CVE gate wired in `.github/workflows/supply-chain.yml` (Syft SBOM + OSV-Scanner primary + Grype cross-check; no Trivy). Live status and evidence: `STATE.md` lock 0e.
+
 ## Scope
 
 Build and verify `holmes-guard` (L1a egress allowlist proxy + L1b resolution guard + L2 sanitized spawn) to AC-DL-1 §§1–5, §7 green hermetically in release mode; AC-DL-2 all seven criteria with both controls firing; headless ACP round-trip on a provably permitted model. **Non-goals:** `holmes-core`/embedding contract (0d), SBOM/scanner CI (0e beyond the AC-DL joint gate the 0a/0b locks themselves require), any Alfred-side change, anything touching `main`.

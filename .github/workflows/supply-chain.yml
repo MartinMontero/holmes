@@ -1,0 +1,118 @@
+# Supply-chain CVE gate (loop §6 Phase 0 lock 0e; constitution #10; spec §6.6).
+#
+# Distinct from acdl-gate.yml by design: acdl-gate enforces the *provider
+# denylist* (no Meta/OpenAI/xAI in the tree, AC-DL-2). This gate is the
+# *CVE* scan — Syft SBOM (SPDX + CycloneDX) + OSV-Scanner (primary) + Grype
+# (cross-check). Neither substitutes for the other (security.md §"Denylist
+# != CVE scan"; test c6_denylist_is_distinct_from_the_cve_gate).
+#
+# NO Trivy (constitution #10 / security.md: CVE-2026-33634, the March 2026
+# trivy-action mutable-tag force-push compromise).
+#
+# Action-free: no third-party GitHub Actions are used, so the constitution #7
+# "pin Actions to full commit SHAs" rule is satisfied by construction (there is
+# nothing to pin). Scanners are installed as version-pinned release binaries
+# verified against each release's own goreleaser checksums manifest.
+#
+# Pins (verified 2026-07-19 from each project's GitHub release page):
+#   syft        v1.48.0
+#   osv-scanner v2.4.0
+#   grype       v0.116.0
+# Bump deliberately; the checksum step fails closed if an asset does not match.
+name: supply-chain
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  schedule:
+    - cron: "37 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SYFT_VERSION: v1.48.0
+  OSV_VERSION: v2.4.0
+  GRYPE_VERSION: v0.116.0
+
+jobs:
+  sbom-and-cve-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (action-free)
+        run: |
+          git init .
+          git fetch --depth 1 https://x-access-token:${{ github.token }}@github.com/${{ github.repository }} "$GITHUB_SHA"
+          git checkout --detach FETCH_HEAD
+
+      - name: Toolchain evidence
+        run: |
+          uname -a
+          sha256sum --version | head -1
+          curl --version | head -1
+
+      - name: Install pinned scanners (action-free, checksum-verified)
+        run: |
+          set -euo pipefail
+          BIN="$RUNNER_TEMP/bin"; mkdir -p "$BIN"
+          syft_v="${SYFT_VERSION#v}"; grype_v="${GRYPE_VERSION#v}"
+
+          # syft (tarball) — verify against syft_<v>_checksums.txt, extract binary
+          d="$(mktemp -d)"; ( cd "$d"
+            base="https://github.com/anchore/syft/releases/download/${SYFT_VERSION}"
+            curl -fsSL -O "$base/syft_${syft_v}_linux_amd64.tar.gz"
+            curl -fsSL -O "$base/syft_${syft_v}_checksums.txt"
+            sha256sum --ignore-missing -c "syft_${syft_v}_checksums.txt"
+            tar -xzf "syft_${syft_v}_linux_amd64.tar.gz" syft )
+          mv "$d/syft" "$BIN/"; rm -rf "$d"
+
+          # grype (tarball) — verify against grype_<v>_checksums.txt, extract binary
+          d="$(mktemp -d)"; ( cd "$d"
+            base="https://github.com/anchore/grype/releases/download/${GRYPE_VERSION}"
+            curl -fsSL -O "$base/grype_${grype_v}_linux_amd64.tar.gz"
+            curl -fsSL -O "$base/grype_${grype_v}_checksums.txt"
+            sha256sum --ignore-missing -c "grype_${grype_v}_checksums.txt"
+            tar -xzf "grype_${grype_v}_linux_amd64.tar.gz" grype )
+          mv "$d/grype" "$BIN/"; rm -rf "$d"
+
+          # osv-scanner (raw binary) — verify against osv-scanner_SHA256SUMS
+          d="$(mktemp -d)"; ( cd "$d"
+            base="https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}"
+            curl -fsSL -O "$base/osv-scanner_linux_amd64"
+            curl -fsSL -O "$base/osv-scanner_SHA256SUMS"
+            sha256sum --ignore-missing -c "osv-scanner_SHA256SUMS" )
+          install -m 0755 "$d/osv-scanner_linux_amd64" "$BIN/osv-scanner"; rm -rf "$d"
+
+          echo "$BIN" >> "$GITHUB_PATH"
+
+      - name: Scanner evidence
+        run: |
+          syft version | head -3
+          grype version | head -3
+          osv-scanner --version | head -3
+
+      - name: "Syft SBOM (SPDX + CycloneDX)"
+        run: |
+          set -euo pipefail
+          syft dir:. -o spdx-json=sbom.spdx.json -o cyclonedx-json=sbom.cdx.json
+          spdx_pkgs="$(grep -o '"SPDXID"' sbom.spdx.json | wc -l | tr -d ' ')"
+          {
+            echo "### Supply-chain SBOM"
+            echo ""
+            echo "- syft \`${SYFT_VERSION}\` — SPDX + CycloneDX generated"
+            echo "- SPDX SPDXID entries: ${spdx_pkgs}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # OSV-Scanner is the PRIMARY gate (security.md §Supply chain): it exits 1
+      # if ANY known vulnerability is found in a discovered lockfile, 0 if none.
+      - name: "OSV-Scanner (primary; exit 1 on any known vuln)"
+        run: osv-scanner scan source -r .
+
+      # Grype is the CROSS-CHECK against the SBOM syft just produced. --fail-on
+      # high exits 2 on any high/critical match (values: negligible|low|medium|
+      # high|critical), so lower-severity OS-noise does not flap the gate while
+      # OSV still covers the ecosystem strictly above.
+      - name: "Grype (cross-check on the SBOM; fail at/above high)"
+        run: grype sbom:./sbom.spdx.json --fail-on high
