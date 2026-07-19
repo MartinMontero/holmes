@@ -1,0 +1,37 @@
+# OSV-Scanner suppressions — ratified allowlist (D-13, Martin, 2026-07-19).
+#
+# EXACTLY these four IDs are suppressed, and no others. All four are
+# `informational: unmaintained` RUSTSEC notices (no CVSS, no fix
+# available), reached transitively through `neo4rs` 0.8.0 (MIT), the
+# Bolt driver for The Wall (D-12 rider d). The supply-chain gate stays
+# **fail-closed for every scored or fixable advisory** — this file only
+# silences unmaintained-crate notices, each with a written rationale and
+# an expiry.
+#
+# Rider (b), enforced in CI (.github/workflows/supply-chain.yml): a step
+# asserts this file's ignored-ID set equals exactly the ledgered four.
+# Adding a fifth suppression fails the gate until a new D-item ratifies it.
+#
+# Review triggers (rider a): a `neo4rs` 0.9 **stable** release reopens the
+# bump-vs-allowlist decision; `ignoreUntil` is a hard 90-day calendar
+# backstop — on expiry each advisory fails the gate again until re-ratified.
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0436"
+ignoreUntil = 2026-10-17T00:00:00Z
+reason = "paste 1.0.15 — informational: unmaintained (crate archived; no CVSS, no fix). Transitive via neo4rs 0.8.0 (proc-macro helper). Successor: pastey. Re-evaluate on neo4rs 0.9 stable; 90-day backstop."
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2025-0012"
+ignoreUntil = 2026-10-17T00:00:00Z
+reason = "backoff 0.4.0 — informational: unmaintained (no CVSS, no fix). Transitive via neo4rs 0.8.0 (retry). Successor: backon (already in neo4rs 0.9 rc). Re-evaluate on neo4rs 0.9 stable; 90-day backstop."
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0384"
+ignoreUntil = 2026-10-17T00:00:00Z
+reason = "instant 0.1.13 — informational: unmaintained (no CVSS, no fix). Transitive via backoff (retry timing). Cleared when backoff is dropped in neo4rs 0.9. Re-evaluate on neo4rs 0.9 stable; 90-day backstop."
+
+[[IgnoredVulns]]
+id = "RUSTSEC-2025-0134"
+ignoreUntil = 2026-10-17T00:00:00Z
+reason = "rustls-pemfile 2.2.0 — informational: unmaintained (repo archived Aug 2025; superseded by rustls-pki-types >=1.9; no CVSS, no fix). Transitive via neo4rs's TLS stack. Mitigation: the Bolt link is localhost-only to the supervised Neo4j child, and the tree is pinned via --locked. Re-evaluate on neo4rs 0.9 stable; 90-day backstop."

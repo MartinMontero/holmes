@@ -107,10 +107,30 @@ jobs:
             echo "- SPDX SPDXID entries: ${spdx_pkgs}"
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # Suppression allowlist is ratified and bounded (D-13): CI asserts
+      # osv-scanner.toml silences EXACTLY the four ledgered unmaintained-crate
+      # IDs — a fifth suppression fails the gate until a new D-item ratifies it
+      # (rider b). This keeps the gate honest: no silent widening.
+      - name: "Assert the OSV suppression set is exactly the ledgered four (D-13)"
+        run: |
+          set -euo pipefail
+          expected=$(printf '%s\n' \
+            RUSTSEC-2024-0384 RUSTSEC-2024-0436 RUSTSEC-2025-0012 RUSTSEC-2025-0134 | sort)
+          actual=$(grep -oE 'RUSTSEC-[0-9]{4}-[0-9]{4}' osv-scanner.toml | sort -u)
+          if [ "$expected" != "$actual" ]; then
+            echo "OSV suppression set drift — expected exactly the ledgered D-13 four:"
+            diff <(echo "$expected") <(echo "$actual") || true
+            echo "Any change to suppressions requires a new D-item ratification."
+            exit 1
+          fi
+          echo "suppression set matches the ledgered four (D-13)"
+
       # OSV-Scanner is the PRIMARY gate (security.md §Supply chain): it exits 1
       # if ANY known vulnerability is found in a discovered lockfile, 0 if none.
+      # --config points at the ratified suppression allowlist (D-13); the gate
+      # remains fail-closed for every scored or fixable advisory (rider d).
       - name: "OSV-Scanner (primary; exit 1 on any known vuln)"
-        run: osv-scanner scan source -r .
+        run: osv-scanner scan source -r . --config osv-scanner.toml
 
       # Grype is the CROSS-CHECK against the SBOM syft just produced. --fail-on
       # high exits 2 on any high/critical match (values: negligible|low|medium|

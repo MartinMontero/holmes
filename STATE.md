@@ -58,6 +58,8 @@
 
 **Sweeps (release, `--locked`):** 101 tests pass (0 fail); fmt clean; clippy 0; **AC-DL-2 on the new `neo4rs` lock → CLEAN** (positive control still fires exit 1); recipe-scan CLEAN; A-01 0 hits; `openai`/`posthog`/`graphiti` **absent** from `Cargo.lock`, `neo4rs` present. **F-028**: the AC-DL-2 self-scan caught the new crate naming excluded vendors (enforcement code + comments) — resolved by the F-025 reword precedent (canary sourced from the exempted `policy.rs`), **zero new exemptions**.
 
+**CVE gate on the `neo4rs` tree (D-13, 2026-07-19):** the supply-chain gate fired as designed on 4 **`informational: unmaintained`** RUSTSEC advisories (paste/backoff/instant/rustls-pemfile — no CVSS, no fix; verified primary). Martin ruled **allowlist exactly the 4** → `osv-scanner.toml` (each with rationale + `ignoreUntil = 2026-10-17` 90-day backstop; neo4rs 0.9 **stable** reopens the bump). CI now (a) passes `--config osv-scanner.toml` and (b) **asserts the suppression set is exactly those 4** — a 5th suppression fails the gate until a new D-item ratifies it. Gate stays **fail-closed for every scored/fixable advisory** (rider d). First CI run of these steps lands on the PR head.
+
 ## Adversarial self-verification (2026-07-18)
 
 7 skeptics attacked each guard property; every reported defect re-reproduced against source before acceptance. 3 claims held (L2 env-strip, BYOK invariant, born-redacted output). 4 confirmed defects **fixed + regression-locked this session**: F-017 (MAJOR, L1a forward-proxy re-dispatch), F-018 (MAJOR, AC-DL-2 router exact-match evasion), F-019 (MINOR, mid-token excluded-family hole), F-020 (MINOR, §1 structural test fidelity). See findings-ledger.
