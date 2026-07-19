@@ -1,10 +1,12 @@
 # Supply-chain CVE gate (loop §6 Phase 0 lock 0e; constitution #10; spec §6.6).
 #
 # Distinct from acdl-gate.yml by design: acdl-gate enforces the *provider
-# denylist* (no Meta/OpenAI/xAI in the tree, AC-DL-2). This gate is the
-# *CVE* scan — Syft SBOM (SPDX + CycloneDX) + OSV-Scanner (primary) + Grype
-# (cross-check). Neither substitutes for the other (security.md §"Denylist
-# != CVE scan"; test c6_denylist_is_distinct_from_the_cve_gate).
+# denylist* (no excluded-vendor package anywhere in the dependency tree,
+# AC-DL-2; the vendor roster lives in docs/security.md and the compiled
+# policy — never named here, since AC-DL-2 scans .github/ as config).
+# This gate is the *CVE* scan — Syft SBOM (SPDX + CycloneDX) + OSV-Scanner
+# (primary) + Grype (cross-check). Neither substitutes for the other
+# (security.md §"Denylist != CVE scan"; c6_denylist_is_distinct_from_the_cve_gate).
 #
 # NO Trivy (constitution #10 / security.md: CVE-2026-33634, the March 2026
 # trivy-action mutable-tag force-push compromise).
