@@ -32,6 +32,14 @@ pub const EXCLUDED_PROVIDERS: &[&str] = &[
     "litellm",
 ];
 
+/// The canonical excluded endpoint used to *prove denial* — the AC-DL-1 §6
+/// / Phase-2 lock-2b canary. Naming it once here (the compiled-denylist
+/// home, the only file the AC-DL-2 scanner exempts for such literals) lets
+/// every test assert "the excluded endpoint is denied" without re-typing an
+/// excluded-vendor hostname into non-exempt source (F-025 reword precedent).
+pub const EXCLUDED_CANARY_HOST: &str = "api.openai.com";
+pub const EXCLUDED_CANARY_PORT: u16 = 443;
+
 /// Permitted model-id families per provider, prefix-matched on the
 /// normalized (trimmed, lowercased) id. The deepseek prefix pins the V4
 /// line: retired alias ids do not match it and therefore deny as unknown.

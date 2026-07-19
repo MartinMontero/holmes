@@ -1,0 +1,72 @@
+{
+  "egress_events": [
+    {
+      "decision": "allowed",
+      "host": "api.anthropic.com",
+      "port": 443
+    }
+  ],
+  "episodes": [
+    {
+      "cited_span": "The community-garden permit application (docket 441) was filed on 2025-10-01",
+      "occurred_at": "2025-10-01",
+      "statement": "A permit application for a community garden, identified as docket 441, was filed on October 1, 2025",
+      "verdict": "Grounded"
+    },
+    {
+      "cited_span": "An objection letter from an adjacent property owner, dated 2025-11-04, is in the permit docket",
+      "occurred_at": "2025-11-04",
+      "statement": "An adjacent property owner submitted an objection letter that is included in the permit docket",
+      "verdict": "Grounded"
+    },
+    {
+      "cited_span": "A clerk's-office bulletin announced a processing backlog covering March through June 2026",
+      "occurred_at": "2026-03-01",
+      "statement": "The clerk's office announced a processing backlog beginning in March 2026",
+      "verdict": "Grounded"
+    },
+    {
+      "cited_span": "A clerk's-office bulletin announced a processing backlog covering March through June 2026",
+      "occurred_at": "2026-06-01",
+      "statement": "The clerk's office announced a processing backlog extending through June 2026",
+      "verdict": "Grounded"
+    },
+    {
+      "cited_span": "The enforcement log shows no violation or enforcement action against the parcel",
+      "occurred_at": "2026-07-19",
+      "statement": "The enforcement log records no violation or enforcement action against the parcel",
+      "verdict": "Grounded"
+    },
+    {
+      "cited_span": "The application record was last updated on 2025-11-06",
+      "occurred_at": "2025-11-06",
+      "statement": "The permit application record was last updated on November 6, 2025",
+      "verdict": "Grounded"
+    }
+  ],
+  "episodes_extracted": 6,
+  "frame_count": 21,
+  "harness": "holmes-ingest 0.1.0 (lock 2c)",
+  "post_handshake_l1b": [
+    {
+      "l1b": "permitted",
+      "model": "claude-sonnet-5",
+      "provider": "anthropic",
+      "source": "configOptions"
+    }
+  ],
+  "quality": {
+    "claim_exceeds_citation": 0,
+    "failure_rate": 0.0,
+    "grounded": 6,
+    "grounded_rate": 1.0,
+    "malformed": 0,
+    "ungrounded_citation": 0
+  },
+  "resolved": {
+    "model": "claude-sonnet-5",
+    "provider": "anthropic"
+  },
+  "tier_note": "Tier-1 smoke model exercising the extraction->scoring pipeline; Tier-2 (Ollama) failure-rate numbers are environment-gated (model egress blocked in-container).",
+  "verdict": "INGESTION SCORED"
+}
