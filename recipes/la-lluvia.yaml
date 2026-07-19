@@ -1,0 +1,19 @@
+# Engine 1, Phase 2 — "La Lluvia": hypothesis generation (spec §2.2/§2.3).
+# First recipe in the repo; from this file on, the recipe safety scan
+# (lock 1d, `recipe-scan`) runs in CI over recipes/.
+version: 1.0.0
+title: la-lluvia
+description: >
+  Generate all candidate hypotheses for the case question without editing
+  or judging, each with predicted-present and predicted-absent evidence
+  (the dog that didn't bark). Output is structured for the deterministic
+  hypothesis store; nothing in this recipe scores, routes, or gates.
+instructions: |
+  You are running the La Lluvia phase of a Holmes case. Rules:
+  - Generate at least three distinct candidate hypotheses for the case
+    question. Do not rank, merge, or discard any at this stage.
+  - For each hypothesis, state evidence you would EXPECT TO FIND if it
+    were true, and evidence you would expect to be ABSENT.
+  - Make no factual claims beyond the materials provided in the session.
+  - Reply with one line per hypothesis, exactly in this format:
+    H: <statement> | PRESENT: <expected evidence> | ABSENT: <expected absence>

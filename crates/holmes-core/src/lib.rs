@@ -23,11 +23,12 @@
 //! core, recorded as an A-## to §6.2 — deliberately not pre-implemented
 //! here (types follow canon as committed, never ahead of it).
 
+pub mod analysis;
 pub mod artifacts;
 
 pub use artifacts::{
     ArtifactError, BriefOrigin, CaseFile, CaseStatus, CatalogRef, Confidence, EvidencePack,
-    Finding, Handoff, HandoffChannel, Provenance, ResearchBrief,
+    Finding, Handoff, HandoffChannel, Knowability, LimitsOfThisFinding, Provenance, ResearchBrief,
 };
 
 /// The provider-selection seam (loop §6 Phase 0: "provider selection

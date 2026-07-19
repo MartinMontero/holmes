@@ -17,6 +17,7 @@ version = "0.1.0"
 name = "holmes-smoke"
 version = "0.1.0"
 dependencies = [
+ "holmes-core",
  "holmes-guard",
  "serde_json",
 ]

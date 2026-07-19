@@ -1,0 +1,1774 @@
+{
+  "egress_events": [
+    {
+      "decision": "allowed",
+      "host": "api.anthropic.com",
+      "port": 443
+    }
+  ],
+  "frame_count": 64,
+  "frames": [
+    {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "method": "initialize",
+      "params": {
+        "clientCapabilities": {},
+        "clientInfo": {
+          "name": "holmes-harness",
+          "version": "0.2.0"
+        },
+        "protocolVersion": 1
+      }
+    },
+    {
+      "id": 1,
+      "jsonrpc": "2.0",
+      "result": {
+        "agentCapabilities": {
+          "auth": {},
+          "loadSession": true,
+          "mcpCapabilities": {
+            "acp": false,
+            "http": true,
+            "sse": false
+          },
+          "promptCapabilities": {
+            "audio": false,
+            "embeddedContext": true,
+            "image": true
+          },
+          "sessionCapabilities": {
+            "close": {},
+            "list": {}
+          }
+        },
+        "agentInfo": {
+          "name": "goose",
+          "version": "1.43.0"
+        },
+        "authMethods": [
+          {
+            "description": "Run `goose configure` to set up your AI provider and API key",
+            "id": "goose-provider",
+            "name": "Configure Provider"
+          }
+        ],
+        "protocolVersion": 1
+      }
+    },
+    {
+      "id": 2,
+      "jsonrpc": "2.0",
+      "method": "session/new",
+      "params": {
+        "cwd": "/tmp/holmes-acp-11132",
+        "mcpServers": []
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "sessionUpdate": "usage_update",
+          "size": 1000000,
+          "used": 0
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "availableCommands": [
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "List available prompts, optionally filtered by extension",
+              "name": "prompts"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Execute a prompt or show its info with --info",
+              "name": "prompt"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Compact the conversation history",
+              "name": "compact"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Clear the conversation history",
+              "name": "clear"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "List installed skills and other available sources",
+              "name": "skills"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Check that your Goose setup is working",
+              "name": "doctor"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Set a goal the agent must satisfy before finishing, or clear with /goal off",
+              "name": "goal"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Set a goal the agent pursues relentlessly until max_turns, or clear with /grind off",
+              "name": "grind"
+            },
+            {
+              "_meta": {
+                "commandType": "Builtin"
+              },
+              "description": "Show session status: model, provider, mode, and token usage",
+              "name": "status"
+            },
+            {
+              "_meta": {
+                "commandType": "Skill"
+              },
+              "description": "Reference goose documentation to create, configure, or explain goose-specific features like recipes, extensions, sessions, and providers. You MUST fetch relevant goose docs before answering. You MUST NOT rely on training data or assumptions for any goose-specific fields, values, names, syntax, or commands.",
+              "name": "goose-doc-guide"
+            }
+          ],
+          "sessionUpdate": "available_commands_update"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "jsonrpc": "2.0",
+      "result": {
+        "_meta": {
+          "extensionResults": [
+            {
+              "name": "developer",
+              "success": true
+            },
+            {
+              "name": "analyze",
+              "success": true
+            },
+            {
+              "name": "todo",
+              "success": true
+            },
+            {
+              "name": "Extension Manager",
+              "success": true
+            },
+            {
+              "name": "apps",
+              "success": true
+            },
+            {
+              "name": "skills",
+              "success": true
+            },
+            {
+              "name": "summon",
+              "success": true
+            },
+            {
+              "name": "tom",
+              "success": true
+            }
+          ],
+          "workingDir": "/tmp/holmes-acp-11132"
+        },
+        "configOptions": [
+          {
+            "currentValue": "anthropic",
+            "id": "provider",
+            "name": "Provider",
+            "options": [
+              {
+                "name": "Goose (Default)",
+                "value": "goose"
+              },
+              {
+                "name": "Alibaba (Qwen)",
+                "value": "alibaba"
+              },
+              {
+                "name": "Amp",
+                "value": "amp-acp"
+              },
+              {
+                "name": "Anthropic",
+                "value": "anthropic"
+              },
+              {
+                "name": "Atomic Chat",
+                "value": "atomic_chat"
+              },
+              {
+                "name": "Avian",
+                "value": "avian"
+              },
+              {
+                "name": "Azure OpenAI",
+                "value": "azure_openai"
+              },
+              {
+                "name": "Cerebras",
+                "value": "cerebras"
+              },
+              {
+                "name": "ChatGPT Codex",
+                "value": "chatgpt_codex"
+              },
+              {
+                "name": "Claude Code",
+                "value": "claude-acp"
+              },
+              {
+                "name": "Claude Code CLI",
+                "value": "claude-code"
+              },
+              {
+                "name": "OpenAI Codex CLI",
+                "value": "codex"
+              },
+              {
+                "name": "Codex CLI",
+                "value": "codex-acp"
+              },
+              {
+                "name": "GitHub Copilot CLI (ACP)",
+                "value": "copilot-acp"
+              },
+              {
+                "name": "Cursor Agent",
+                "value": "cursor-agent"
+              },
+              {
+                "name": "DeepSeek",
+                "value": "custom_deepseek"
+              },
+              {
+                "name": "Tensorix",
+                "value": "custom_tensorix"
+              },
+              {
+                "name": "Databricks",
+                "value": "databricks"
+              },
+              {
+                "name": "Databricks AI Gateway",
+                "value": "databricks_v2"
+              },
+              {
+                "name": "EmpirioLabs AI",
+                "value": "empiriolabs"
+              },
+              {
+                "name": "Fireworks AI",
+                "value": "fireworks-ai"
+              },
+              {
+                "name": "FuturMix",
+                "value": "futurmix"
+              },
+              {
+                "name": "GCP Vertex AI",
+                "value": "gcp_vertex_ai"
+              },
+              {
+                "name": "Gemini CLI",
+                "value": "gemini-cli"
+              },
+              {
+                "name": "Gemini",
+                "value": "gemini_oauth"
+              },
+              {
+                "name": "GitHub Copilot",
+                "value": "github_copilot"
+              },
+              {
+                "name": "Google Gemini (API Key)",
+                "value": "google"
+              },
+              {
+                "name": "Groq (d)",
+                "value": "groq"
+              },
+              {
+                "name": "Hugging Face",
+                "value": "huggingface"
+              },
+              {
+                "name": "iFlytek Spark",
+                "value": "iflytek"
+              },
+              {
+                "name": "iFlytek Astron MaaS",
+                "value": "iflytek_astron"
+              },
+              {
+                "name": "Inception",
+                "value": "inception"
+              },
+              {
+                "name": "Kimi Code",
+                "value": "kimi_code"
+              },
+              {
+                "name": "LiteLLM",
+                "value": "litellm"
+              },
+              {
+                "name": "Llama Swap",
+                "value": "llama_swap"
+              },
+              {
+                "name": "LM Studio",
+                "value": "lmstudio"
+              },
+              {
+                "name": "Meta",
+                "value": "meta"
+              },
+              {
+                "name": "MiniMax",
+                "value": "minimax"
+              },
+              {
+                "name": "Mistral AI",
+                "value": "mistral"
+              },
+              {
+                "name": "Moonshot",
+                "value": "moonshot"
+              },
+              {
+                "name": "NanoGPT",
+                "value": "nano-gpt"
+              },
+              {
+                "name": "NEAR AI Cloud",
+                "value": "nearai"
+              },
+              {
+                "name": "Novita AI",
+                "value": "novita"
+              },
+              {
+                "name": "NVIDIA",
+                "value": "nvidia"
+              },
+              {
+                "name": "Ollama",
+                "value": "ollama"
+              },
+              {
+                "name": "Ollama Cloud",
+                "value": "ollama_cloud"
+              },
+              {
+                "name": "oMLX",
+                "value": "omlx"
+              },
+              {
+                "name": "OpenAI",
+                "value": "openai"
+              },
+              {
+                "name": "OpenCode Go",
+                "value": "opencode_go"
+              },
+              {
+                "name": "OpenRouter",
+                "value": "openrouter"
+              },
+              {
+                "name": "OrcaRouter",
+                "value": "orcarouter"
+              },
+              {
+                "name": "OVHcloud",
+                "value": "ovhcloud"
+              },
+              {
+                "name": "Perplexity",
+                "value": "perplexity"
+              },
+              {
+                "name": "Pi",
+                "value": "pi-acp"
+              },
+              {
+                "name": "Routstr",
+                "value": "routstr"
+              },
+              {
+                "name": "Sakana AI",
+                "value": "sakana"
+              },
+              {
+                "name": "SaladCloud AI Gateway",
+                "value": "saladcloud"
+              },
+              {
+                "name": "Scaleway",
+                "value": "scaleway"
+              },
+              {
+                "name": "Snowflake",
+                "value": "snowflake"
+              },
+              {
+                "name": "VMware Tanzu Platform",
+                "value": "tanzu_ai"
+              },
+              {
+                "name": "Tetrate Agent Router Service",
+                "value": "tetrate"
+              },
+              {
+                "name": "Together AI",
+                "value": "together"
+              },
+              {
+                "name": "Venice.ai",
+                "value": "venice"
+              },
+              {
+                "name": "Vercel AI Gateway",
+                "value": "vercel_ai_gateway"
+              },
+              {
+                "name": "xAI",
+                "value": "xai"
+              },
+              {
+                "name": "xAI (SuperGrok Subscription)",
+                "value": "xai_oauth"
+              },
+              {
+                "name": "Z.AI",
+                "value": "zai"
+              },
+              {
+                "name": "Zhipu AI",
+                "value": "zhipu"
+              }
+            ],
+            "type": "select"
+          },
+          {
+            "category": "mode",
+            "currentValue": "auto",
+            "id": "mode",
+            "name": "Mode",
+            "options": [
+              {
+                "description": "Automatically approve tool calls",
+                "name": "auto",
+                "value": "auto"
+              },
+              {
+                "description": "Ask before every tool call",
+                "name": "approve",
+                "value": "approve"
+              },
+              {
+                "description": "Ask only for sensitive tool calls",
+                "name": "smart_approve",
+                "value": "smart_approve"
+              },
+              {
+                "description": "Chat only, no tool calls",
+                "name": "chat",
+                "value": "chat"
+              }
+            ],
+            "type": "select"
+          },
+          {
+            "category": "model",
+            "currentValue": "claude-sonnet-5",
+            "id": "model",
+            "name": "Model",
+            "options": [
+              {
+                "name": "Claude Sonnet 5",
+                "value": "claude-sonnet-5"
+              },
+              {
+                "name": "Claude Fable 5",
+                "value": "claude-fable-5"
+              },
+              {
+                "name": "Claude Opus 4.8",
+                "value": "claude-opus-4-8"
+              },
+              {
+                "name": "Claude Opus 4.7",
+                "value": "claude-opus-4-7"
+              },
+              {
+                "name": "Claude Sonnet 4.6",
+                "value": "claude-sonnet-4-6"
+              },
+              {
+                "name": "Claude Opus 4.6",
+                "value": "claude-opus-4-6"
+              },
+              {
+                "name": "Claude Opus 4.5 (latest)",
+                "value": "claude-opus-4-5-20251101"
+              },
+              {
+                "name": "Claude Haiku 4.5 (latest)",
+                "value": "claude-haiku-4-5-20251001"
+              },
+              {
+                "name": "Claude Sonnet 4.5 (latest)",
+                "value": "claude-sonnet-4-5-20250929"
+              },
+              {
+                "name": "Claude Opus 4.1 (latest)",
+                "value": "claude-opus-4-1-20250805"
+              }
+            ],
+            "type": "select"
+          },
+          {
+            "category": "thought_level",
+            "currentValue": "off",
+            "description": "Controls reasoning effort for models that support extended thinking.",
+            "id": "thinking_effort",
+            "name": "Thinking effort",
+            "options": [
+              {
+                "name": "off",
+                "value": "off"
+              },
+              {
+                "name": "low",
+                "value": "low"
+              },
+              {
+                "name": "medium",
+                "value": "medium"
+              },
+              {
+                "name": "high",
+                "value": "high"
+              },
+              {
+                "name": "max",
+                "value": "max"
+              }
+            ],
+            "type": "select"
+          }
+        ],
+        "modes": {
+          "availableModes": [
+            {
+              "description": "Automatically approve tool calls",
+              "id": "auto",
+              "name": "auto"
+            },
+            {
+              "description": "Ask before every tool call",
+              "id": "approve",
+              "name": "approve"
+            },
+            {
+              "description": "Ask only for sensitive tool calls",
+              "id": "smart_approve",
+              "name": "smart_approve"
+            },
+            {
+              "description": "Chat only, no tool calls",
+              "id": "chat",
+              "name": "chat"
+            }
+          ],
+          "currentModeId": "auto"
+        },
+        "sessionId": "20260719_1"
+      }
+    },
+    {
+      "id": 3,
+      "jsonrpc": "2.0",
+      "method": "session/prompt",
+      "params": {
+        "prompt": [
+          {
+            "text": "You are running the La Lluvia phase of a Holmes case.\nFIXTURE MATERIALS (the only facts in evidence):\nE1: an objection letter from an adjacent property owner, dated 2025-11-04, is in the permit docket [fixture/permit-docket.md section 3].\nE2: a clerk's-office bulletin announces a processing backlog covering March through June 2026 [fixture/clerk-bulletin.md section 2].\nE3: the enforcement log shows no violation or enforcement action against the parcel [fixture/enforcement-log.md section 1].\nThe permit application itself was filed 2025-10-01 and last updated 2025-11-06 [fixture/permit-docket.md section 1].\nCASE QUESTION: why has the fixture community-garden permit (docket 441) stalled for nine months?\nGenerate at least three distinct candidate hypotheses. Do not rank or discard any. Make no factual claims beyond the materials. Reply with one line per hypothesis, exactly in this format and nothing else:\nH: <statement> | PRESENT: <evidence you would expect to find if true> | ABSENT: <evidence you would expect to be absent if true>",
+            "type": "text"
+          }
+        ],
+        "sessionId": "20260719_1"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": "run_ab5bc51f-0f7b-4e94-9710-938d773c572c"
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "messageCount": 1,
+            "userSetName": false
+          },
+          "sessionUpdate": "session_info_update",
+          "title": "Holmes case permit stall investigation",
+          "updatedAt": "2026-07-19T20:19:15+00:00"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "toolCall": {
+                "extensionName": "developer",
+                "toolName": "shell"
+              }
+            }
+          },
+          "rawInput": {
+            "command": "cat fixture/permit-docket.md fixture/clerk-bulletin.md fixture/enforcement-log.md 2>/dev/null"
+          },
+          "sessionUpdate": "tool_call",
+          "title": "shell · cat fixture/permit-docket.md fixture/clerk-bulletin.md...…",
+          "toolCallId": "toolu_01SdbGpSVd2mp6ZxEqUNiM9A"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "content": [
+            {
+              "content": {
+                "text": "(no output)\n\nCommand exited with code 1",
+                "type": "text"
+              },
+              "type": "content"
+            }
+          ],
+          "rawOutput": {
+            "exit_code": 1,
+            "stderr": "",
+            "stdout": ""
+          },
+          "sessionUpdate": "tool_call_update",
+          "status": "failed",
+          "toolCallId": "toolu_01SdbGpSVd2mp6ZxEqUNiM9A"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "toolCall": {
+                "extensionName": "developer",
+                "toolName": "shell"
+              }
+            }
+          },
+          "sessionUpdate": "tool_call_update",
+          "title": "reading permit docket clerk bulletin enforcement log",
+          "toolCallId": "toolu_01SdbGpSVd2mp6ZxEqUNiM9A"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "toolCall": {
+                "extensionName": "todo",
+                "toolName": "todo__todo_write"
+              }
+            }
+          },
+          "rawInput": {
+            "content": "- [x] Review fixture materials (E1, E2, E3, application dates) as given in prompt (files not accessible on disk, used inline facts)\n- [ ] Generate >=3 distinct hypotheses explaining 9-month stall of docket 441\n- [ ] For each: state PRESENT (expected evidence if true) and ABSENT (expected absent evidence if true)\n- [ ] No ranking, no discarding, no facts beyond fixture materials\n- [ ] Output strictly in required one-line-per-hypothesis format, nothing else\n"
+          },
+          "sessionUpdate": "tool_call",
+          "title": "todo: todo write",
+          "toolCallId": "toolu_01Pe9rKbhcY7WwGurVQS8pGK"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "content": [
+            {
+              "content": {
+                "text": "Updated (460 chars)",
+                "type": "text"
+              },
+              "type": "content"
+            }
+          ],
+          "sessionUpdate": "tool_call_update",
+          "status": "completed",
+          "toolCallId": "toolu_01Pe9rKbhcY7WwGurVQS8pGK"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "toolCall": {
+                "extensionName": "todo",
+                "toolName": "todo__todo_write"
+              }
+            }
+          },
+          "sessionUpdate": "tool_call_update",
+          "title": "updating todo list with docket analysis tasks",
+          "toolCallId": "toolu_01Pe9rKbhcY7WwGurVQS8pGK"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "toolCall": {
+                "extensionName": "developer",
+                "toolName": "shell"
+              },
+              "toolChainSummary": {
+                "count": 2,
+                "summary": "reviewed permit and enforcement documents"
+              }
+            }
+          },
+          "sessionUpdate": "tool_call_update",
+          "toolCallId": "toolu_01SdbGpSVd2mp6ZxEqUNiM9A"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492373,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "H: The adjacent-",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492373,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "owner objection (E1) triggered a review or dispute-resolution process that has kept docket 441 pending. | PRESENT: doc",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492373,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "ket entries scheduling a hearing or requesting applicant response to the objection, correspondence addressing the objector's concerns. | ABSENT: en",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492374,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "forcement or violation action against the parcel (consistent with E3), a docket entry recording the",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492374,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": " objection as resolved or withdrawn.\nH: The clerk's-office processing backlog (E2) is directly responsible for the stall. | PRESEN",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492375,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "T: docket entries placing the application in a queue during March-June 2026, staff correspondence cit",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492375,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "ing the backlog bulletin. | ABSENT: docket activity or status change between 2025-11-06 and the start",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492375,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": " of the backlog in March 2026.\nH: The applicant failed to submit additional information requested after the 2025-11-06 update, st",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492376,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "alling the file on the applicant's side rather than the office's. | PRESENT",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492376,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": ": a request-for-information or incomplete-application notice dated after 2025-11-06, no further applicant submissions in",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492376,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": " the docket. | ABSENT: any enforcement-log entry against the parcel (consistent with E3), any docket reference to the backlog (",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492377,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "E2) as the cause.\nH: The file was administratively set aside with no formal action recorded, i",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492377,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": ".e. it fell through normal processing without a documented reason during the months pre",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492377,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "ceding the backlog. | PRESENT: a gap in docket entries between 2025-11-06 and the backlog period with no ass",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492378,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": "igned staff action noted. | ABSENT: any hearing, request, objection response",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492378,
+              "messageId": "msg_011CdC31QAz11wYuhXWGk1b2"
+            }
+          },
+          "content": {
+            "text": ", or enforcement entry (per E3) logged for docket 441 during that gap.",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": null
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "cost": {
+            "amount": 0.0278607,
+            "currency": "USD"
+          },
+          "sessionUpdate": "usage_update",
+          "size": 1000000,
+          "used": 10047
+        }
+      }
+    },
+    {
+      "id": 3,
+      "jsonrpc": "2.0",
+      "result": {
+        "stopReason": "end_turn",
+        "usage": {
+          "inputTokens": 8450,
+          "outputTokens": 1597,
+          "totalTokens": 10047
+        }
+      }
+    },
+    {
+      "id": 4,
+      "jsonrpc": "2.0",
+      "method": "session/prompt",
+      "params": {
+        "prompt": [
+          {
+            "text": "Same case. Hypotheses:\nH1: The adjacent-owner objection (E1) triggered a review or dispute-resolution process that has kept docket 441 pending.\nH2: The clerk's-office processing backlog (E2) is directly responsible for the stall.\nH3: The applicant failed to submit additional information requested after the 2025-11-06 update, stalling the file on the applicant's side rather than the office's.\nH4: The file was administratively set aside with no formal action recorded, i.e. it fell through normal processing without a documented reason during the months preceding the backlog.\nConsidering ONLY evidence E1 (the 2025-11-04 objection letter): estimate the probability of observing E1 if H1 is true, and if H1 is false (some other hypothesis true). Values in (0,1], two decimals. Reply exactly one line:\nLR: P_IF_TRUE=<value> P_IF_FALSE=<value>",
+            "type": "text"
+          }
+        ],
+        "sessionId": "20260719_1"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": "run_267ed726-fece-4384-a9b2-8ac5ad22cfe9"
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492379,
+              "messageId": "msg_011CdC32iHBEZVQ5XB8v9B7i"
+            }
+          },
+          "content": {
+            "text": "L",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492380,
+              "messageId": "msg_011CdC32iHBEZVQ5XB8v9B7i"
+            }
+          },
+          "content": {
+            "text": "R: P_IF_TRUE=0.90 P_IF_FALSE=0.40",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": null
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "cost": {
+            "amount": 0.032418100000000005,
+            "currency": "USD"
+          },
+          "sessionUpdate": "usage_update",
+          "size": 1000000,
+          "used": 9311
+        }
+      }
+    },
+    {
+      "id": 4,
+      "jsonrpc": "2.0",
+      "result": {
+        "stopReason": "end_turn",
+        "usage": {
+          "inputTokens": 9279,
+          "outputTokens": 32,
+          "totalTokens": 9311
+        }
+      }
+    },
+    {
+      "id": 5,
+      "jsonrpc": "2.0",
+      "method": "session/prompt",
+      "params": {
+        "prompt": [
+          {
+            "text": "Same case. Hypotheses:\nH1: The adjacent-owner objection (E1) triggered a review or dispute-resolution process that has kept docket 441 pending.\nH2: The clerk's-office processing backlog (E2) is directly responsible for the stall.\nH3: The applicant failed to submit additional information requested after the 2025-11-06 update, stalling the file on the applicant's side rather than the office's.\nH4: The file was administratively set aside with no formal action recorded, i.e. it fell through normal processing without a documented reason during the months preceding the backlog.\nEvidence: E1 (objection letter), E2 (backlog bulletin), E3 (no enforcement action). Score every hypothesis-evidence cell as C (consistent), I (inconsistent), or NA (not applicable), seeking disconfirmation. Reply with exactly one line per cell, format:\nACH: H<number> E<number> <C|I|NA>",
+            "type": "text"
+          }
+        ],
+        "sessionId": "20260719_1"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": "run_1382b898-4670-4d16-9686-9de19924d241"
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492395,
+              "messageId": "msg_011CdC32pjsHHXmJiMDUzFst"
+            }
+          },
+          "content": {
+            "text": "ACH: H1 E1 C\nACH: H1 E2 NA\nACH: H1",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492395,
+              "messageId": "msg_011CdC32pjsHHXmJiMDUzFst"
+            }
+          },
+          "content": {
+            "text": " E3 C\nACH: H2 E1 NA\nACH: H2 E2 C\nACH: H2 E3 C\nACH: H3 E1 NA\nACH: H3 E",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492396,
+              "messageId": "msg_011CdC32pjsHHXmJiMDUzFst"
+            }
+          },
+          "content": {
+            "text": "2 NA\nACH: H3 E3 C\nACH: H4 E1 I\nACH: H4 E2 I\nACH: H4 E3 C",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": null
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "cost": {
+            "amount": 0.049276900000000005,
+            "currency": "USD"
+          },
+          "sessionUpdate": "usage_update",
+          "size": 1000000,
+          "used": 10989
+        }
+      }
+    },
+    {
+      "id": 5,
+      "jsonrpc": "2.0",
+      "result": {
+        "stopReason": "end_turn",
+        "usage": {
+          "inputTokens": 9621,
+          "outputTokens": 1368,
+          "totalTokens": 10989
+        }
+      }
+    },
+    {
+      "id": 6,
+      "jsonrpc": "2.0",
+      "method": "session/prompt",
+      "params": {
+        "prompt": [
+          {
+            "text": "You are running the El Diablo pass (devil's advocate) of the same case.\nHypotheses:\nH1: The adjacent-owner objection (E1) triggered a review or dispute-resolution process that has kept docket 441 pending.\nH2: The clerk's-office processing backlog (E2) is directly responsible for the stall.\nH3: The applicant failed to submit additional information requested after the 2025-11-06 update, stalling the file on the applicant's side rather than the office's.\nH4: The file was administratively set aside with no formal action recorded, i.e. it fell through normal processing without a documented reason during the months preceding the backlog.\nAttack the CURRENTLY LEADING hypothesis (assume it is H1) as hard as the fixture materials allow. Do not invent facts. Reply in exactly two lines:\nCHALLENGE: <your strongest contrary argument>\nWOULD-DAMAGE: <the single piece of evidence that would most damage H1 if it existed>",
+            "type": "text"
+          }
+        ],
+        "sessionId": "20260719_1"
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": "run_afbeb2a2-fbf0-4bbb-9e03-5caa14df3d44"
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492405,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": "CHALLENGE: The docket's last update is 2025-11-06, only",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492405,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": " two days after the objection letter (E1) was filed — if E1 had truly launched an active",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492406,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": " review or dispute-resolution track, one would expect continuing docket activity (hearing notices, applicant responses, sta",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492406,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": "ff correspondence) across the following nine months, but no such subsequent entries are in evidence; the record",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492406,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": " shows only silence after that single update, which is equally consistent with the file simply going untouched (H4) r",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492407,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": "ather than being actively held up by the objection.\nWOULD-DAMAGE: A docket ent",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492407,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": "ry showing the objection (E1) was logged and closed/administratively noted on or",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492407,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": " shortly after 2025-11-06 with no further review action opened — this would show E1 was received and sh",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "created": 1784492408,
+              "messageId": "msg_011CdC342RMzM9u5NnXt9W2v"
+            }
+          },
+          "content": {
+            "text": "elved rather than having triggered any ongoing process.",
+            "type": "text"
+          },
+          "sessionUpdate": "agent_message_chunk"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "_meta": {
+            "goose": {
+              "activeRunId": null
+            }
+          },
+          "sessionUpdate": "session_info_update"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "method": "session/update",
+      "params": {
+        "sessionId": "20260719_1",
+        "update": {
+          "cost": {
+            "amount": 0.06112410000000001,
+            "currency": "USD"
+          },
+          "sessionUpdate": "usage_update",
+          "size": 1000000,
+          "used": 10922
+        }
+      }
+    },
+    {
+      "id": 6,
+      "jsonrpc": "2.0",
+      "result": {
+        "stopReason": "end_turn",
+        "usage": {
+          "inputTokens": 10095,
+          "outputTokens": 827,
+          "totalTokens": 10922
+        }
+      }
+    }
+  ],
+  "harness": "holmes-case 0.1.0 (lock 1b)",
+  "phases": {
+    "collection": {
+      "evidence": [
+        {
+          "description": "objection letter dated 2025-11-04 in the docket",
+          "id": "E1"
+        },
+        {
+          "description": "clerk backlog bulletin covering 2026-03..2026-06",
+          "id": "E2"
+        },
+        {
+          "description": "no enforcement action on the parcel (absence evidence)",
+          "id": "E3"
+        }
+      ],
+      "lr_applied": {
+        "calibration": "Uncalibrated (gating lands in Phase 2.5)",
+        "evidence": "E1",
+        "hypothesis": "H1",
+        "log_ratio": 0.8109302162163288
+      },
+      "lr_raw": "LR: P_IF_TRUE=0.90 P_IF_FALSE=0.40"
+    },
+    "following_the_money": [
+      "not applicable: the fixture names no financial actor or flow; recorded explicitly per the phase rule"
+    ],
+    "intake": "accepted (fixture; help-without-more-harm satisfied)",
+    "la_lluvia": {
+      "hypotheses": [
+        "The adjacent-owner objection (E1) triggered a review or dispute-resolution process that has kept docket 441 pending.",
+        "The clerk's-office processing backlog (E2) is directly responsible for the stall.",
+        "The applicant failed to submit additional information requested after the 2025-11-06 update, stalling the file on the applicant's side rather than the office's.",
+        "The file was administratively set aside with no formal action recorded, i.e. it fell through normal processing without a documented reason during the months preceding the backlog."
+      ],
+      "raw": "H: The adjacent-owner objection (E1) triggered a review or dispute-resolution process that has kept docket 441 pending. | PRESENT: docket entries scheduling a hearing or requesting applicant response to the objection, correspondence addressing the objector's concerns. | ABSENT: enforcement or violation action against the parcel (consistent with E3), a docket entry recording the objection as resolved or withdrawn.\nH: The clerk's-office processing backlog (E2) is directly responsible for the stall. | PRESENT: docket entries placing the application in a queue during March-June 2026, staff correspondence citing the backlog bulletin. | ABSENT: docket activity or status change between 2025-11-06 and the start of the backlog in March 2026.\nH: The applicant failed to submit additional information requested after the 2025-11-06 update, stalling the file on the applicant's side rather than the office's. | PRESENT: a request-for-information or incomplete-application notice dated after 2025-11-06, no further applicant submissions in the docket. | ABSENT: any enforcement-log entry against the parcel (consistent with E3), any docket reference to the backlog (E2) as the cause.\nH: The file was administratively set aside with no formal action recorded, i.e. it fell through normal processing without a documented reason during the months preceding the backlog. | PRESENT: a gap in docket entries between 2025-11-06 and the backlog period with no assigned staff action noted. | ABSENT: any hearing, request, objection response, or enforcement entry (per E3) logged for docket 441 during that gap."
+    },
+    "resolution": {
+      "emission": "PASSED (corroboration + knowability + limits)",
+      "handoff": "HumanReviewer (interim block)",
+      "knowability": "HighValidity (rule-assigned)",
+      "pack_findings": 1
+    },
+    "the_wall": {
+      "ach_ranking": [
+        {
+          "hypothesis": "The adjacent-owner objection (E1) triggered a review or dispute-resolution process that has kept docket 441 pending.",
+          "inconsistencies": 0
+        },
+        {
+          "hypothesis": "The clerk's-office processing backlog (E2) is directly responsible for the stall.",
+          "inconsistencies": 0
+        },
+        {
+          "hypothesis": "The applicant failed to submit additional information requested after the 2025-11-06 update, stalling the file on the applicant's side rather than the office's.",
+          "inconsistencies": 0
+        },
+        {
+          "hypothesis": "The file was administratively set aside with no formal action recorded, i.e. it fell through normal processing without a documented reason during the months preceding the backlog.",
+          "inconsistencies": 2
+        }
+      ],
+      "ach_raw": "ACH: H1 E1 C\nACH: H1 E2 NA\nACH: H1 E3 C\nACH: H2 E1 NA\nACH: H2 E2 C\nACH: H2 E3 C\nACH: H3 E1 NA\nACH: H3 E2 NA\nACH: H3 E3 C\nACH: H4 E1 I\nACH: H4 E2 I\nACH: H4 E3 C",
+      "diablo_raw": "CHALLENGE: The docket's last update is 2025-11-06, only two days after the objection letter (E1) was filed — if E1 had truly launched an active review or dispute-resolution track, one would expect continuing docket activity (hearing notices, applicant responses, staff correspondence) across the following nine months, but no such subsequent entries are in evidence; the record shows only silence after that single update, which is equally consistent with the file simply going untouched (H4) rather than being actively held up by the objection.\nWOULD-DAMAGE: A docket entry showing the objection (E1) was logged and closed/administratively noted on or shortly after 2025-11-06 with no further review action opened — this would show E1 was received and shelved rather than having triggered any ongoing process.",
+      "diagnostic_evidence": [
+        "E1",
+        "E2"
+      ],
+      "kac": [
+        {
+          "statement": "the fixture docket is the complete record"
+        }
+      ],
+      "tie_at_top": true
+    }
+  },
+  "post_handshake_l1b": [
+    {
+      "l1b": "permitted",
+      "model": "claude-sonnet-5",
+      "provider": "anthropic",
+      "source": "configOptions"
+    }
+  ],
+  "question": "why has the fixture community-garden permit (docket 441) stalled for nine months?",
+  "resolved": {
+    "model": "claude-sonnet-5",
+    "provider": "anthropic"
+  },
+  "verdict": "CASE COMPLETE"
+}

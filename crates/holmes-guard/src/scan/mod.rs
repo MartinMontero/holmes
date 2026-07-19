@@ -17,6 +17,7 @@
 //! exemption used appears in the report; nothing is skipped silently.
 
 pub mod exemptions;
+pub mod recipes;
 
 use crate::policy;
 use std::collections::BTreeMap;

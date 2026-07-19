@@ -73,6 +73,12 @@ pub struct ResearchBrief {
     pub scope: String,
     /// Loop B: search the catalog first.
     pub catalog_seed: Vec<CatalogRef>,
+    /// The builder's self-reported certainty, traveling with the brief
+    /// (epistemic canon §3). **Recorded but firewalled**: nothing in the
+    /// analytical core reads this field — high confidence never lowers a
+    /// verification requirement (illusion of validity). The firewall is
+    /// regression-tested structurally, like the vendor denylist.
+    pub stated_confidence: Option<Confidence>,
 }
 
 impl ResearchBrief {
@@ -91,7 +97,44 @@ impl ResearchBrief {
             origin,
             scope: scope.into(),
             catalog_seed,
+            stated_confidence: None,
         })
+    }
+}
+
+/// `knowability` — assigned to every evidence pack *before* the confidence
+/// score (epistemic canon §3, Upgrade B; schema amendment A-07 to §6.2):
+/// is this question the kind that *can* be resolved, or fundamentally
+/// uncertain? Shares vocabulary with WCJBT's `intuition_validity` so domain
+/// classification flows coherently from intent into verification.
+/// Assignment is **deterministic, never model-inferred** (canon §5).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Knowability {
+    /// Stable, learnable regularities; resolvable with evidence.
+    HighValidity,
+    /// Slow/noisy/absent feedback, novelty, irreducible uncertainty.
+    LowValidity,
+}
+
+/// "Limits of this finding" — the structured boundary statement every
+/// emitted evidence pack carries (epistemic canon §3; A-07). Not hedging:
+/// explicit boundary-marking.
+#[derive(Debug, Clone, Default)]
+pub struct LimitsOfThisFinding {
+    /// What new evidence would change the conclusion.
+    pub what_would_change_the_conclusion: Vec<String>,
+    /// What could not be checked (with why, where known).
+    pub what_could_not_be_checked: Vec<String>,
+    /// Where the evidence runs out.
+    pub where_the_evidence_runs_out: Vec<String>,
+}
+
+impl LimitsOfThisFinding {
+    /// An all-empty limits statement is no statement at all.
+    pub fn is_empty(&self) -> bool {
+        self.what_would_change_the_conclusion.is_empty()
+            && self.what_could_not_be_checked.is_empty()
+            && self.where_the_evidence_runs_out.is_empty()
     }
 }
 
@@ -213,6 +256,12 @@ pub struct EvidencePack {
     /// §6.2: options/risks only — never a build directive. Holmes supplies
     /// verifiable evidence; the builder (and only the builder) decides.
     pub recommendation: Option<String>,
+    /// A-07 (Upgrade B): domain classification, set deterministically and
+    /// *before* any confidence score. Required at emission (lock 1a gate).
+    pub knowability: Option<Knowability>,
+    /// A-07 (Upgrade B): the structured boundary statement. Required and
+    /// non-empty at emission (lock 1a gate).
+    pub limits_of_this_finding: Option<LimitsOfThisFinding>,
 }
 
 impl EvidencePack {
@@ -228,6 +277,8 @@ impl EvidencePack {
             key_assumptions: Vec::new(),
             risk_flags: Vec::new(),
             recommendation: None,
+            knowability: None,
+            limits_of_this_finding: None,
         })
     }
 
