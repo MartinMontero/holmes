@@ -72,7 +72,7 @@
 
 1. ~~**Fund the API account to finish 0c**~~ — **RESOLVED 2026-07-19**: human funded the account in-band; re-run produced exit 0, verdict ROUND-TRIP COMPLETE, streamed completion `"pong"` (transcript in `docs/audit/evidence/`). D-05 residual closed. Key-storage note stands: never store under `ANTHROPIC_API_KEY` in claude.ai/code env settings (reserved, auto-stripped); `MY_ANTHROPIC_API_KEY` is the working convention.
 2. ~~**F-015**: supply AC doc v3~~ — **RESOLVED 2026-07-18**: v3 landed at root, normalized into `docs/acceptance/` (hash-gated), root removed, v2 to history; v3-conformance pass closed F-021…F-024.
-3. Mark the `acdl-gate` **and** `supply-chain` workflows **required status checks** on `main` (branch protection is repo-settings, human-owned) — completes AC-DL-2 c7's "required gate" clause and makes the 0e CVE gate binding.
+3. ~~Mark the `acdl-gate` **and** `supply-chain` workflows **required status checks** on `main`~~ — **DONE 2026-07-19 (Martin).** `acdl-joint-gate` and `sbom-and-cve-scan` are both required status checks on `main`; both gates are now **binding, not advisory**. Completes AC-DL-2 c7's "required gate" clause and makes the 0e CVE gate binding.
 4. Still-unlocated upstream artifacts (F-009/F-011): kickoff v2, `Iterative quality validation process.md`, `claude-code-epistemic-integration-prompt.md`.
 5. DeepSeek alias primary re-verification (api-docs.deepseek.com egress) — carry to next open-egress session and Phase RC.
 
