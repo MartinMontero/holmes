@@ -1,11 +1,11 @@
 # STATE.md — Holmes build state (loop §5)
 
-**Updated:** 2026-07-18 (Session 2 — Phase 0 build, locks 0a/0b/0c) · **Maintainer:** the loop; refreshed at every checkpoint.
+**Updated:** 2026-07-19 (Session 3 — lock 0e CVE gate wired; Phase 0 guard re-verified green in a fresh container) · prior: 2026-07-18 (Session 2 — Phase 0 build, locks 0a/0b/0c) · **Maintainer:** the loop; refreshed at every checkpoint.
 
 ## Git state
 
-- Current branch: `claude/phase-0-holmes-guard-build-va1er0` (session/working branch, started from `origin/main` `f8b43a3` — clean, FF-OK)
-- `origin/main` head: `f8b43a3` (merge of PR #5 — Task 0 session landed with explicit go-ahead)
+- Current branch (Session 3): `claude/claude-code-git-bash-path-f30buf` (lock 0e CVE-gate work; started clean from `main` head). Session-2 build branch `claude/phase-0-holmes-guard-build-va1er0` landed via PR #6.
+- `origin/main` head: `3af25d9` (merge of PR #6 — Phase 0 guard build landed); prior `f8b43a3` (PR #5, Task 0)
 - Ancestry: FF-OK
 - Landing mechanics: PR-only to `main`, explicit go-ahead (D-08); connector re-sync after every canon merge (F-012)
 
@@ -30,7 +30,7 @@
 | **0b** — AC-DL-2 all seven | **VERIFIED (local, release) — v3-conformant** | v3 control convention: **positive** control (planted lockfile) → FAIL / exit 1; **negative** control (real tree, lockfile discovery) → CLEAN / exit 0. Multi-ecosystem lockfile walk (§1), documented seed table with rationale (§2), dependency-path in failure output (§3 — `pulled in via holmes-app -> middleware-lib -> async-openai`). Criteria 1–7 each covered by named tests; c7 = joint workflow, same run as 0a |
 | **0c** — ACP round-trip | **PARTIAL — BLOCKED on model access** | Harness `holmes-smoke` executed against real goose 1.43.0 via L2: initialize + session/new complete; goose-reported pair (`ollama`/`gemma3:1b`) L1b-permitted post-handshake; 12/12 egress events `localhost:11434 allowed` through L1a; excluded-provider run denied exit 3. Model-response leg needs a Tier-1 key in-container **or** Tier-2 model egress (ollama.com 403). Never faked |
 | **0d** — embedding contract | ABSENT — not in this session's instructed scope | — |
-| **0e** — full CI (SBOM/scanners) | PARTIAL — AC-DL joint gate landed (action-free ⇒ SHA-pinning trivially satisfied); Syft/OSV/Grype not yet wired | — |
+| **0e** — full CI (SBOM/scanners) | **PARTIAL — CVE gate now wired (Session 3)** | `.github/workflows/supply-chain.yml`: Syft SBOM (SPDX+CycloneDX) + OSV-Scanner (primary, exit 1 on any vuln) + Grype (cross-check, `--fail-on high`, exit 2). No Trivy (CVE-2026-33634). Action-free ⇒ SHA-pinning satisfied by construction. Scanners pinned (syft `v1.48.0` / osv-scanner `v2.4.0` / grype `v0.116.0`) and verified against each release's goreleaser checksums, **fail-closed**. Verified locally: YAML parse (7 steps), version-munging → correct asset names, `sha256sum --ignore-missing` tamper → non-zero. Verified from source: tool versions + asset filenames (2026-07-19 release pages), CLI syntax + exit-code semantics (vendor docs). **First CI run PENDING** — scanner binary download is org-egress-blocked in-container (`githubusercontent.com` 403, same wall as 0c's model leg); first real execution is on GitHub Actions. Provenance/attestation (spec §6.6) still ABSENT — carry |
 
 ## Adversarial self-verification (2026-07-18)
 
@@ -58,12 +58,12 @@
 
 ## Staging obligations — human
 
-1. **Provider access for lock 0c** (D-05 residual): **STILL BLOCKED this session** — `ANTHROPIC_API_KEY` remains unset in-container (keyless probe → 401; no key file). The human reports the key is saved in the environment config, but it is not injected into *this* container. Inject it at container start (or open egress for Ollama + a permitted Gemma/Qwen weight), then: `holmes-smoke --goose /home/user/goose-src/target/release/goose --provider <p> --model <m> --credential-env KEY --transcript ...`
+1. **Provider access for lock 0c** (D-05 residual): **STILL BLOCKED this session** — `ANTHROPIC_API_KEY` remains unset in-container (keyless probe → 401; no key file). Session 3: a human-supplied Tier-1 key value was verified **valid** (HTTP 200 vs `api.anthropic.com/v1/models`, 2026-07-19), so the credential itself is no longer the blocker — but it is still **not injected** as a container env var, **and** goose is absent from this fresh (ephemeral) container. 0c therefore blocks on two things now: (a) inject the key at container start — note `ANTHROPIC_API_KEY` is a **reserved, auto-stripped** name in claude.ai/code env settings, so inject it via a non-reserved var (e.g. `HOLMES_PROVIDER_KEY`) or the platform secret mechanism; (b) rebuild/vendor goose (`aaif-goose/goose` @ `8e78960e`, trimmed build). Then: `holmes-smoke --goose <goose-bin> --provider <p> --model <m> --credential-env <VAR> --transcript ...`
 2. ~~**F-015**: supply AC doc v3~~ — **RESOLVED 2026-07-18**: v3 landed at root, normalized into `docs/acceptance/` (hash-gated), root removed, v2 to history; v3-conformance pass closed F-021…F-024.
-3. Mark the `acdl-gate` workflow a **required status check** on `main` (branch protection is repo-settings, human-owned) — completes AC-DL-2 c7's "required gate" clause.
+3. Mark the `acdl-gate` **and** `supply-chain` workflows **required status checks** on `main` (branch protection is repo-settings, human-owned) — completes AC-DL-2 c7's "required gate" clause and makes the 0e CVE gate binding.
 4. Still-unlocated upstream artifacts (F-009/F-011): kickoff v2, `Iterative quality validation process.md`, `claude-code-epistemic-integration-prompt.md`.
 5. DeepSeek alias primary re-verification (api-docs.deepseek.com egress) — carry to next open-egress session and Phase RC.
 
 ## Resume point
 
-Phase 0 checkpoint reached on the session branch (locks 0a/0b green locally; 0c harness proven, model leg blocked). Next: human reviews checkpoint readout → phase PR to `main` on explicit go-ahead → complete 0c when provider access exists → 0d/0e (embedding contract; SBOM/scanner CI). Every fresh session: `git fetch origin` first.
+Phase 0: locks 0a/0b green (re-verified in this fresh container, `cargo test --release --locked -p holmes-guard` → 0 failed); 0c harness proven (model leg egress-blocked); **0e CVE gate authored** (`supply-chain.yml`, first CI run pending). Next: (a) trigger CI to exercise `supply-chain.yml`, then mark it a required check alongside `acdl-gate`; (b) complete 0c once a provider key is injected (value verified working, Session 3) **and** goose is rebuilt/vendored in-container; (c) 0d embedding contract; (d) 0e provenance/attestation (spec §6.6). Every fresh session: `git fetch origin` first; goose is container-ephemeral.

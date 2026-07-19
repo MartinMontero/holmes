@@ -30,6 +30,8 @@ Born-redacted, opt-in, local-only: counts, durations, names — never content, p
 
 Syft SBOMs (CycloneDX + SPDX), OSV-Scanner primary, Grype cross-check, **no Trivy** (CVE-2026-33634 — the March 2026 `trivy-action` tag force-push compromise; mutable tags are the lesson), all Actions SHA-pinned, provenance/attestation required.
 
+**Implemented (Phase 0 lock 0e):** `.github/workflows/supply-chain.yml` — action-free (⇒ SHA-pinning satisfied by construction), scanners installed as version-pinned release binaries verified against each release's goreleaser checksums and **failing closed** on mismatch. OSV-Scanner is the strict primary gate (exit 1 on any known vuln in a discovered lockfile); Grype cross-checks the syft SBOM at `--fail-on high` (exit 2). Kept a **separate workflow** from `acdl-gate.yml` so the CVE gate and the provider-denylist gate stay distinct (the §"Denylist != CVE scan" invariant, in CI form). **Not yet implemented:** provenance/attestation (SLSA/cosign) — carried in `STATE.md` lock 0e. First real scan runs on GitHub Actions; in-container execution is blocked by the org egress policy on the release-asset CDN.
+
 ## Honest limits (stated now, never softened later)
 
 - A user's own stock goose is theirs; **AGPL forks can strip the guard** — governance, not the binary, answers for forks. Never "fork-proof."
