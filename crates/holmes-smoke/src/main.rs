@@ -13,7 +13,9 @@
 //! -schema 1.1.0 (the crates goose @ 8e78960e builds against).
 //!
 //! Exit codes: 0 round-trip complete; 2 usage; 3 guard denial;
-//! 4 spawn/protocol failure; 5 timeout.
+//! 4 spawn/protocol failure; 5 timeout; 6 provider error relayed
+//! (protocol + guard path complete, but the reply is goose relaying a
+//! provider-side error — not a model completion).
 
 use holmes_guard::proxy::{Decision, EgressProxy, ProxyConfig};
 use holmes_guard::resolution;
@@ -446,7 +448,16 @@ fn main() {
     let _ = child.kill();
     let _ = child.wait();
 
+    // goose relays provider-side failures as agent text prefixed
+    // "Ran into this error:" (observed live, goose 1.43.0 @ 8e78960e, vs a
+    // real 400). Such a reply proves the protocol + guard path but is NOT a
+    // model completion — claiming ROUND-TRIP COMPLETE on it would be a
+    // fabricated model leg (F-026).
+    let provider_error_relayed = response_text
+        .trim_start()
+        .starts_with("Ran into this error:");
     let (verdict, exit_code) = match (&run, response_text.is_empty(), post_handshake_denied) {
+        (Ok(_), false, false) if provider_error_relayed => ("PROVIDER ERROR RELAYED", 6),
         (Ok(_), false, false) => ("ROUND-TRIP COMPLETE", 0),
         (Ok(_), true, false) => ("PROTOCOL OK BUT EMPTY RESPONSE", 4),
         (Ok(_), _, true) => ("POST-HANDSHAKE L1B DENIAL", 3),
