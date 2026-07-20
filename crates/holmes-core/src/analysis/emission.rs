@@ -54,7 +54,7 @@ impl fmt::Display for EmissionDenial {
                 f,
                 "emission denied: finding {finding_index} has {independent_roots} independent \
                  source root(s) {roots:?}; the corroboration gate requires >= 2 (independence \
-                 heuristic: distinct normalized source roots)"
+                 heuristic: distinct normalized source roots; an empty root never counts)"
             ),
             EmissionDenial::KnowabilityUnassigned => {
                 write!(f, "emission denied: knowability unassigned (A-07)")
@@ -88,31 +88,97 @@ impl EmittedEvidencePack {
 /// Normalize one provenance source to its independence "root".
 /// URL-shaped sources (`scheme://host/...`) reduce to the host without a
 /// leading `www.`; file+section sources (`path §n`, `path#frag`) reduce
-/// to the path. Deterministic; documented as a heuristic floor.
+/// to the lexically normalized path. Deterministic; documented as a
+/// heuristic floor.
 pub fn source_root(source: &str) -> String {
-    let s = source.trim().to_ascii_lowercase();
+    // F-031: strip tab/CR/LF anywhere (interior whitespace must not mint
+    // a new host) and fold `\` into `/` — backslash spellings of one
+    // authority or path reach the same place.
+    let s: String = source
+        .trim()
+        .to_ascii_lowercase()
+        .chars()
+        .filter(|c| !matches!(c, '\t' | '\r' | '\n'))
+        .map(|c| if c == '\\' { '/' } else { c })
+        .collect();
     if let Some(rest) = s.split_once("://").map(|(_, r)| r) {
         let authority = rest.split(['/', '?', '#']).next().unwrap_or(rest);
+        if authority.is_empty() {
+            // No authority (`file:///path`, slash-count decorations): the
+            // path is the identity — same rules as a file source.
+            return path_root(rest);
+        }
         // F-029: drop userinfo (`alice@example.org` and `bob@example.org`
         // are one host — decoration must not fabricate independence; the
         // L1a proxy's s4 rule rejects userinfo outright, this heuristic
-        // strips it) and normalize the trailing-dot FQDN form
-        // (`example.org.` is `example.org`).
+        // strips it).
         let host = authority.rsplit('@').next().unwrap_or(authority);
-        let host = host.strip_suffix('.').unwrap_or(host);
-        // Granularity note (documented, deliberate): subdomains of one
-        // registrable domain (`a.example.org` vs `b.example.org`) DO count
-        // as distinct roots — collapsing to registrable domains needs a
-        // public-suffix list, a dependency this floor heuristic does not
-        // take. Recorded in the F-029 ledger entry; forgery shapes carry
-        // to the Phase 2.5 adversarial corpus.
-        return host.strip_prefix("www.").unwrap_or(host).to_owned();
+        return host_root(host);
     }
-    s.split([' ', '#'])
-        .next()
-        .unwrap_or(&s)
-        .trim_end_matches('/')
-        .to_owned()
+    path_root(&s)
+}
+
+/// Host rules (userinfo already removed): shed the port — the
+/// default-port spelling of one host is the same host, and collapsing
+/// non-default ports only tightens the floor — trim trailing dots on both
+/// sides of the port strip (F-029's FQDN form, incl. `host.:443` /
+/// `host:443.`), then drop a leading `www.`.
+///
+/// Granularity note (documented, deliberate): subdomains of one
+/// registrable domain (`a.example.org` vs `b.example.org`) DO count as
+/// distinct roots — collapsing to registrable domains needs a
+/// public-suffix list, a dependency this floor heuristic does not take.
+/// Likewise carried (F-031, Phase 2.5 adversarial corpus): IPv4 numeric
+/// forms, IPv6 compression, IDN/punycode, and percent-encoded hosts are
+/// not canonicalized here.
+fn host_root(host: &str) -> String {
+    let host = host.trim_end_matches('.');
+    let host = strip_port(host);
+    let host = host.trim_end_matches('.');
+    host.strip_prefix("www.").unwrap_or(host).to_owned()
+}
+
+/// Shed a trailing `:port`. `all()` is true on empty, so the empty-port
+/// form (`host:`) sheds too; `[::1]:8080` splits at the final `:` (the
+/// port), while `[::1]` alone does not match (suffix `1]` is not digits).
+fn strip_port(s: &str) -> &str {
+    match s.rsplit_once(':') {
+        Some((head, port)) if port.chars().all(|c| c.is_ascii_digit()) => head,
+        _ => s,
+    }
+}
+
+/// Path rules for file+section sources: cut the section marker (space,
+/// `#`, or `§` — attached or not), shed trailing `,`/`;` and `:line`
+/// decorations, then normalize lexically (`//` and `.` segments dropped,
+/// `..` resolved, no leading or trailing `/`). A host-like first segment
+/// (`example.org/page` — scheme-less URL citation) collapses to the host
+/// rules so one site cannot mint one root per page. Absolute-vs-relative
+/// spellings of one file remain distinct — this floor has no repo-root
+/// knowledge; carried with the other F-031 shapes to the Phase 2.5
+/// adversarial corpus.
+fn path_root(s: &str) -> String {
+    let head = s.split([' ', '#', '§']).next().unwrap_or(s);
+    let head = strip_port(head.trim_end_matches([',', ';']));
+    let mut segments: Vec<&str> = Vec::new();
+    for segment in head.split('/') {
+        match segment {
+            "" | "." => {}
+            ".." => {
+                // Unmatched `..` (no segment to pop) is kept: a
+                // parent-relative citation stays visibly distinct rather
+                // than silently collapsing.
+                if segments.pop().is_none() {
+                    segments.push("..");
+                }
+            }
+            _ => segments.push(segment),
+        }
+    }
+    if segments.len() > 1 && segments[0].contains('.') {
+        return host_root(segments[0]);
+    }
+    segments.join("/")
 }
 
 /// Run the lock-1a gate over a pack. On success the pack is cloned into
@@ -138,10 +204,14 @@ pub fn emit(pack: &EvidencePack) -> Result<EmittedEvidencePack, EmissionDenial> 
             .iter()
             .map(|p| source_root(&p.source))
             .collect();
-        if roots.len() < 2 {
+        // F-031: a source that normalizes to an empty root (fragment-only,
+        // bare scheme) corroborates nothing; the denial still lists it so
+        // reviewers see what was cited.
+        let independent_roots = roots.iter().filter(|r| !r.is_empty()).count();
+        if independent_roots < 2 {
             return Err(EmissionDenial::Uncorroborated {
                 finding_index: index,
-                independent_roots: roots.len(),
+                independent_roots,
                 roots: roots.into_iter().collect(),
             });
         }
@@ -209,6 +279,92 @@ mod tests {
             source_root("https://a.example.org/"),
             source_root("https://b.example.org/")
         );
+    }
+
+    /// F-031 regression: the decoration shapes confirmed by the
+    /// adversarial pass on the F-029 fix — ports, whitespace, backslash
+    /// and slash-count spellings, scheme-less URLs, and file-path
+    /// decorations — must not mint extra roots.
+    #[test]
+    fn port_path_and_scheme_decorations_cannot_fabricate_independent_roots() {
+        // Port spellings of one host are one root: default, non-default,
+        // empty, and combined with the trailing-dot FQDN form.
+        assert_eq!(source_root("https://example.org:443/a"), "example.org");
+        assert_eq!(source_root("http://example.org:80/a"), "example.org");
+        assert_eq!(source_root("https://example.org:/a"), "example.org");
+        assert_eq!(source_root("https://example.org:8080/a"), "example.org");
+        assert_eq!(source_root("https://example.org.:443/a"), "example.org");
+        assert_eq!(source_root("https://example.org../a"), "example.org");
+        // Interior tab and backslash / slash-count spellings.
+        assert_eq!(source_root("https://exa\tmple.org/x"), "example.org");
+        assert_eq!(source_root("https:\\\\example.org\\a"), "example.org");
+        assert_eq!(source_root("https:///example.org/a"), "example.org");
+        // A scheme-less citation of one site collapses to the host — not
+        // one root per page…
+        assert_eq!(source_root("example.org/page-1"), "example.org");
+        assert_eq!(source_root("www.example.org/page-2"), "example.org");
+        // …while real file paths keep path identity under every spelling.
+        assert_eq!(
+            source_root("./docs/holmes-spec-v2.md §2"),
+            "docs/holmes-spec-v2.md"
+        );
+        assert_eq!(
+            source_root("docs//holmes-spec-v2.md §2"),
+            "docs/holmes-spec-v2.md"
+        );
+        assert_eq!(
+            source_root("docs/./holmes-spec-v2.md"),
+            "docs/holmes-spec-v2.md"
+        );
+        assert_eq!(
+            source_root("docs/../docs/holmes-spec-v2.md"),
+            "docs/holmes-spec-v2.md"
+        );
+        assert_eq!(
+            source_root("docs\\holmes-spec-v2.md §2"),
+            "docs/holmes-spec-v2.md"
+        );
+        // Section-marker decorations: attached §, trailing comma, :line.
+        assert_eq!(
+            source_root("docs/holmes-spec-v2.md§2"),
+            "docs/holmes-spec-v2.md"
+        );
+        assert_eq!(
+            source_root("docs/holmes-spec-v2.md, §2"),
+            "docs/holmes-spec-v2.md"
+        );
+        assert_eq!(
+            source_root("docs/holmes-spec-v2.md:12"),
+            "docs/holmes-spec-v2.md"
+        );
+        // IPv6: the port sheds, the bracketed literal survives intact.
+        assert_eq!(source_root("http://[::1]:8080/x"), "[::1]");
+        assert_eq!(source_root("http://[::1]/x"), "[::1]");
+        // Documented granularity (carried to the Phase 2.5 corpus):
+        // absolute vs repo-relative spellings of one file stay distinct —
+        // this floor has no repo-root knowledge.
+        assert_ne!(
+            source_root("/home/user/holmes/docs/x.md"),
+            source_root("docs/x.md")
+        );
+    }
+
+    /// F-031: a source that normalizes to an empty root (fragment-only,
+    /// bare scheme) contributes nothing to the corroboration count.
+    #[test]
+    fn empty_roots_do_not_count_toward_corroboration() {
+        assert_eq!(source_root("#appendix"), "");
+        let pack = pack_with(vec![
+            Provenance::new("docs/holmes-spec-v2.md §1", None).unwrap(),
+            Provenance::new("#appendix", None).unwrap(),
+        ]);
+        assert!(matches!(
+            emit(&pack).unwrap_err(),
+            EmissionDenial::Uncorroborated {
+                independent_roots: 1,
+                ..
+            }
+        ));
     }
 
     #[test]
