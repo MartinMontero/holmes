@@ -25,6 +25,7 @@
 
 pub mod analysis;
 pub mod artifacts;
+pub mod observability;
 pub mod safety;
 
 pub use artifacts::{

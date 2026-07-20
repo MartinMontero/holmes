@@ -78,6 +78,17 @@ jobs:
           echo "The stated_confidence firewall now covers src/safety as well as"
           echo "src/analysis (see analysis_locks::stated_confidence_firewall_is_structural)."
 
+      - name: "Phase 4 — Observability & hardening: lock suite (analytical beta, D-14=A)"
+        run: |
+          echo "Lock 4a (telemetry content-free by construction + cross-stack"
+          echo "correlation, opt-in/local-only), the deny-by-default permission"
+          echo "manifest, the D-14(a) investigative-absent locks, and the F-037"
+          echo "no-leak firewall:"
+          cargo test --release --locked -p holmes-core --test observability_locks
+          cargo test --release --locked -p holmes-core --lib observability::
+          echo "Beta build must compile with the investigative feature OFF"
+          echo "(absent, not dark-flagged); the default build above already proves it."
+
       - name: "Lock 1d — recipe safety scan, negative control (real recipes clean)"
         run: cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path recipes
 
