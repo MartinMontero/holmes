@@ -92,7 +92,20 @@ impl EmittedEvidencePack {
 pub fn source_root(source: &str) -> String {
     let s = source.trim().to_ascii_lowercase();
     if let Some(rest) = s.split_once("://").map(|(_, r)| r) {
-        let host = rest.split(['/', '?', '#']).next().unwrap_or(rest);
+        let authority = rest.split(['/', '?', '#']).next().unwrap_or(rest);
+        // F-029: drop userinfo (`alice@example.org` and `bob@example.org`
+        // are one host — decoration must not fabricate independence; the
+        // L1a proxy's s4 rule rejects userinfo outright, this heuristic
+        // strips it) and normalize the trailing-dot FQDN form
+        // (`example.org.` is `example.org`).
+        let host = authority.rsplit('@').next().unwrap_or(authority);
+        let host = host.strip_suffix('.').unwrap_or(host);
+        // Granularity note (documented, deliberate): subdomains of one
+        // registrable domain (`a.example.org` vs `b.example.org`) DO count
+        // as distinct roots — collapsing to registrable domains needs a
+        // public-suffix list, a dependency this floor heuristic does not
+        // take. Recorded in the F-029 ledger entry; forgery shapes carry
+        // to the Phase 2.5 adversarial corpus.
         return host.strip_prefix("www.").unwrap_or(host).to_owned();
     }
     s.split([' ', '#'])
@@ -175,6 +188,27 @@ mod tests {
             "docs/holmes-spec-v2.md"
         );
         assert_eq!(source_root("Docs/File.md#frag"), "docs/file.md");
+    }
+
+    /// F-029 regression: decorated duplicates of ONE source must not
+    /// satisfy the ≥2-independent floor.
+    #[test]
+    fn userinfo_cannot_fabricate_independent_roots() {
+        // Userinfo variation collapses to one root.
+        assert_eq!(source_root("https://alice@example.org/a"), "example.org");
+        assert_eq!(source_root("https://bob@example.org/b"), "example.org");
+        // Trailing-dot FQDN form collapses too.
+        assert_eq!(source_root("https://example.org./c"), "example.org");
+        assert_eq!(
+            source_root("https://user:pw@www.example.org./d"),
+            "example.org"
+        );
+        // Documented granularity: distinct subdomains remain distinct
+        // roots (no public-suffix collapse in this floor heuristic).
+        assert_ne!(
+            source_root("https://a.example.org/"),
+            source_root("https://b.example.org/")
+        );
     }
 
     #[test]

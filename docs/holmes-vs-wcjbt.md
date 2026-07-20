@@ -183,6 +183,11 @@ research_brief:
   origin: enum[intent, build_time]
   scope: string
   catalog_seed: [catalog_ref] # Loop B: search catalog first
+  stated_confidence: float|null
+                               # builder's self-reported certainty (epistemic
+                               # canon §3) — recorded, then FIREWALLED: nothing
+                               # in the analytical core reads it (canon §5;
+                               # enforced by structural regression test)
 
 # evidence_pack / case_file  (producer: Holmes  ·  consumer: WCJBT, Alfred, builder)
 evidence_pack:
@@ -197,6 +202,15 @@ evidence_pack:
   key_assumptions: [..]
   risk_flags: [..]
   recommendation: string|null  # options/risks only — never "build X"
+  knowability: enum[high_validity, low_validity]
+                               # A-07 / Upgrade B: assigned deterministically,
+                               # BEFORE any confidence score; never model-
+                               # inferred (epistemic canon §3, §5); shares
+                               # vocabulary with WCJBT intuition_validity
+  limits_of_this_finding:      # A-07: required non-empty at emission (lock 1a)
+    what_would_change_the_conclusion: [string]
+    what_could_not_be_checked: [string]
+    where_the_evidence_runs_out: [string]
 
 # build_plan  (producer: Alfred  ·  consumer: human + Alfred)
 build_plan:
