@@ -19,7 +19,9 @@ pub mod quarantine;
 pub mod state;
 
 pub use ach::{AchCell, AchError, AchMatrix, AchVerdict};
-pub use emission::{EmissionDenial, EmittedEvidencePack};
+pub use emission::{
+    downgrade_uncalibrated, EmissionDenial, EmittedEvidencePack, CALIBRATION_CAP, CONFIDENT_FLOOR,
+};
 pub use hypothesis::{
     CalibrationStatus, Hypothesis, HypothesisId, HypothesisStatus, LikelihoodRatio, LrError,
     LrUpdate, Probability,

@@ -262,6 +262,14 @@ pub struct EvidencePack {
     /// A-07 (Upgrade B): the structured boundary statement. Required and
     /// non-empty at emission (lock 1a gate).
     pub limits_of_this_finding: Option<LimitsOfThisFinding>,
+    /// Phase 2.5 (canon Upgrade B, §4/§5: Holmes "is *blocked* from
+    /// emitting high confidence in a low-`knowability` domain without a
+    /// prominent uncertainty flag"): the prominent uncertainty statement.
+    /// Required by the lock-2.5b emission gate whenever a confident
+    /// finding meets a low-validity domain, and by the person-naming
+    /// review always. Schema delta to §6.2 recorded as a pending
+    /// amendment (A-09), never silently propagated.
+    pub uncertainty_statement: Option<String>,
 }
 
 impl EvidencePack {
@@ -279,6 +287,7 @@ impl EvidencePack {
             recommendation: None,
             knowability: None,
             limits_of_this_finding: None,
+            uncertainty_statement: None,
         })
     }
 

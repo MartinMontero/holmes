@@ -25,6 +25,7 @@
 
 pub mod analysis;
 pub mod artifacts;
+pub mod safety;
 
 pub use artifacts::{
     ArtifactError, BriefOrigin, CaseFile, CaseStatus, CatalogRef, Confidence, EvidencePack,

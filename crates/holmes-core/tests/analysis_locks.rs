@@ -111,9 +111,11 @@ fn walk_to_money(case: &mut AnalyticalCase) {
 }
 
 fn corroborated_finding() -> Finding {
+    // 0.7 sits below the Phase 2.5 confident floor: this fixture tests
+    // corroboration; the calibration gate has its own lock tests.
     Finding::new(
         "the stall traces to the 2025-11-04 zoning objection",
-        Confidence::new(0.8).unwrap(),
+        Confidence::new(0.7).unwrap(),
         vec![
             Provenance::new(
                 "fixture/permit-docket.md §3",
@@ -147,6 +149,7 @@ fn lock1a_uncorroborated_findings_cannot_leave_the_case() {
                 what_could_not_be_checked: vec!["clerk's internal queue".into()],
                 ..Default::default()
             },
+            None,
             HandoffChannel::HumanReviewer,
             "fixture close",
         )
@@ -181,6 +184,7 @@ fn lock1a_corroborated_case_emits_and_hands_off() {
                     "motive behind the objection is outside the record".into(),
                 ],
             },
+            None,
             HandoffChannel::HumanReviewer,
             "fixture close",
         )
@@ -232,11 +236,14 @@ fn six_phase_walk_enforces_order_and_prerequisites() {
 /// module references the field at all.
 #[test]
 fn stated_confidence_firewall_is_structural() {
-    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/analysis");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut checked = 0usize;
-    let mut stack = vec![dir];
+    // Phase 2.5 extends the firewall over the safety layer: neither the
+    // analytical core nor the safety gates may read the brief's
+    // self-reported certainty.
+    let mut stack = vec![root.join("src/analysis"), root.join("src/safety")];
     while let Some(d) = stack.pop() {
-        for entry in std::fs::read_dir(&d).expect("read analysis dir") {
+        for entry in std::fs::read_dir(&d).expect("read firewall dir") {
             let path = entry.expect("entry").path();
             if path.is_dir() {
                 stack.push(path);
@@ -251,5 +258,5 @@ fn stated_confidence_firewall_is_structural() {
             }
         }
     }
-    assert!(checked >= 6, "firewall scan saw too few files ({checked})");
+    assert!(checked >= 10, "firewall scan saw too few files ({checked})");
 }

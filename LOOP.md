@@ -1,6 +1,30 @@
-# LOOP.md — Phase 2, build stage (The Wall, locks 2a–2e; session branch `claude/claude-code-git-bash-path-f30buf`)
+# LOOP.md — Phase 2.5, build stage (Safety before surface, HARD GATE; locks 2.5a–2.5d; session branch `claude/claude-code-git-bash-path-f30buf`)
 
-**Updated:** 2026-07-19 · Maintained per loop §1. Prior stages (Task 0 documentation loop; Phase 0 build; Phase 1 analytical core) preserved in git history at `main`.
+**Updated:** 2026-07-20 · Maintained per loop §1. Prior stages (Task 0 documentation loop; Phase 0 build; Phase 1 analytical core; Phase 2 The Wall) preserved below and in git history at `main`.
+
+## Phase 2.5 scope
+
+Safety before surface — the three properties Holmes most needs ship *before* the collection surface they protect. Built in a new `crates/holmes-core/src/safety/` layer, deterministic and model-free (canon §5): (2.5a) CaMeL-style dual-model injection defense — a quarantined reader over untrusted content, the privileged planner never sees raw hostile bytes, extractions are typed/sealed/authority-free; (2.5b) calibration + knowability gating enforced at emission — uncalibrated likelihoods cannot surface as confident findings, low-knowability domains decline/downgrade or attach the uncertainty statement; (2.5c) tool-approval protocol — deny-by-default per-case grants, operator previews and approves before any tool fires, born-redacted log; (2.5d) legal/defamation guardrails — anti-doxxing refusals per Blacksky's verbatim definition, the person-naming evidence threshold, handoff-only as the sole resolution path. Adversarial verification is MANDATORY, not polish. **Non-goals:** investigative tools (Phase 3), Phase 4/5, any Alfred-side change, any new third-party dependency, deciding the Beta Scope (D-14 — Martin's).
+
+## Phase 2.5 gates (exact commands)
+
+```
+cargo test --release --locked --workspace                                          # 130 tests
+cargo test --release --locked -p holmes-core --test safety_locks                   # the 2.5 lock suite
+cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path recipes    # CLEAN (post smuggling_class extension)
+cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path crates/holmes-guard/tests/fixtures/planted_recipe_smuggled.yaml  # FAIL exit 1
+cargo run --release --locked -p holmes-guard --bin acdl2-scan -- --root .           # CLEAN
+grep -c '\[\[IgnoredVulns\]\]' osv-scanner.toml                                     # MUST be 4
+git status --short Cargo.lock                                                       # MUST be empty (no new deps → CVE gate not re-triggered)
+```
+
+## Phase 2.5 evidence
+
+Live per-lock status: `STATE.md` Phase 2.5 inventory. Highlights: all four locks verified hermetically in release `--locked`; planted `instruction.html`/`smuggled.txt` hostile fixtures neutralized end-to-end (raw-byte canary never reaches the emitted pack); the **mandatory adversarial pass** ran 14 defense claims through independent skeptics (17 agents, 12 held, 3 breaches **found+fixed with locking regressions before the checkpoint** — F-034 cross-crate raw-bytes reach, F-035 invisible-Unicode coverage, F-036 forgeable consent); Beta Scope Decision produced as D-14 PROPOSED (`docs/beta-scope-decision-brief.md`); A-09 schema delta PROPOSED; `stated_confidence` firewall extended over `src/safety`. Carried: reader process-separation live leg + calibration real-outcome data → Phase RC.
+
+---
+
+# Prior stage record — Phase 2 (2026-07-19)
 
 ## Phase 2 scope
 

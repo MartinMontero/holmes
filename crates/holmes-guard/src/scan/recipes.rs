@@ -45,15 +45,31 @@ impl fmt::Display for SmugglingHit {
 pub fn smuggling_class(c: char) -> Option<&'static str> {
     let cp = c as u32;
     match cp {
+        0x00AD => Some("soft hyphen"),
+        0x034F => Some("combining grapheme joiner"),
+        0x061C => Some("arabic letter mark"),
+        // Hangul fillers render blank — invisible placeholders (F-035).
+        0x115F..=0x1160 => Some("hangul filler (blank)"),
+        // Khmer inherent-vowel signs, deprecated and invisible (F-035).
+        0x17B4..=0x17B5 => Some("khmer inherent vowel (invisible)"),
+        0x180E => Some("mongolian vowel separator"),
         0x200B..=0x200F => Some("zero-width / direction mark"),
         0x202A..=0x202E => Some("bidi embedding/override control"),
-        0x2060..=0x2064 => Some("invisible operator / word joiner"),
+        // 0x2065 is the reserved gap between the invisible operators and
+        // the bidi isolates; fold it in so no member of the block leaks.
+        0x2060..=0x2065 => Some("invisible operator / word joiner"),
         0x2066..=0x2069 => Some("bidi isolate control"),
-        0xFEFF => Some("zero-width no-break space (BOM in text)"),
-        0x00AD => Some("soft hyphen"),
-        0x061C => Some("arabic letter mark"),
-        0x180E => Some("mongolian vowel separator"),
+        // Deprecated format controls (symmetric-swapping / shaping /
+        // national digit shapes) — the gap above the bidi isolates (F-035).
+        0x206A..=0x206F => Some("deprecated format control"),
+        0x3164 => Some("hangul filler (blank)"),
         0xFE00..=0xFE0F => Some("variation selector"),
+        0xFEFF => Some("zero-width no-break space (BOM in text)"),
+        0xFFA0 => Some("halfwidth hangul filler (blank)"),
+        // Interlinear annotation anchors — deceptive hidden-text framing.
+        0xFFF9..=0xFFFB => Some("interlinear annotation control"),
+        // Musical-symbol begin/end format controls (invisible) (F-035).
+        0x1D173..=0x1D17A => Some("musical format control (invisible)"),
         0xE0000..=0xE007F => Some("unicode tag block (ascii smuggling)"),
         0xE0100..=0xE01EF => Some("variation selector supplement"),
         _ => None,

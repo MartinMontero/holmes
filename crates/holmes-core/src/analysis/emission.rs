@@ -14,14 +14,38 @@
 //!    named in every denial so reviewers know what was checked.
 //! 2. **Upgrade B schema (A-07):** `knowability` assigned and a non-empty
 //!    `limits_of_this_finding` present.
+//! 3. **Calibration gating (Phase 2.5, lock 2.5b):** an uncalibrated
+//!    likelihood cannot surface as a confident finding. The analytical
+//!    core only ever assigns `CalibrationStatus::Uncalibrated` (nothing
+//!    in the core mints `Calibrated`; that status arrives only when real
+//!    calibration evidence exists — no fake calibration machinery is
+//!    built here), so today every finding at or above
+//!    [`CONFIDENT_FLOOR`] is denied with the downgrade path named. This
+//!    is the loop's "calibration fallback … a safety control": the
+//!    fallback IS the cap.
+//! 4. **Knowability gating (Phase 2.5, lock 2.5b):** no bare high
+//!    confidence in a low-`knowability` domain — a confident finding in
+//!    a `LowValidity` pack additionally requires the prominent
+//!    uncertainty statement (canon §4/§5; the decline-or-downgrade rule).
 //!
 //! Non-empty provenance and confidence ∈ [0, 1] are already
 //! unrepresentable at `Finding` construction (Phase 0); the gate
 //! re-states them as its contract rather than trusting callers.
 
-use crate::artifacts::EvidencePack;
+use crate::analysis::hypothesis::CalibrationStatus;
+use crate::artifacts::{Confidence, EvidencePack, Finding, Knowability};
 use std::collections::BTreeSet;
 use std::fmt;
+
+/// The confidence at or above which a finding counts as "confident" for
+/// the Phase 2.5 gates. ASSUMED (canon names the rule, not the number;
+/// 0.75 = 3:1 odds); documented here and in every denial; amendable by
+/// D-item, never silently.
+pub const CONFIDENT_FLOOR: f64 = 0.75;
+
+/// Where [`downgrade_uncalibrated`] caps a confident-but-uncalibrated
+/// finding: strictly below [`CONFIDENT_FLOOR`], visibly not at it.
+pub const CALIBRATION_CAP: f64 = 0.7;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum EmissionDenial {
@@ -41,6 +65,20 @@ pub enum EmissionDenial {
     /// Nothing to emit: a pack with no current findings is a report of
     /// work not done, not evidence.
     NoCurrentFindings,
+    /// Lock 2.5b: a confident finding whose judgment source carries no
+    /// calibration evidence. The remedy is named in the denial: cap the
+    /// confidence (see [`downgrade_uncalibrated`]) or supply real
+    /// calibration evidence — there is no third path.
+    UncalibratedConfidence {
+        finding_index: usize,
+        confidence: f64,
+    },
+    /// Lock 2.5b: bare high confidence in a low-knowability domain — the
+    /// pack lacks the prominent uncertainty statement canon §4 requires.
+    BareHighConfidenceInLowValidity {
+        finding_index: usize,
+        confidence: f64,
+    },
 }
 
 impl fmt::Display for EmissionDenial {
@@ -66,6 +104,25 @@ impl fmt::Display for EmissionDenial {
             EmissionDenial::NoCurrentFindings => {
                 write!(f, "emission denied: no current findings")
             }
+            EmissionDenial::UncalibratedConfidence {
+                finding_index,
+                confidence,
+            } => write!(
+                f,
+                "emission denied: finding {finding_index} carries confidence {confidence} >= \
+                 {CONFIDENT_FLOOR} with no calibration evidence; downgrade to <= \
+                 {CALIBRATION_CAP} (invalidation-not-deletion; see downgrade_uncalibrated) or \
+                 supply real calibration evidence"
+            ),
+            EmissionDenial::BareHighConfidenceInLowValidity {
+                finding_index,
+                confidence,
+            } => write!(
+                f,
+                "emission denied: finding {finding_index} carries confidence {confidence} >= \
+                 {CONFIDENT_FLOOR} in a low-knowability domain with no prominent uncertainty \
+                 statement (canon Upgrade B: decline, downgrade, or attach the statement)"
+            ),
         }
     }
 }
@@ -181,18 +238,29 @@ fn path_root(s: &str) -> String {
     segments.join("/")
 }
 
-/// Run the lock-1a gate over a pack. On success the pack is cloned into
-/// the emitted wrapper; the source pack stays untouched (append-only
-/// history remains with the case).
-pub fn emit(pack: &EvidencePack) -> Result<EmittedEvidencePack, EmissionDenial> {
-    if pack.knowability.is_none() {
-        return Err(EmissionDenial::KnowabilityUnassigned);
-    }
+/// Run the lock-1a + lock-2.5b gates over a pack. `calibration` is the
+/// case's judgment-source calibration status — the analytical core only
+/// ever supplies `Uncalibrated` (it has no mint for `Calibrated`), so
+/// callers cannot talk the gate into leniency. On success the pack is
+/// cloned into the emitted wrapper; the source pack stays untouched
+/// (append-only history remains with the case).
+pub fn emit(
+    pack: &EvidencePack,
+    calibration: CalibrationStatus,
+) -> Result<EmittedEvidencePack, EmissionDenial> {
+    let knowability = match pack.knowability {
+        None => return Err(EmissionDenial::KnowabilityUnassigned),
+        Some(k) => k,
+    };
     match &pack.limits_of_this_finding {
         None => return Err(EmissionDenial::LimitsMissing),
         Some(l) if l.is_empty() => return Err(EmissionDenial::LimitsMissing),
         Some(_) => {}
     }
+    let uncertainty_present = pack
+        .uncertainty_statement
+        .as_deref()
+        .is_some_and(|s| !s.trim().is_empty());
     let mut any_current = false;
     for (index, finding) in pack.findings().iter().enumerate() {
         if !finding.is_current() {
@@ -215,6 +283,26 @@ pub fn emit(pack: &EvidencePack) -> Result<EmittedEvidencePack, EmissionDenial> 
                 roots: roots.into_iter().collect(),
             });
         }
+        let confidence = finding.confidence().value();
+        if confidence >= CONFIDENT_FLOOR {
+            // Lock 2.5b, rule 1: no confident finding without calibration
+            // evidence. Checked before the knowability rule so the denial
+            // names the binding constraint.
+            if calibration == CalibrationStatus::Uncalibrated {
+                return Err(EmissionDenial::UncalibratedConfidence {
+                    finding_index: index,
+                    confidence,
+                });
+            }
+            // Lock 2.5b, rule 2: no bare high confidence in a
+            // low-knowability domain (canon Upgrade B).
+            if knowability == Knowability::LowValidity && !uncertainty_present {
+                return Err(EmissionDenial::BareHighConfidenceInLowValidity {
+                    finding_index: index,
+                    confidence,
+                });
+            }
+        }
     }
     if !any_current {
         return Err(EmissionDenial::NoCurrentFindings);
@@ -222,11 +310,48 @@ pub fn emit(pack: &EvidencePack) -> Result<EmittedEvidencePack, EmissionDenial> 
     Ok(EmittedEvidencePack { pack: pack.clone() })
 }
 
+/// The named downgrade path for [`EmissionDenial::UncalibratedConfidence`]:
+/// every confident current finding is superseded (invalidation-not-
+/// deletion — the original stays, flagged) by a copy capped at
+/// [`CALIBRATION_CAP`], and each downgrade is recorded visibly as a risk
+/// flag. Returns how many findings were downgraded. Deterministic; the
+/// caller decides whether downgrading is analytically honest — this
+/// helper only makes it mechanical and auditable.
+pub fn downgrade_uncalibrated(pack: &mut EvidencePack) -> usize {
+    let confident: Vec<(usize, f64)> = pack
+        .findings()
+        .iter()
+        .enumerate()
+        .filter(|(_, f)| f.is_current() && f.confidence().value() >= CONFIDENT_FLOOR)
+        .map(|(i, f)| (i, f.confidence().value()))
+        .collect();
+    for &(index, original) in &confident {
+        let source = &pack.findings()[index];
+        let capped = Finding::new(
+            source.claim().to_owned(),
+            Confidence::new(CALIBRATION_CAP).expect("cap is in range"),
+            source.provenance().to_vec(),
+            source.valid_from().to_owned(),
+        )
+        .expect("copy of a valid finding is valid");
+        pack.supersede_finding(index, capped)
+            .expect("index enumerated from this pack");
+        pack.risk_flags.push(format!(
+            "calibration downgrade: finding {index} capped {original} -> {CALIBRATION_CAP} \
+             (uncalibrated likelihood; Phase 2.5 gate)"
+        ));
+    }
+    confident.len()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::artifacts::{Confidence, Finding, Knowability, LimitsOfThisFinding, Provenance};
 
+    // Fixture confidence sits below CONFIDENT_FLOOR so the lock-1a tests
+    // keep exercising corroboration, not the 2.5b calibration gate (which
+    // has its own tests below).
     fn pack_with(provenance: Vec<Provenance>) -> EvidencePack {
         let mut pack = EvidencePack::new("q").unwrap();
         pack.knowability = Some(Knowability::HighValidity);
@@ -237,13 +362,20 @@ mod tests {
         pack.add_finding(
             Finding::new(
                 "claim",
-                Confidence::new(0.8).unwrap(),
+                Confidence::new(0.7).unwrap(),
                 provenance,
                 "2026-07-19",
             )
             .unwrap(),
         );
         pack
+    }
+
+    fn independent_provenance() -> Vec<Provenance> {
+        vec![
+            Provenance::new("https://example.org/page-1", None).unwrap(),
+            Provenance::new("https://registry.example.gov/entity/9", None).unwrap(),
+        ]
     }
 
     #[test]
@@ -359,7 +491,7 @@ mod tests {
             Provenance::new("#appendix", None).unwrap(),
         ]);
         assert!(matches!(
-            emit(&pack).unwrap_err(),
+            emit(&pack, CalibrationStatus::Uncalibrated).unwrap_err(),
             EmissionDenial::Uncorroborated {
                 independent_roots: 1,
                 ..
@@ -374,7 +506,7 @@ mod tests {
             Provenance::new("https://www.example.org/page-2", None).unwrap(),
         ]);
         assert!(matches!(
-            emit(&same_root).unwrap_err(),
+            emit(&same_root, CalibrationStatus::Uncalibrated).unwrap_err(),
             EmissionDenial::Uncorroborated {
                 independent_roots: 1,
                 ..
@@ -385,7 +517,7 @@ mod tests {
             Provenance::new("https://example.org/page-1", None).unwrap(),
             Provenance::new("https://registry.example.gov/entity/9", None).unwrap(),
         ]);
-        assert!(emit(&independent).is_ok());
+        assert!(emit(&independent, CalibrationStatus::Uncalibrated).is_ok());
     }
 
     #[test]
@@ -395,10 +527,110 @@ mod tests {
             Provenance::new("https://b.example/2", None).unwrap(),
         ]);
         p.knowability = None;
-        assert_eq!(emit(&p).unwrap_err(), EmissionDenial::KnowabilityUnassigned);
+        assert_eq!(
+            emit(&p, CalibrationStatus::Uncalibrated).unwrap_err(),
+            EmissionDenial::KnowabilityUnassigned
+        );
         p.knowability = Some(Knowability::LowValidity);
         p.limits_of_this_finding = Some(LimitsOfThisFinding::default());
-        assert_eq!(emit(&p).unwrap_err(), EmissionDenial::LimitsMissing);
+        assert_eq!(
+            emit(&p, CalibrationStatus::Uncalibrated).unwrap_err(),
+            EmissionDenial::LimitsMissing
+        );
+    }
+
+    /// Lock 2.5b, rule 1: an uncalibrated likelihood cannot surface as a
+    /// confident finding — and the named downgrade path works, preserving
+    /// the original finding flagged (invalidation-not-deletion).
+    #[test]
+    fn lock2_5b_uncalibrated_confidence_is_denied_and_downgrade_recovers() {
+        let mut pack = pack_with(independent_provenance());
+        pack.add_finding(
+            Finding::new(
+                "confident claim",
+                Confidence::new(0.9).unwrap(),
+                independent_provenance(),
+                "2026-07-20",
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            emit(&pack, CalibrationStatus::Uncalibrated).unwrap_err(),
+            EmissionDenial::UncalibratedConfidence {
+                finding_index: 1,
+                confidence: 0.9
+            }
+        );
+        // Boundary: exactly the floor is confident.
+        let mut at_floor = pack_with(independent_provenance());
+        at_floor.add_finding(
+            Finding::new(
+                "at-floor claim",
+                Confidence::new(CONFIDENT_FLOOR).unwrap(),
+                independent_provenance(),
+                "2026-07-20",
+            )
+            .unwrap(),
+        );
+        assert!(matches!(
+            emit(&at_floor, CalibrationStatus::Uncalibrated).unwrap_err(),
+            EmissionDenial::UncalibratedConfidence { .. }
+        ));
+        // The downgrade path: cap, keep the original superseded, flag it.
+        let downgraded = downgrade_uncalibrated(&mut pack);
+        assert_eq!(downgraded, 1);
+        assert_eq!(pack.findings().len(), 3, "original kept, capped appended");
+        assert!(!pack.findings()[1].is_current());
+        assert_eq!(
+            pack.findings()[2].confidence().value(),
+            CALIBRATION_CAP,
+            "capped strictly below the floor"
+        );
+        assert!(pack
+            .risk_flags
+            .iter()
+            .any(|r| r.contains("calibration downgrade")));
+        assert!(emit(&pack, CalibrationStatus::Uncalibrated).is_ok());
+    }
+
+    /// Lock 2.5b, rule 2 (the lock's own fixture): high-confidence
+    /// emission in a low-knowability domain is blocked without the
+    /// prominent uncertainty statement, and passes with it. Exercised
+    /// with `Calibrated` so rule 1 does not mask it — the core itself
+    /// never mints that status (test-only construction).
+    #[test]
+    fn lock2_5b_low_knowability_blocks_bare_high_confidence() {
+        let mut pack = pack_with(independent_provenance());
+        pack.knowability = Some(Knowability::LowValidity);
+        pack.add_finding(
+            Finding::new(
+                "confident claim in an unknowable domain",
+                Confidence::new(0.9).unwrap(),
+                independent_provenance(),
+                "2026-07-20",
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            emit(&pack, CalibrationStatus::Calibrated).unwrap_err(),
+            EmissionDenial::BareHighConfidenceInLowValidity {
+                finding_index: 1,
+                confidence: 0.9
+            }
+        );
+        pack.uncertainty_statement =
+            Some("irreducible uncertainty: feedback in this domain is absent".into());
+        assert!(emit(&pack, CalibrationStatus::Calibrated).is_ok());
+        // A whitespace-only statement is no statement.
+        pack.uncertainty_statement = Some("   ".into());
+        assert!(matches!(
+            emit(&pack, CalibrationStatus::Calibrated).unwrap_err(),
+            EmissionDenial::BareHighConfidenceInLowValidity { .. }
+        ));
+        // High-validity domains do not require the statement (calibrated).
+        pack.knowability = Some(Knowability::HighValidity);
+        pack.uncertainty_statement = None;
+        assert!(emit(&pack, CalibrationStatus::Calibrated).is_ok());
     }
 
     #[test]
@@ -409,6 +641,9 @@ mod tests {
             where_the_evidence_runs_out: vec!["no findings yet".into()],
             ..Default::default()
         });
-        assert_eq!(emit(&pack).unwrap_err(), EmissionDenial::NoCurrentFindings);
+        assert_eq!(
+            emit(&pack, CalibrationStatus::Uncalibrated).unwrap_err(),
+            EmissionDenial::NoCurrentFindings
+        );
     }
 }
