@@ -1,6 +1,6 @@
 # Beta Scope Decision — brief for Martin (D-14)
 
-**Status:** PROPOSED — the agent produces this; **Martin rules.** Do not read a recommendation into it; both cuts are argued from evidence and the trade is a values call, not a technical one.
+**Status:** **DECIDED — Option A (analytical open beta), Martin, 2026-07-20** (D-14). This brief is preserved as the evidence the ruling rested on; the agent produced it and Martin ruled. Riders: (a) Phase 3 surface compiled out of beta artifacts where feasible (absent beats dark-flagged); (b) beta copy states plainly that collection mode is not yet shipped; (c) Phases 3/5 after beta behind unchanged gates, RC beta-safety re-run mandatory; (d) recorded DECIDED. **Next: Phase 4 — Observability & hardening, analytical surface only.**
 **Date:** 2026-07-20 · **Gate:** loop §6, the checkpoint immediately after Phase 2.5 (Safety before surface).
 
 ---

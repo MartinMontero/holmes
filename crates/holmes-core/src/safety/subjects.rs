@@ -147,6 +147,17 @@ impl fmt::Display for AntiDoxxingRefusal {
     }
 }
 
+impl AntiDoxxingRefusal {
+    /// A content-free class label for telemetry (Phase 4): the *kind* of
+    /// refusal, never the subject descriptor or info.
+    pub fn class(&self) -> &'static str {
+        match self {
+            AntiDoxxingRefusal::PrivateIndividualTarget { .. } => "private_individual_target",
+            AntiDoxxingRefusal::DisclosureWithoutConsent { .. } => "disclosure_without_consent",
+        }
+    }
+}
+
 impl std::error::Error for AntiDoxxingRefusal {}
 
 /// Proof-of-assessment token for an allowed targeting (sealed).
@@ -232,6 +243,19 @@ impl fmt::Display for DefamationDenial {
                 "emission denied: a person-naming pack requires a prominent uncertainty \
                  statement (non-destructive labeling language)"
             ),
+        }
+    }
+}
+
+impl DefamationDenial {
+    /// A content-free class label for telemetry (Phase 4).
+    pub fn class(&self) -> &'static str {
+        match self {
+            DefamationDenial::InsufficientCorroboration { .. } => {
+                "person_insufficient_corroboration"
+            }
+            DefamationDenial::QuotelessProvenance { .. } => "person_quoteless_provenance",
+            DefamationDenial::MissingUncertaintyStatement => "person_missing_uncertainty",
         }
     }
 }

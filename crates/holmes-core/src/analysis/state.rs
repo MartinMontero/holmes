@@ -15,6 +15,7 @@ use crate::artifacts::{
     ArtifactError, CaseFile, HandoffChannel, Knowability, LimitsOfThisFinding, Provenance,
     ResearchBrief,
 };
+use crate::observability::telemetry::{CorrelationId, Telemetry, TelemetryEvent};
 use crate::safety::subjects::{self, AntiDoxxingRefusal, DefamationDenial, SubjectScope};
 use std::fmt;
 
@@ -37,9 +38,11 @@ pub enum CasePhase {
     Declined,
 }
 
-impl fmt::Display for CasePhase {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let name = match self {
+impl CasePhase {
+    /// The phase's stable, content-free name (Phase 4 telemetry uses it as
+    /// the `PhaseAdvanced` label; `Display` renders the same string).
+    pub fn label(&self) -> &'static str {
+        match self {
             CasePhase::Intake => "Intake",
             CasePhase::LaLluvia => "La Lluvia",
             CasePhase::Collection => "Collection",
@@ -47,8 +50,13 @@ impl fmt::Display for CasePhase {
             CasePhase::FollowingTheMoney => "Following the Money",
             CasePhase::ResolutionHandoff => "Resolution & Handoff",
             CasePhase::Declined => "Declined",
-        };
-        f.write_str(name)
+        }
+    }
+}
+
+impl fmt::Display for CasePhase {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.label())
     }
 }
 
@@ -214,11 +222,32 @@ pub struct AnalyticalCase {
     /// declared deterministically by the operator side, never
     /// model-inferred — the same contract as `knowability` assignment).
     subjects: Vec<SubjectScope>,
+    /// Phase 4: born-redacted, opt-in telemetry and this case's
+    /// correlation id. Disabled by default (records nothing); the
+    /// operator enables it. Every recorded event is content-free by
+    /// construction (see `observability::telemetry`).
+    telemetry: Telemetry,
+    correlation: CorrelationId,
 }
 
 impl AnalyticalCase {
+    /// Open a case with telemetry **disabled** (the opt-in default): the
+    /// analytical machine behaves identically and records nothing.
     pub fn open(brief: ResearchBrief) -> Result<Self, ArtifactError> {
-        Ok(Self {
+        Self::open_with_telemetry(brief, Telemetry::disabled())
+    }
+
+    /// Open a case with telemetry **enabled** (the operator opted in);
+    /// records `CaseOpened` under a fresh correlation id.
+    pub fn open_observed(brief: ResearchBrief) -> Result<Self, ArtifactError> {
+        Self::open_with_telemetry(brief, Telemetry::enabled())
+    }
+
+    fn open_with_telemetry(
+        brief: ResearchBrief,
+        telemetry: Telemetry,
+    ) -> Result<Self, ArtifactError> {
+        let mut case = Self {
             file: CaseFile::open(brief)?,
             phase: CasePhase::Intake,
             declined_reason: None,
@@ -231,7 +260,31 @@ impl AnalyticalCase {
             diablo: Vec::new(),
             money_notes: Vec::new(),
             subjects: Vec::new(),
-        })
+            telemetry,
+            correlation: CorrelationId::new(),
+        };
+        // No-op while disabled; the first recorded event when observed.
+        case.telemetry
+            .record(case.correlation, TelemetryEvent::CaseOpened);
+        Ok(case)
+    }
+
+    /// Phase 4: opt into born-redacted telemetry mid-case. Events
+    /// attempted while disabled were not recorded (opt-in); from here,
+    /// content-free events are captured under this case's correlation id.
+    pub fn enable_telemetry(&mut self) {
+        self.telemetry.enable();
+    }
+
+    /// The case's telemetry recorder (read-only) — the embedder exports
+    /// at the operator's initiative; the library never phones home.
+    pub fn telemetry(&self) -> &Telemetry {
+        &self.telemetry
+    }
+
+    /// This case's cross-stack correlation id.
+    pub fn correlation(&self) -> CorrelationId {
+        self.correlation
     }
 
     /// Phase 2.5: register a declared investigation subject, any phase
@@ -255,6 +308,11 @@ impl AnalyticalCase {
                 Ok(())
             }
             Err(refusal) => {
+                let class = refusal.class();
+                self.telemetry
+                    .record(self.correlation, TelemetryEvent::RefusalRaised { class });
+                self.telemetry
+                    .record(self.correlation, TelemetryEvent::CaseDeclined { class });
                 self.declined_reason = Some(refusal.to_string());
                 self.phase = CasePhase::Declined;
                 Err(PhaseError::AntiDoxxing(refusal))
@@ -304,6 +362,12 @@ impl AnalyticalCase {
             ));
             self.intake = Some(assessment);
             self.phase = CasePhase::Declined;
+            self.telemetry.record(
+                self.correlation,
+                TelemetryEvent::CaseDeclined {
+                    class: "intake_harm_criterion",
+                },
+            );
             return Ok(());
         }
         self.intake = Some(assessment);
@@ -316,6 +380,12 @@ impl AnalyticalCase {
             return Err(PhaseError::IntakeNotRecorded);
         }
         self.phase = CasePhase::LaLluvia;
+        self.telemetry.record(
+            self.correlation,
+            TelemetryEvent::PhaseAdvanced {
+                phase: self.phase.label(),
+            },
+        );
         Ok(())
     }
 
@@ -338,6 +408,12 @@ impl AnalyticalCase {
             return Err(PhaseError::NeedAtLeastTwoLiveHypotheses(live));
         }
         self.phase = CasePhase::Collection;
+        self.telemetry.record(
+            self.correlation,
+            TelemetryEvent::PhaseAdvanced {
+                phase: self.phase.label(),
+            },
+        );
         Ok(())
     }
 
@@ -381,6 +457,12 @@ impl AnalyticalCase {
             return Err(PhaseError::NoEvidenceCollected);
         }
         self.phase = CasePhase::TheWall;
+        self.telemetry.record(
+            self.correlation,
+            TelemetryEvent::PhaseAdvanced {
+                phase: self.phase.label(),
+            },
+        );
         Ok(())
     }
 
@@ -453,6 +535,12 @@ impl AnalyticalCase {
         }
         self.ach_verdict = Some(verdict);
         self.phase = CasePhase::FollowingTheMoney;
+        self.telemetry.record(
+            self.correlation,
+            TelemetryEvent::PhaseAdvanced {
+                phase: self.phase.label(),
+            },
+        );
         Ok(())
     }
 
@@ -547,11 +635,39 @@ impl AnalyticalCase {
         // Phase 2.5: a case with declared subjects names real entities —
         // every current finding meets the person-naming threshold.
         if !self.subjects.is_empty() {
-            subjects::person_naming_review(self.file.evidence())?;
+            if let Err(denial) = subjects::person_naming_review(self.file.evidence()) {
+                let class = denial.class();
+                self.telemetry
+                    .record(self.correlation, TelemetryEvent::EmissionDenied { class });
+                return Err(denial.into());
+            }
         }
-        let emitted = emission::emit(self.file.evidence(), CalibrationStatus::Uncalibrated)?;
+        let emitted = match emission::emit(self.file.evidence(), CalibrationStatus::Uncalibrated) {
+            Ok(e) => e,
+            Err(denial) => {
+                let class = denial.class();
+                self.telemetry
+                    .record(self.correlation, TelemetryEvent::EmissionDenied { class });
+                return Err(denial.into());
+            }
+        };
         self.file.hand_off(channel, note)?;
         self.phase = CasePhase::ResolutionHandoff;
+        // Phase 4 telemetry: the terminal transition, content-free.
+        let channel_label = match channel {
+            HandoffChannel::Journalist => "journalist",
+            HandoffChannel::Lawyer => "lawyer",
+            HandoffChannel::CommunityChannel => "community_channel",
+            HandoffChannel::HumanReviewer => "human_reviewer",
+        };
+        self.telemetry
+            .record(self.correlation, TelemetryEvent::PackEmitted);
+        self.telemetry.record(
+            self.correlation,
+            TelemetryEvent::HandoffRecorded {
+                channel: channel_label,
+            },
+        );
         Ok(emitted)
     }
 }

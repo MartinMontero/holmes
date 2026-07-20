@@ -129,6 +129,23 @@ impl fmt::Display for EmissionDenial {
 
 impl std::error::Error for EmissionDenial {}
 
+impl EmissionDenial {
+    /// A stable, content-free class label for telemetry (Phase 4): the
+    /// *kind* of denial, never the finding, roots, or reason text.
+    pub fn class(&self) -> &'static str {
+        match self {
+            EmissionDenial::Uncorroborated { .. } => "uncorroborated",
+            EmissionDenial::KnowabilityUnassigned => "knowability_unassigned",
+            EmissionDenial::LimitsMissing => "limits_missing",
+            EmissionDenial::NoCurrentFindings => "no_current_findings",
+            EmissionDenial::UncalibratedConfidence { .. } => "uncalibrated_confidence",
+            EmissionDenial::BareHighConfidenceInLowValidity { .. } => {
+                "bare_high_confidence_low_validity"
+            }
+        }
+    }
+}
+
 /// Proof-of-gate wrapper: the only way to obtain one is [`emit`], so an
 /// `EmittedEvidencePack` *is* the record that the gate ran and passed.
 #[derive(Debug, Clone)]

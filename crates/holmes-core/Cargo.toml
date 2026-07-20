@@ -10,3 +10,14 @@ description = "Holmes embedding contract: the artifact types Alfred embeds (rese
 # third-party supply-chain surface beyond the Rust standard library.
 [dependencies]
 holmes-guard = { path = "../holmes-guard" }
+
+# D-14(a): the investigative (Phase 3) surface lands behind this feature,
+# OFF by default, so the analytical open-beta artifact compiles WITHOUT it
+# — absent, not dark-flagged. No Phase-3 code exists yet, so the feature
+# currently gates nothing; it is the reserved landing zone and the
+# enforced convention. The `default` feature set deliberately excludes it;
+# `observability_locks::beta_build_compiles_with_investigative_off` proves
+# the beta build has it off.
+[features]
+default = []
+investigative = []
