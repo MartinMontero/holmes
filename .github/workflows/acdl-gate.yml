@@ -67,6 +67,17 @@ jobs:
       - name: "Lock 0d — embedding contract: workspace tests (consumer + structural)"
         run: cargo test --release --locked --workspace
 
+      - name: "Phase 2.5 — Safety before surface (hard gate): safety lock suite"
+        run: |
+          echo "Locks 2.5a (injection quarantine) / 2.5b (calibration+knowability"
+          echo "gating) / 2.5c (tool-approval) / 2.5d (anti-doxxing + person-naming"
+          echo "threshold, handoff-only), plus the raw-bytes name-firewall and the"
+          echo "F-034/F-035/F-036 adversarial-pass regressions:"
+          cargo test --release --locked -p holmes-core --test safety_locks
+          cargo test --release --locked -p holmes-core --lib safety::
+          echo "The stated_confidence firewall now covers src/safety as well as"
+          echo "src/analysis (see analysis_locks::stated_confidence_firewall_is_structural)."
+
       - name: "Lock 1d — recipe safety scan, negative control (real recipes clean)"
         run: cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path recipes
 

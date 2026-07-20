@@ -53,16 +53,19 @@ impl Probability {
 
 /// Calibration status carried on every likelihood-ratio score (loop §6
 /// Phase 1: "LR scores carry a calibration status now; **gating lands in
-/// Phase 2.5**"). Phase 1 only records the status honestly — nothing here
-/// blocks on it yet.
+/// Phase 2.5**"). The gate is live (lock 2.5b, `emission::emit`): an
+/// uncalibrated likelihood cannot surface as a confident finding.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum CalibrationStatus {
-    /// No calibration evidence exists for the judgment source. The Phase 1
+    /// No calibration evidence exists for the judgment source. The
     /// default — and the only status the analytical core assigns itself.
     #[default]
     Uncalibrated,
-    /// Reserved for Phase 2.5's calibration machinery; nothing in Phase 1
-    /// constructs it.
+    /// Real calibration evidence exists for the judgment source. Nothing
+    /// in the core constructs this: no fake calibration machinery is
+    /// built, so the status can only arrive with genuine outcome data
+    /// (Phase RC live legs). Until then the emission gate's cap is the
+    /// calibration fallback.
     Calibrated,
 }
 

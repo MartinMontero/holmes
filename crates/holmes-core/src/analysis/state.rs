@@ -9,12 +9,13 @@
 
 use super::ach::{AchCell, AchError, AchMatrix, AchVerdict};
 use super::emission::{self, EmissionDenial, EmittedEvidencePack};
-use super::hypothesis::{Hypothesis, HypothesisId, LikelihoodRatio};
+use super::hypothesis::{CalibrationStatus, Hypothesis, HypothesisId, LikelihoodRatio};
 use super::kac::KeyAssumptionsCheck;
 use crate::artifacts::{
     ArtifactError, CaseFile, HandoffChannel, Knowability, LimitsOfThisFinding, Provenance,
     ResearchBrief,
 };
+use crate::safety::subjects::{self, AntiDoxxingRefusal, DefamationDenial, SubjectScope};
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -105,6 +106,12 @@ pub enum PhaseError {
     Ach(AchError),
     Emission(EmissionDenial),
     Artifact(ArtifactError),
+    /// Phase 2.5: the Sentinel-asymmetry refusal (permanent; registering
+    /// a private-individual target also declines the case terminally).
+    AntiDoxxing(AntiDoxxingRefusal),
+    /// Phase 2.5: the person-naming evidence threshold failed at
+    /// resolution.
+    Defamation(DefamationDenial),
 }
 
 impl fmt::Display for PhaseError {
@@ -150,6 +157,8 @@ impl fmt::Display for PhaseError {
             PhaseError::Ach(e) => write!(f, "{e}"),
             PhaseError::Emission(e) => write!(f, "{e}"),
             PhaseError::Artifact(e) => write!(f, "{e}"),
+            PhaseError::AntiDoxxing(e) => write!(f, "{e}"),
+            PhaseError::Defamation(e) => write!(f, "{e}"),
         }
     }
 }
@@ -174,6 +183,18 @@ impl From<ArtifactError> for PhaseError {
     }
 }
 
+impl From<AntiDoxxingRefusal> for PhaseError {
+    fn from(e: AntiDoxxingRefusal) -> Self {
+        PhaseError::AntiDoxxing(e)
+    }
+}
+
+impl From<DefamationDenial> for PhaseError {
+    fn from(e: DefamationDenial) -> Self {
+        PhaseError::Defamation(e)
+    }
+}
+
 /// The analytical case: the §6.2 case file plus the working analytical
 /// state the six phases accumulate.
 #[derive(Debug)]
@@ -189,6 +210,10 @@ pub struct AnalyticalCase {
     kac: KeyAssumptionsCheck,
     diablo: Vec<DiabloPass>,
     money_notes: Vec<String>,
+    /// Phase 2.5: the case's declared investigation subjects (canon §5:
+    /// declared deterministically by the operator side, never
+    /// model-inferred — the same contract as `knowability` assignment).
+    subjects: Vec<SubjectScope>,
 }
 
 impl AnalyticalCase {
@@ -205,7 +230,40 @@ impl AnalyticalCase {
             kac: KeyAssumptionsCheck::new(),
             diablo: Vec::new(),
             money_notes: Vec::new(),
+            subjects: Vec::new(),
         })
+    }
+
+    /// Phase 2.5: register a declared investigation subject, any phase
+    /// before resolution. A private individual as subject is refused by
+    /// the Sentinel asymmetry AND declines the case terminally — the
+    /// refusal is permanent, and a case aimed at a private person does
+    /// not continue under a corrected target.
+    pub fn register_subject(&mut self, scope: SubjectScope) -> Result<(), PhaseError> {
+        if self.phase == CasePhase::Declined {
+            return Err(PhaseError::CaseDeclined);
+        }
+        if self.phase == CasePhase::ResolutionHandoff {
+            return Err(PhaseError::WrongPhase {
+                expected: "any phase before resolution",
+                actual: self.phase.to_string(),
+            });
+        }
+        match subjects::assess_targeting(&scope) {
+            Ok(_) => {
+                self.subjects.push(scope);
+                Ok(())
+            }
+            Err(refusal) => {
+                self.declined_reason = Some(refusal.to_string());
+                self.phase = CasePhase::Declined;
+                Err(PhaseError::AntiDoxxing(refusal))
+            }
+        }
+    }
+
+    pub fn subjects(&self) -> &[SubjectScope] {
+        &self.subjects
     }
 
     pub fn phase(&self) -> &CasePhase {
@@ -421,12 +479,17 @@ impl AnalyticalCase {
     }
 
     /// The single terminal transition: assemble the deterministic pack
-    /// annotations, run the lock-1a emission gate, and hand off. On any
-    /// denial the case stays where it is, un-handed-off.
+    /// annotations, run the person-naming review (when subjects are
+    /// registered) and the lock-1a + lock-2.5b emission gates, and hand
+    /// off. The calibration status passed to emission is always
+    /// `Uncalibrated` — the analytical core has no calibration evidence
+    /// and no API to claim any (lock 2.5b). On any denial the case stays
+    /// where it is, un-handed-off.
     pub fn resolve(
         &mut self,
         knowability: Knowability,
         limits: LimitsOfThisFinding,
+        uncertainty_statement: Option<String>,
         channel: HandoffChannel,
         note: impl Into<String>,
     ) -> Result<EmittedEvidencePack, PhaseError> {
@@ -478,9 +541,15 @@ impl AnalyticalCase {
             pack.risk_flags.extend(risk_flags);
             pack.knowability = Some(knowability);
             pack.limits_of_this_finding = Some(limits);
+            pack.uncertainty_statement = uncertainty_statement;
         }
 
-        let emitted = emission::emit(self.file.evidence())?;
+        // Phase 2.5: a case with declared subjects names real entities —
+        // every current finding meets the person-naming threshold.
+        if !self.subjects.is_empty() {
+            subjects::person_naming_review(self.file.evidence())?;
+        }
+        let emitted = emission::emit(self.file.evidence(), CalibrationStatus::Uncalibrated)?;
         self.file.hand_off(channel, note)?;
         self.phase = CasePhase::ResolutionHandoff;
         Ok(emitted)

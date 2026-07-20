@@ -459,9 +459,13 @@ fn main() {
         ],
     };
 
+    // No uncertainty statement: high-validity domain, and the finding's
+    // confidence (0.7) sits below the Phase 2.5 confident floor — the
+    // calibration gate passes without a downgrade.
     let emitted = match case.resolve(
         knowability,
         limits,
+        None,
         HandoffChannel::HumanReviewer,
         "lock 1b fixture case close",
     ) {
