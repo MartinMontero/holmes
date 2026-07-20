@@ -1,11 +1,11 @@
 # STATE.md — Holmes build state (loop §5)
 
-**Updated:** 2026-07-19 (Session 6 — **Phase 2 build (The Wall)**: `holmes-wall` on Neo4j via `neo4rs`; Graphiti dropped per D-12; AC-DL-1 §6 landed; D-09/D-10/D-11/D-12 + A-08 + F-027/F-028 recorded) · prior: Session 5 Phase 1 (PR #10); Phase 0 CLOSED (PRs #7–#9) · **Maintainer:** the loop; refreshed at every checkpoint.
+**Updated:** 2026-07-20 (Session 7 — **housekeeping**: README re-synced to build reality (F-032); A-07 §Propagation in-repo half verified nothing-to-reconcile; branch hygiene verified, deletions env-blocked → carried (F-033)) · prior: Session 6 Phase 2 (PR #11) + A-07 landing (PR #12) + F-031 hardening (PR #13, separate session); Session 5 Phase 1 (PR #10); Phase 0 CLOSED (PRs #7–#9) · **Maintainer:** the loop; refreshed at every checkpoint.
 
 ## Git state
 
-- Current branch (Session 6): `claude/claude-code-git-bash-path-f30buf`, restarted from `main` after PR #10 merged (Phase 2 build). Prior phase PRs: #6 (Phase 0 guard), #7 (0e), #8/#9 (Phase 0 close), #10 (Phase 1).
-- `origin/main` head: `506be85` (merge of PR #10 — Phase 1 analytical core); Phase 2 builds on it.
+- Current branch (Session 7): `claude/claude-code-git-bash-path-f30buf`, restarted from `main` after PR #12 merged (housekeeping). Prior phase PRs: #6 (Phase 0 guard), #7 (0e), #8/#9 (Phase 0 close), #10 (Phase 1), #11 (Phase 2), #12 (A-07 + F-029/F-030), #13 (F-031).
+- `origin/main` head: `cf45f6e` (merge of PR #13 — F-031 `source_root` hardening); this session builds on it.
 - Ancestry: FF-OK
 - Landing mechanics: PR-only to `main`, explicit go-ahead (D-08); connector re-sync after every canon merge (F-012)
 

@@ -14,35 +14,48 @@ Holmes investigates dependencies, verifies claims, and flags risks. It produces 
 
 > Holmes never authors the blueprint. Holmes never writes application code. It only observes, deduces, and supplies verifiable evidence.
 
-## Project status: SPEC'D, PRE-PHASE-0 — no code yet
+## Project status: Phases 0–2 CLOSED — Phase 2.5 (safety gate) next
 
-This repository contains **no code yet**, but it now holds the canonical documents:
+The build has run. This repo is a **Rust workspace** (four crates; the language bar is Rust — zero Python surface). Each phase closed as one PR with executed evidence per lock; per-lock inventories live in `STATE.md`, born-redacted transcripts in `docs/audit/evidence/`.
 
-- **`docs/holmes-spec-v2.md`** — the authoritative build reference (QA-corrected v2, verification date 2026-06-29): goose/ACP substrate, the three analytical engines + six-phase case method, Graphiti "Wall," two-tier model strategy, the Blacksky-derived accountability layer, and the **Phase 0–5 build roadmap**. The repo copy is the single source of truth.
-- **`docs/holmes-project-orientation.md`** — the project map and operating loop (Claude Code builds and emits readouts; the claude.ai project pressure-tests them against the spec).
-- The **case file** (below) — provenance, the blueprint knowledge base, and the audit ledgers.
+- **Phase 0 — Substrate + guards (PRs #7–#9, closed 2026-07-19).** `holmes-guard`: L1a deny-by-default egress proxy, L1b provider/model resolution, L2 sanitized spawn; AC-DL-1/AC-DL-2 denylist gates proven in CI (`acdl-gate`); action-free CVE gate (Syft + OSV-Scanner + Grype, checksum-pinned — `supply-chain`); pinned goose build with provenance; live guarded ACP round-trip on the smoke model (streamed completion, egress 1/1 allowed); `holmes-core` embedding contract (§6.2 artifact types, invalidation-not-deletion, handoff-only).
+- **Phase 1 — Analytical core (PR #10, closed 2026-07-19).** Hypothesis objects with likelihood-ratio scoring (both conditionals required; `Uncalibrated` carried), ACH matrix (complete-or-refuse, ties reported), Key-Assumptions-Check, first-principles quarantine, six-phase case state machine, lock-1a emission gate (≥2 independent source roots + knowability + limits). Live six-phase case on the smoke model: CASE COMPLETE, 64 frames, a 3-way ACH tie honestly flagged. Recipe safety scan (Unicode-smuggling, fails closed) live from the first recipe.
+- **Phase 2 — The Wall (PR #11, closed 2026-07-19).** Graphiti **dropped** (D-12/F-027: base-deps include an excluded-vendor SDK and phone-home telemetry); `holmes-wall` is an owned temporal-graph subset on Neo4j Community Edition via `neo4rs` (denylist-clean). Bi-temporal facts, invalidate-not-delete (no delete API exists; Cypher audited), AC-DL-1 §6 landed (default memory layer local-only; CI marker EXECUTING), deterministic ingestion scorer (6/6 grounded live), supervised backend (kill-on-drop, path-confined), weight provenance (SHA-256 fail-closed).
+- **Post-phase (PRs #12–#13, 2026-07-19/20).** A-07 canon landed in `docs/holmes-vs-wcjbt.md` (§6.2 schema); lock-1a corroboration heuristic hardened against URL-decoration forgery (F-029/F-031).
 
-The build starts when Phase 0 runs from its kickoff prompt (`holmes-claude-code-kickoff-phase0-v2.md` — not yet committed, see F-009) with explicit human go-ahead, per Rule 9.
+Environment-gated legs are carried honestly, never faked (org egress blocks in the build container): the live-Neo4j 2a leg and Tier-2-on-Ollama 2c failure rates run on any open-egress host; 0e provenance/attestation carries to Phase RC.
+
+**Next phase: 2.5 — Safety before surface, a hard gate** (calibration gating for LR scores, knowability gating, adversarial corpus from the carried F-029/F-031 forgery shapes), then the Beta Scope Decision — a D-item reserved for the human. Nothing starts without explicit go-ahead (Rule 9).
 
 ## The case file
 
 ```
+crates/
+  holmes-core/     §6.2 artifact types + analytical engines: ACH, LR scorer, KAC,
+                   quarantine, six-phase case state machine, lock-1a emission gate
+  holmes-guard/    Denylist guards: L1a egress proxy, L1b provider/model resolution,
+                   L2 sanitized spawn, AC-DL-2 dependency scanner, recipe-scan
+  holmes-wall/     The Wall: bi-temporal facts, invalidate-not-delete, Neo4j backend,
+                   supervised process, weight provenance, ingestion scorer
+  holmes-smoke/    Live harnesses over goose acp: holmes-smoke (0c), holmes-case (1b),
+                   holmes-ingest (2c)
+recipes/           First recipes (la-lluvia, el-diablo) — gated by recipe-scan
+scripts/
+  build-goose.sh   Pinned goose build (commit-pinned, provenance recorded)
+.github/workflows/
+  acdl-gate.yml    Denylist gates + lock steps (0d, 1d, §6 EXECUTING)
+  supply-chain.yml SBOM + CVE gate, action-free, checksum-pinned; D-13 exact-set assert
 docs/
-  holmes-spec-v2.md                  CANONICAL build spec (source of truth)
-  holmes-project-orientation.md      Project map, custom instructions, build loop
-  research/
-    wisdom-intuition-knowledge-judgment-v2.md   Epistemology map (analytical-core design input)
-  case-file/
-    00-provenance.md     Where every source document lives, and when it was verified
-    01-blueprint-kb.md   The Holmes blueprint deck, distilled, with epistemic labels per claim
-    02-triad-context.md  What the sibling blueprint decks say about Holmes's role and constraints
-  audit/
-    00-audit-charter.md  The Adversarial QA & Production-Readiness Audit, instantiated for Holmes
-    findings-ledger.md   F-### findings (seeded; several resolved by the spec landing)
-    amendments.md        A-## amendments (empty until the audit runs)
-    decisions.md         D-## decisions reserved for the human (D-01/D-05…D-08 decided; D-02–D-04 open)
-  roadmap/
-    build-phases.md      SUPERSEDED pointer → the real roadmap is spec §7 (Phases 0–5)
+  holmes-spec-v2.md                  CANONICAL build spec (+ holmes-spec-v2.1-diff.md)
+  prompts/holmes-master-build-loop-v2.md   The operating loop (§6 phase plan)
+  holmes-vs-wcjbt.md                 Epistemic canon (§6.2 schema; A-07 landed)
+  acceptance/                        AC-DL denylist acceptance criteria (v3)
+  case-file/                         Provenance, blueprint KB, triad context
+  audit/                             Charter, findings-ledger.md (F-###), amendments.md
+                                     (A-##), decisions.md (D-##, human-only),
+                                     evidence/ (executed transcripts)
+  upstream/                          Drafts for Martin to file upstream (D-12 rider e)
+STATE.md / LOOP.md   Live build state (per-lock inventories) / stage doc
 ```
 
 ## Standing gates
@@ -53,7 +66,7 @@ All work in this repo is governed by the constitution in [CLAUDE.md](CLAUDE.md):
 
 ## Next steps
 
-1. ~~Decide D-01 (license) and D-05 (smoke-test mode)~~ — both decided 2026-07-18 at Gate Zero (`docs/audit/decisions.md`).
-2. Stage the still-missing upstream artifacts: the 2026-07-13 second-pass audit report (→ `docs/audit/`), `holmes-spec-v2.1-diff.md` (F-011/F-014), and `holmes-claude-code-kickoff-phase0-v2.md` (F-009) if it remains relevant alongside the master build loop.
-3. Optionally run the fresh adversarial audit (`docs/audit/00-audit-charter.md`) — D-04, still open.
-4. Continue the **Master Build Loop v2** (`docs/prompts/holmes-master-build-loop-v2.md`): Phase 0 build begins at the next session with a provider key in the environment; every phase stops at its Rule-9 checkpoint and emits a readout for pressure-testing.
+1. **Phase 2.5 — Safety before surface (hard gate):** calibration gating (`CalibrationStatus` stops being carried), knowability gating, and the adversarial corpus of carried provenance-forgery shapes (F-029/F-031). Starts only on explicit go-ahead.
+2. **Beta Scope Decision** after 2.5 — a D-item reserved for the human (`docs/audit/decisions.md`).
+3. **Carried environment-gated legs** on an open-egress host: live-Neo4j lock-2a leg (`HOLMES_NEO4J_URI`), Tier-2-on-Ollama 2c failure rates; 0e provenance/attestation → Phase RC.
+4. **Upstream (the human's steps):** canon propagation per A-07 §Propagation (byte-identical re-copy + connector re-sync); the Graphiti optional-extras PR (`docs/upstream/graphiti-optional-extras-pr-draft.md`, D-12 rider e); pending spec amendments A-02…A-06, A-08 on the pressure-testing surface.
