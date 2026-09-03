@@ -10,13 +10,17 @@ use holmes_guard::spawn::{sanitized_spawn, CredentialVar, SpawnDenial, SpawnSpec
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::path::Path;
 
+#[cfg(not(windows))]
+const GOOSE_PATH: &str = "/opt/holmes/goose";
+#[cfg(windows)]
+const GOOSE_PATH: &str = r"C:\holmes\goose.exe";
 fn proxy_addr() -> SocketAddr {
     SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 39999)
 }
 
 fn spec<'a>(provider: &'a str, model: &'a str, home: &'a Path) -> SpawnSpec<'a> {
     SpawnSpec {
-        goose_binary: Path::new("/opt/holmes/goose"),
+        goose_binary: Path::new(GOOSE_PATH),
         provider,
         model,
         proxy_addr: proxy_addr(),
@@ -154,7 +158,7 @@ fn sanitized_command_is_goose_acp_on_the_absolute_path() {
         sanitized_spawn(&spec("anthropic", "claude-sonnet-5", &home)).expect("must pass");
     assert_eq!(
         sanitized.command.get_program().to_string_lossy(),
-        "/opt/holmes/goose"
+        GOOSE_PATH
     );
     let args: Vec<_> = sanitized.command.get_args().collect();
     assert_eq!(args, ["acp"]);
