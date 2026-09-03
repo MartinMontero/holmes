@@ -149,6 +149,15 @@ impl Drop for SupervisedBackend {
 
 #[cfg(test)]
 mod tests {
+    #[cfg(unix)]
+    const OUTSIDE_DATA_DIR: &str = "/etc/holmes-should-not-write";
+    #[cfg(windows)]
+    const OUTSIDE_DATA_DIR: &str = r"C:\holmes-should-not-write";
+
+    #[cfg(unix)]
+    const STANDIN_PROGRAM: &str = "/bin/sleep";
+    #[cfg(windows)]
+    const STANDIN_PROGRAM: &str = r"C:\Windows\System32\cmd.exe";
     use super::*;
 
     #[cfg(unix)]
@@ -181,9 +190,9 @@ mod tests {
     #[test]
     fn data_dir_outside_the_root_is_refused() {
         let root = std::env::temp_dir().join("holmes-wall-root");
-        let outside = Path::new("/etc/holmes-should-not-write");
+        let outside = Path::new(OUTSIDE_DATA_DIR);
         let spec = BackendSpec {
-            program: Path::new("/bin/sleep"),
+            program: Path::new(STANDIN_PROGRAM),
             args: vec!["100".into()],
             data_dir: outside,
             confine_root: &root,
@@ -198,7 +207,7 @@ mod tests {
     #[test]
     fn dropping_the_supervisor_kills_the_child_no_orphan() {
         let root = std::env::temp_dir().join(format!("holmes-wall-{}", std::process::id()));
-        let sleep = if Path::new("/bin/sleep").exists() {
+        let sleep = if Path::new(STANDIN_PROGRAM).exists() {
             "/bin/sleep"
         } else {
             "/usr/bin/sleep"
