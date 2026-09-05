@@ -2,6 +2,31 @@
 
 This repo is the case file and (eventually) the implementation of **Holmes**, the research-and-analysis brain of the WCJBT Non-Dev Builder OS and sibling of Alfred. Core thesis: **"the method is the identity."**
 
+## Project graph
+
+**Read `RECIPE.md` before any work.** It is the persistent dependency graph
+of this repo: every subsystem, what it needs, and a checkable proof line
+(a number, a filename, or a named output — never a status message).
+
+- The session's `PLAN.md` is a **subset of RECIPE.md**: the subsystems
+  being touched, in dependency order, with their proof lines carried
+  forward verbatim.
+- **`gate.ps1` is the definition-of-done gate.** Run
+  `powershell -NoProfile -ExecutionPolicy Bypass -File gate.ps1` before
+  claiming done — it exits 0 only if every subsystem's proof passes. This
+  is separate from the build gate (CI `acdl-joint-gate` /
+  `sbom-and-cve-scan`); both must be green, neither substitutes for the
+  other. `gate.ps1 -SelfTest` proves the gate can fail (planted proof,
+  watched FAIL, restore) — run it after any edit to the gate itself.
+- Proof lines are platform-aware from birth (the `GOOSE_PATH`
+  cfg-pattern in `crates/holmes-guard/tests/acdl1_spawn.rs` is the
+  convention). Environment preconditions (e.g. loopback `127.0.0.1:11434`
+  free for the acdl1_proxy positive control) are stated in RECIPE.md,
+  never worked around silently.
+- **Drift rule (from RECIPE.md):** a PR that touches a subsystem
+  re-verifies its proof line. Drifted proofs are flagged in the PR body
+  (old → new → why), never silently edited.
+
 ## Source of truth
 
 **`docs/holmes-spec-v2.md` is the authoritative build reference.** Where anything in this file, the case-file docs, or your memory disagrees with the spec, the spec wins. Revisions are drafted on the claude.ai pressure-testing surface and written back here; **the repo copy wins** on any disagreement (sync rule in the spec's header). Preserve `[DIRECTIONAL]` and `[NEEDS-CAVEAT]` markers — never silently harden caveated claims into facts.
