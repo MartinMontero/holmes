@@ -124,3 +124,30 @@ connective layer; (3) mirrors already exist in Holmes and Alfred, so no
 consumer loses access. Pointers to the WCJBT home added to Holmes's and
 Alfred's `CLAUDE.md` (their instruction files). Mirrors retained and
 content-verified identical modulo EOL (2026-09-07).
+
+---
+
+## Addendum 2026-09-08 — corrections and ruling updates (DRIFT RULE: old → new → why)
+
+1. **GooseClaw canon set — ABSENT claim outdated.** OLD (§1, §2): "the
+   numbered canon set … live only in the Kimi project — ABSENT from disk."
+   NEW: GooseClaw `main` (post-PR #2 merge, commit `04d0dce`) carries the
+   full set verbatim at `docs/canon/00_INDEX.md` … `21_MODERATION_AND_ABUSE.md`,
+   a `docs/canon/README.md` with the precedence rule and the C3
+   supersession flag, and `docs/pin-register/08_PIN_REGISTER-2026-09-03.md`.
+   WHY: the merge landed after this report's disk search (which ran against
+   the checked-out `canon/specification-homecoming` tree, pre-fetch). The
+   GooseClaw homecoming is COMPLETE — done there, not by this PR set.
+2. **Triad canon is now pointer-only in Holmes and Alfred** (Martin,
+   2026-09-08). OLD (§4): "Mirrors retained." NEW: mirrors replaced by
+   pointers to the WCJBT canonical copy (this PR's `docs/triad-canon.md`
+   is now the pointer; old mirror sha256 quoted in the pointer file).
+   WHY: single-source ruling — one canonical copy, no mirror drift.
+3. **Loose stale copies deleted** (Martin, 2026-09-08, deletion
+   authorized). OLD (§2/§3): "recommend deleting … needs Martin's GO."
+   NEW: deleted. sha256 at deletion: spec `12F337DD…A16F` (v2.0, stale),
+   orientation `04EB705A…35FA`, wisdom-v2 `2C14199F…7034` (both
+   content-identical-modulo-EOL to repo copies).
+4. **`epistemic-canon-Alfred.md` — not recoverable** (verified absent on
+   disk and in the repo, Martin 2026-09-08); commissioned fresh in the
+   Alfred PR, marked COMMISSIONED, never presented as the original.

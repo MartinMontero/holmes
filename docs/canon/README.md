@@ -16,7 +16,7 @@ files (moving canon breaks inbound links; pointers beat moves).
 | File | Role | Marker vocabulary |
 |---|---|---|
 | `docs/holmes-spec-v2.md` | Authoritative build reference (v2.1); "the repo copy wins" sync rule | five states (D-15) |
-| `docs/triad-canon.md` | Shared north star; **mirror** — canonical home is the WCJBT repo (`docs/canon/triad-canon.md`); on disagreement the WCJBT copy wins | five states (D-15) |
+| `docs/triad-canon.md` | Shared north star; **pointer-only** (Martin, 2026-09-08) to the canonical copy in the WCJBT repo (`docs/canon/triad-canon.md`); the WCJBT copy wins on any disagreement | (pointer) |
 | `docs/epistemic-canon-Holmes.md` | Holmes seat of the epistemic canon; body byte-identical across the three projects — never fork the body | (no claim markers — verified 2026-09-07) |
 | `docs/constitution.md` | The twelve standing gates | clean |
 | `docs/security.md` | Security posture + honest limits | five states (D-15) |
