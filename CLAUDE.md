@@ -61,6 +61,9 @@ This repo is documentation-only until Phase 0 runs from its kickoff prompt (`hol
 
 ## Repo conventions
 
+- Canon index + precedence: `docs/canon/README.md` (verified primary source > component canon > system spec).
+- `docs/triad-canon.md` is a **mirror**: the canonical home is the WCJBT repo (`docs/canon/triad-canon.md`); on disagreement the WCJBT copy wins (the canon's own sync rule).
+
 - Findings: `F-###` in `docs/audit/findings-ledger.md`, format:
   `F-### | Severity | Category | Location | Evidence (quote or ABSENT) | Why it matters | Recommended fix | Confidence (H/M/L)`
 - Severities: BLOCKER / MAJOR / MINOR / NIT (definitions in `docs/audit/00-audit-charter.md`).
