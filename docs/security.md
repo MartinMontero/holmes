@@ -32,11 +32,11 @@ Built before the collection surface it protects. All deterministic and model-fre
 
 ## Sandbox policy (spec §3.1, §4.6)
 
-Any model-generated code runs in a **Firecracker microVM** (E2B OSS self-hosted), **no outbound network by default**. bubblewrap only for trusted, in-house, read-only tasks — justified by the documented Ona incident (`/proc/self/root` denylist bypass + self-disabled sandbox; primary source). The `rm -rf ~/` anecdote is separate and `[DIRECTIONAL]` — do not bundle the two.
+Any model-generated code runs in a **Firecracker microVM** (E2B OSS self-hosted), **no outbound network by default**. bubblewrap only for trusted, in-house, read-only tasks — justified by the documented Ona incident (`/proc/self/root` denylist bypass + self-disabled sandbox; primary source). The `rm -rf ~/` anecdote is separate and `[REPORTED]` — do not bundle the two.
 
 ## Secrets
 
-**BYOK invariant.** The shipped `holmes-guard` crate reads no vendor credential and requires no vendor, key, or env var of its own — users bring their own keys; the guard governs *where* they may reach (L1a allowlist) and *which* provider a key is admitted for (L2 per-provider credential seam). The smoke-test key is build/CI-only, supplied at run time via `--credential-env` and injected only through the seam. Headless spawns set `GOOSE_DISABLE_KEYRING=1` and the pinned goose build compiles the `system-keyring` feature out. At-rest storage backend for embedders that opt into a keyring: OS credential store (goose platform keyring `[NEEDS-CAVEAT — confirm exact backend per platform in goose docs]`); never in files, never logged.
+**BYOK invariant.** The shipped `holmes-guard` crate reads no vendor credential and requires no vendor, key, or env var of its own — users bring their own keys; the guard governs *where* they may reach (L1a allowlist) and *which* provider a key is admitted for (L2 per-provider credential seam). The smoke-test key is build/CI-only, supplied at run time via `--credential-env` and injected only through the seam. Headless spawns set `GOOSE_DISABLE_KEYRING=1` and the pinned goose build compiles the `system-keyring` feature out. At-rest storage backend for embedders that opt into a keyring: OS credential store (goose platform keyring `[UNVERIFIED — confirm exact backend per platform in goose docs]`); never in files, never logged.
 
 ## Telemetry
 
@@ -53,6 +53,6 @@ Syft SBOMs (CycloneDX + SPDX), OSV-Scanner primary, Grype cross-check, **no Triv
 - A user's own stock goose is theirs; **AGPL forks can strip the guard** — governance, not the binary, answers for forks. Never "fork-proof."
 - **A hostile tool binary that ignores proxy environment variables escapes the library-level network boundary** — full network-level enforcement in the shipped artifact is an OS/Alfred-layer control, recorded as an Alfred obligation (`STATE.md`).
 - **Neutral-name proxying is not detected (AC-DL v3).** The criteria do not catch an excluded model served under a neutral name on a permitted-looking endpoint. Mitigation: keep the L1a allowlist narrow and vet any proxy host before adding it — the allowlist is the control here, not model-name inspection.
-- **Namespace completeness is unprovable `[NEEDS-CAVEAT — completeness of any denylist namespace set]`.** AC-DL-2's seed list is a deterministic *floor*, not a proof of absence; it is necessarily incomplete at any moment and grows by ledgered amendment. Pair it with dependency review on every new addition.
+- **Namespace completeness is unprovable `[UNVERIFIED — completeness of any denylist namespace set]`.** AC-DL-2's seed list is a deterministic *floor*, not a proof of absence; it is necessarily incomplete at any moment and grows by ledgered amendment. Pair it with dependency review on every new addition.
 - **Weight provenance is a separate criterion (AC-WP, lock 2e)** — verifying downloaded Tier-2 open weights (checksum/signature/attestation, fail closed) lands with the Phase 2/3 model-download path, not here.
 - Dual-use risk multiplied by distribution is named plainly and **never claimed structurally contained**.

@@ -31,7 +31,7 @@
 >
 > **Non-negotiables (the constitution):** (1) Rule 9 — no commit/push without explicit go-ahead. (2) Provider **denylist**, not allowlist — exclude Meta/OpenAI/xAI across the whole tree; Google permitted; open-weights-on-permitted-infra permitted. (3) No fabrication — never invent sources/data; silence over a false claim. (4) Path-confined, deny-by-default tools. (5) Born-redacted, local-only telemetry. (6) Supply-chain hygiene: Syft/OSV-Scanner/Grype, **no Trivy**, SHA-pin Actions. (7) Surveillance-detection-not-surveillance; anti-doxxing. (8) "I answer to the block" — Blacksky-style community accountability + human-in-the-loop.
 >
-> **How this project works:** this is my pressure-testing surface. Claude Code Desktop builds and emits readouts; I paste them here and you stress-test them against the spec (is the denylist actually enforced, is the ACP round-trip real, are the knowledge files faithful with confidence markers preserved). Be direct and skeptical; flag drift from the spec or the constitution. Preserve `[DIRECTIONAL]` / `[NEEDS-CAVEAT]` markers — don't silently harden caveated claims into facts.
+> **How this project works:** this is my pressure-testing surface. Claude Code Desktop builds and emits readouts; I paste them here and you stress-test them against the spec (is the denylist actually enforced, is the ACP round-trip real, are the knowledge files faithful with confidence markers preserved). Be direct and skeptical; flag drift from the spec or the constitution. Preserve the five-state confidence labels (D-15: EXECUTED / VERIFIED-LIVE / CANON / REPORTED / UNVERIFIED) — don't silently harden caveated claims into facts.
 
 ---
 
@@ -61,7 +61,7 @@ Keep only the **Current** rows live in day-to-day work; the rest are archive/pro
 
 ## 6. Open threads to carry forward
 
-- **Blacksky `[NEEDS-CAVEAT]` items — RESOLVED (2026-06-29).** All confirmed against primary sources (docs.blacksky.community moderation + community-guidelines, the appeals form, the ToS) and folded into `holmes-spec-v2.md`: Labeler "cannot delete content"; appeals via web form, "a different moderator," 7-day target; the four non-appealable categories (white supremacy, CSAM, digital blackface, severe threats); Ubuntu "I am because we are"; "protect your peace"; Blacksky's own doxxing definition; the 645-member People's Assembly; NY-law governance. Load the revised spec into project knowledge.
+- **Blacksky caveated items — RESOLVED (2026-06-29).** All confirmed against primary sources (docs.blacksky.community moderation + community-guidelines, the appeals form, the ToS) and folded into `holmes-spec-v2.md`: Labeler "cannot delete content"; appeals via web form, "a different moderator," 7-day target; the four non-appealable categories (white supremacy, CSAM, digital blackface, severe threats); Ubuntu "I am because we are"; "protect your peace"; Blacksky's own doxxing definition; the 645-member People's Assembly; NY-law governance. Load the revised spec into project knowledge.
 - **Decide the Phase 0 smoke-test mode** (cloud Tier-1 vs fully offline Tier-2).
 - **Confirm sibling repos are on disk** so Claude Code can inherit Alfred's conventions rather than reinventing them.
 - **Two minor non-Blacksky caveats remain in the spec** (peripheral): the exact Vercel Sandbox GA month, and goose's per-platform secret-store backend. Resolve opportunistically; neither blocks Phase 0.
