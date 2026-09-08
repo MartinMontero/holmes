@@ -29,7 +29,7 @@ of this repo: every subsystem, what it needs, and a checkable proof line
 
 ## Source of truth
 
-**`docs/holmes-spec-v2.md` is the authoritative build reference.** Where anything in this file, the case-file docs, or your memory disagrees with the spec, the spec wins. Revisions are drafted on the claude.ai pressure-testing surface and written back here; **the repo copy wins** on any disagreement (sync rule in the spec's header). Preserve `[DIRECTIONAL]` and `[NEEDS-CAVEAT]` markers — never silently harden caveated claims into facts.
+**`docs/holmes-spec-v2.md` is the authoritative build reference.** Where anything in this file, the case-file docs, or your memory disagrees with the spec, the spec wins. Revisions are drafted on the claude.ai pressure-testing surface and written back here; **the repo copy wins** on any disagreement (sync rule in the spec's header). Claim labels are the five system states (D-15, 2026-09-01): EXECUTED / VERIFIED-LIVE / CANON / REPORTED / UNVERIFIED — never silently harden caveated claims into facts.
 
 This repo is documentation-only until Phase 0 runs from its kickoff prompt (`holmes-claude-code-kickoff-phase0-v2.md`, not yet committed — F-009) with explicit human go-ahead. Do not scaffold application code before that.
 
@@ -61,6 +61,9 @@ This repo is documentation-only until Phase 0 runs from its kickoff prompt (`hol
 
 ## Repo conventions
 
+- Canon index + precedence: `docs/canon/README.md` (verified primary source > component canon > system spec).
+- `docs/triad-canon.md` is a **mirror**: the canonical home is the WCJBT repo (`docs/canon/triad-canon.md`); on disagreement the WCJBT copy wins (the canon's own sync rule).
+
 - Findings: `F-###` in `docs/audit/findings-ledger.md`, format:
   `F-### | Severity | Category | Location | Evidence (quote or ABSENT) | Why it matters | Recommended fix | Confidence (H/M/L)`
 - Severities: BLOCKER / MAJOR / MINOR / NIT (definitions in `docs/audit/00-audit-charter.md`).
@@ -78,9 +81,9 @@ Terse. No hyperbole, no praise, no filler. Findings and evidence only. Improve t
 
 ## Spec-derived operating context (v2.1)
 
-- **Substrate:** goose (`aaif-goose/goose`, Apache-2.0, Rust) over Zed's ACP (`goose acp`, JSON-RPC 2.0/stdio); all tools MCP, path-confined, deny-by-default. Secrets in the OS credential store `[NEEDS-CAVEAT — confirm goose backend per platform]`.
+- **Substrate:** goose (`aaif-goose/goose`, Apache-2.0, Rust) over Zed's ACP (`goose acp`, JSON-RPC 2.0/stdio); all tools MCP, path-confined, deny-by-default. Secrets in the OS credential store `[UNVERIFIED — confirm goose backend per platform]`.
 - **Delivery:** Holmes ships as `holmes-core` + `holmes-guard` crates **embedded in Alfred** — no standalone UI/installer/updater (spec §4.1/§7 shell superseded; pending amendment A-03).
-- **Models:** Tier-1 cloud — Claude, Gemini 3.1 Pro, DeepSeek V4, Magistral, Qwen3.7-Max (proprietary, never sovereign). Tier-2 sovereign — non-Meta open weights (Qwen3.5-27B / Qwen3.6-35B-A3B, Magistral Small, Gemma). `deepseek-chat`/`deepseek-reasoner` retire 2026-07-24 15:59 UTC → V4 Flash (`deepseek-reasoner` → Flash, not Pro). DeepSeek Pro discount permanence `[NEEDS-CAVEAT]` — budget both rates.
+- **Models:** Tier-1 cloud — Claude, Gemini 3.1 Pro, DeepSeek V4, Magistral, Qwen3.7-Max (proprietary, never sovereign). Tier-2 sovereign — non-Meta open weights (Qwen3.5-27B / Qwen3.6-35B-A3B, Magistral Small, Gemma). `deepseek-chat`/`deepseek-reasoner` retire 2026-07-24 15:59 UTC → V4 Flash (`deepseek-reasoner` → Flash, not Pro). DeepSeek Pro discount permanence `[REPORTED]` — budget both rates.
 - **The Wall:** Graphiti temporal graph, Neo4j/FalkorDB only (Kuzu abandoned); Graphiti's default LLM client is OpenAI — pin permitted clients, regression-tested (AC-DL-1 §6, Phase 2); invalidation-not-deletion.
 - **Derived files:** `docs/architecture.md`, `docs/constitution.md`, `docs/build-roadmap.md`, `docs/security.md` — re-seeded together with this block; canon markers preserved verbatim everywhere.
 

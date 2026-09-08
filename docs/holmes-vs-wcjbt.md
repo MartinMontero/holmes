@@ -2,7 +2,7 @@
 
 # Holmes vs. WCJBT (and Alfred): The Intent → Knowledge → Build Triad
 
-> **Status:** Canon draft for Martin Montero / AOS. Companion to `holmes-spec-v2.md`. Convention carried from that document: unmarked claims are primary-source-verifiable; **[DIRECTIONAL]** marks design intent or figures not externally verifiable; **[NEEDS-CAVEAT]** marks a claim with a known caveat or unresolved conflict.
+> **Status:** Canon draft for Martin Montero / AOS. Companion to `holmes-spec-v2.md`. Convention carried from that document: unmarked claims are primary-source-verifiable; **[REPORTED]** marks design intent or figures resting on someone else's evidence; **[UNVERIFIED]** marks a claim with a known caveat or unresolved conflict. (Five system states per D-15, 2026-09-01.)
 
 ---
 
@@ -122,7 +122,7 @@ When Alfred hits a question it cannot resolve by sourcing judgment ("which crypt
 
 ## 5. The in-workspace integration map — Holmes inside the builder's environment
 
-Holmes is **not a separate destination**. It is woven into the WCJBT/Alfred editing environment — a Tauri 2 + SolidJS local-first workspace **[DIRECTIONAL]** (see §7 caveat on Alfred sourcing; the parent `derekross/onyx` confirms a "Tauri 2.0 — Rust-based desktop framework · SolidJS — Reactive UI framework · CodeMirror 6 — Text editor" stack, an "Integrated AI Assistant," and a "Skills System"). The mapping below shows, feature by feature, what Holmes contributes and how it stays distinct from WCJBT's intent/blueprint role and Alfred's build role.
+Holmes is **not a separate destination**. It is woven into the WCJBT/Alfred editing environment — a Tauri 2 + SolidJS local-first workspace **[REPORTED]** (see §7 caveat on Alfred sourcing; the parent `derekross/onyx` confirms a "Tauri 2.0 — Rust-based desktop framework · SolidJS — Reactive UI framework · CodeMirror 6 — Text editor" stack, an "Integrated AI Assistant," and a "Skills System"). The mapping below shows, feature by feature, what Holmes contributes and how it stays distinct from WCJBT's intent/blueprint role and Alfred's build role.
 
 | Workspace feature (shortcut) | What it already does | What **Holmes** contributes | Boundary preserved |
 |---|---|---|---|
@@ -156,7 +156,7 @@ This section is written so Claude Code can act on it.
 **Alfred**
 - **Accepts:** a hardened blueprint; a build plan; recipes/skills; cited answers from Holmes.
 - **Emits:** code, gated commits, project/PKM memory notes, build-time questions.
-- **MUST NOT:** make a sourcing/evidentiary judgment itself (it asks Holmes); admit a dependency that violates the WCJBT denylist; commit or push without explicit human go-ahead (Rule 9 **[DIRECTIONAL]**, per `holmes-spec-v2.md`/Alfred context).
+- **MUST NOT:** make a sourcing/evidentiary judgment itself (it asks Holmes); admit a dependency that violates the WCJBT denylist; commit or push without explicit human go-ahead (Rule 9 **[REPORTED]**, per `holmes-spec-v2.md`/Alfred context).
 
 ### 6.2 Hand-off artifacts (shapes)
 
@@ -231,15 +231,15 @@ build_plan:
 3. **Alfred never makes a sourcing judgment.** Test: Alfred, on encountering an unresolved evidentiary question, must emit a `research_brief` to Holmes rather than a decision; CI/lint flags any Alfred "I'll assume…" on a sourcing matter.
 4. **Determinism vs. judgment separation.** Test: the enforcement engine has no probabilistic/LLM call; Holmes findings never hard-fail a build directly — they update labels/blueprint, and only the deterministic engine gates commits.
 5. **Every Holmes finding is provenance-bearing.** Test: each `findings[]` entry has non-empty `provenance` and a `confidence` in [0,1]; else reject.
-6. **Rule 9 holds.** Test: no commit/push path exists that bypasses `commit_gate: human_go_ahead`. **[DIRECTIONAL]** pending Alfred source confirmation.
+6. **Rule 9 holds.** Test: no commit/push path exists that bypasses `commit_gate: human_go_ahead`. **[REPORTED]** pending Alfred source confirmation.
 
 ---
 
 ## 7. Open questions / risks
 
-- **Alfred sourcing is unverifiable from public primary sources. [NEEDS-CAVEAT]** The repository `github.com/MartinMontero/Alfred` is not publicly accessible/indexed (not present among the owner's visible "popular repositories," and the full repo listing is robots-disallowed to automated fetch). The Alfred-specific facts in this document — Tauri 2 + SolidJS, ~11 path-confined MCP tools, goose-via-ACP, the provider denylist, and "Rule 9" — are carried from `holmes-spec-v2.md`/the supplied context and are marked **[DIRECTIONAL]**. Independently, the cited parent project **`derekross/onyx` is MIT-licensed, not AGPL-3.0** (its README's License section reads simply "MIT"), though it does confirm the **Tauri 2.0 + SolidJS + CodeMirror 6 + nostr-tools** stack plus an "Integrated AI Assistant" and "Skills System." The "relicensed from onyx under AGPL-3.0" claim should be re-verified against the actual Alfred LICENSE file before publication — note that an MIT parent *can* legally be extended under AGPL-3.0, so the relicense is plausible, but the premise that onyx is AGPL is incorrect.
-- **WCJBT enforcement-engine specifics. [NEEDS-CAVEAT]** The public docs describe a **three-layer TypeScript enforcement engine** (`enforcement/cli.ts`) that runs in CI on every PR and weekly; Layer 2 walks the lockfile graph across **13 formats** (npm, pnpm, yarn classic & Berry, Cargo, uv, Poetry, pip-compile, Go modules, Bundler, Hex, pub, Gradle); Layer 1 reads manifests across 8+ ecosystems; the engine has a **40+-test** suite. The figures "~2,727 lines" and "~18 parsers" are **[DIRECTIONAL]** — not directly verifiable from the published pages. Supply-chain hygiene is confirmed: **Syft** SBOMs (CycloneDX + SPDX), **OSV-Scanner** (primary gate) + **Grype** (independent cross-check), and a deliberate exclusion of **Trivy** — "its popular action was compromised in a March 2026 supply-chain attack (CVE-2026-33634), force-pushed to credential-stealing malware."
-- **Catalog size. [DIRECTIONAL]** The site states "1,300+ verified tools"; the precise "~1,355 YAML entries" is not directly confirmed on the public catalog page.
+- **Alfred sourcing is unverifiable from public primary sources. [UNVERIFIED]** The repository `github.com/MartinMontero/Alfred` is not publicly accessible/indexed (not present among the owner's visible "popular repositories," and the full repo listing is robots-disallowed to automated fetch). The Alfred-specific facts in this document — Tauri 2 + SolidJS, ~11 path-confined MCP tools, goose-via-ACP, the provider denylist, and "Rule 9" — are carried from `holmes-spec-v2.md`/the supplied context and are marked **[REPORTED]**. Independently, the cited parent project **`derekross/onyx` is MIT-licensed, not AGPL-3.0** (its README's License section reads simply "MIT"), though it does confirm the **Tauri 2.0 + SolidJS + CodeMirror 6 + nostr-tools** stack plus an "Integrated AI Assistant" and "Skills System." The "relicensed from onyx under AGPL-3.0" claim should be re-verified against the actual Alfred LICENSE file before publication — note that an MIT parent *can* legally be extended under AGPL-3.0, so the relicense is plausible, but the premise that onyx is AGPL is incorrect.
+- **WCJBT enforcement-engine specifics. [REPORTED]** The public docs describe a **three-layer TypeScript enforcement engine** (`enforcement/cli.ts`) that runs in CI on every PR and weekly; Layer 2 walks the lockfile graph across **13 formats** (npm, pnpm, yarn classic & Berry, Cargo, uv, Poetry, pip-compile, Go modules, Bundler, Hex, pub, Gradle); Layer 1 reads manifests across 8+ ecosystems; the engine has a **40+-test** suite. The figures "~2,727 lines" and "~18 parsers" are **[REPORTED]** — not directly verifiable from the published pages. Supply-chain hygiene is confirmed: **Syft** SBOMs (CycloneDX + SPDX), **OSV-Scanner** (primary gate) + **Grype** (independent cross-check), and a deliberate exclusion of **Trivy** — "its popular action was compromised in a March 2026 supply-chain attack (CVE-2026-33634), force-pushed to credential-stealing malware."
+- **Catalog size. [REPORTED]** The site states "1,300+ verified tools"; the precise "~1,355 YAML entries" is not directly confirmed on the public catalog page.
 - **Redundancy drift risk (ongoing).** The most likely future collision is **Holmes drifting into product recommendations** (violating invariant #1/#5) or **WCJBT's recommendation surface asserting research conclusions** (violating invariant #2). Monitor by auditing artifact types emitted per agent and asserting the §6.4 invariants in CI.
 - **Label-trust risk.** NIP-32 labels carrying Holmes findings into the catalog must be human-reviewed before policy effect, or a single mis-weighted `confidence` could degrade catalog trust. Keep the deterministic engine as the only commit gate.
 - **Provider-denylist consistency.** Holmes's Tier-1 model use must stay consistent with the WCJBT denylist; a model-selection regression would breach the shared constraint. Cross-check at model-config CI. (Note: goose itself ships with broad provider support including excluded vendors, so the denylist must be enforced at the WCJBT/agent configuration layer, not assumed from the substrate.)

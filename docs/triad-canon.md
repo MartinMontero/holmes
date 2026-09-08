@@ -67,7 +67,7 @@ The hand-off artifacts that cross each boundary:
 - **Provenance and chain of custody.** Every claim traces to a source; facts carry validity and are invalidated rather than silently erased; conclusions are auditable and defensible.
 - **"I answer to the block."** Accountability is to the community, not to authority or to vendors — community-governed, human-in-the-loop, with non-destructive labeling and real appeals (the Blacksky model).
 - **Surveillance-detection, not surveillance.** Tools are scoped to power, never aimed at private individuals; anti-doxxing by default.
-- **Honest epistemics.** Distinguish what's verified from what's assumed. Verify present-day, product, and version facts against primary sources; never assert them from memory. Carry confidence markers — **[DIRECTIONAL]** for estimates/secondary sourcing, **[NEEDS-CAVEAT]** for unconfirmed details — and never silently harden a caveated claim into a fact.
+- **Honest epistemics.** Distinguish what's verified from what's assumed. Verify present-day, product, and version facts against primary sources; never assert them from memory. Carry confidence labels in the five system states (D-15, 2026-09-01: EXECUTED / VERIFIED-LIVE / CANON / REPORTED / UNVERIFIED) — **[REPORTED]** for estimates/secondary sourcing, **[UNVERIFIED]** for unconfirmed details — and never silently harden a caveated claim into a fact.
 
 ---
 

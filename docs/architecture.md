@@ -1,12 +1,12 @@
 # Architecture — derived operating context
 
-**DERIVED (re-seeded 2026-07-18) from `docs/holmes-spec-v2.md` v2.1 (§2–§5).** The spec is authoritative; on any disagreement the spec wins. Markers (`[DIRECTIONAL]`, `[NEEDS-CAVEAT]`) are carried verbatim — never harden them.
+**DERIVED (re-seeded 2026-07-18) from `docs/holmes-spec-v2.md` v2.1 (§2–§5).** The spec is authoritative; on any disagreement the spec wins. Claim labels are the five system states (D-15): EXECUTED / VERIFIED-LIVE / CANON / REPORTED / UNVERIFIED; caveated labels are carried verbatim — never harden them.
 
 ## Substrate (spec §4.1)
 
 - **Runtime:** goose (`aaif-goose/goose`, Apache-2.0, Rust, Linux-Foundation/AAIF-governed since 2026-04-07), driven over **Zed's Agent Client Protocol** — JSON-RPC 2.0 over stdio, invoked via the `goose acp` command (no separate crate; distinct from IBM/BeeAI's "Agent Communication Protocol").
 - **Tools:** MCP for everything; Holmes ships its own MCP servers (records, OSINT, the-wall memory, link-analysis), path-confined, deny-by-default.
-- **Secrets:** goose stores secrets in the platform credential store `[NEEDS-CAVEAT — confirm exact backend per platform in goose docs]`; keys never in files, never logged.
+- **Secrets:** goose stores secrets in the platform credential store `[UNVERIFIED — confirm exact backend per platform in goose docs]`; keys never in files, never logged.
 - **Delivery surface:** the spec's §4.1/§7 "Tauri 2 + SolidJS shell" is **superseded**: Holmes ships as `holmes-core` + `holmes-guard` crates **embedded in Alfred** — no standalone UI/installer/updater (loop v2 header; pending spec amendment **A-03**).
 
 ## Analytical core (spec §2, §4.2)
@@ -32,7 +32,7 @@ Self-hosted **Graphiti** temporal knowledge graph; **Neo4j or FalkorDB only** (K
 
 - **Tier 1 (cloud):** Claude, Gemini 3.1 Pro; permitted open-weight via API (DeepSeek V4, Magistral); permitted proprietary API (Qwen3.7-Max — closed weights, never sovereign-tier).
 - **Tier 2 (sovereign, local):** non-Meta open weights only — Qwen3.5-27B / Qwen3.6-35B-A3B, Magistral Small, Gemma; via Ollama/Jan/llama.cpp. Private queries default to Tier 2.
-- **Alias watch:** `deepseek-chat`/`deepseek-reasoner` retire **2026-07-24 15:59 UTC**, routing to **V4 Flash** non-thinking/thinking — `deepseek-reasoner` → Flash, **not Pro** (capability change, not a rename). DeepSeek V4 Pro discount permanence is `[NEEDS-CAVEAT]` — budget both rates.
+- **Alias watch:** `deepseek-chat`/`deepseek-reasoner` retire **2026-07-24 15:59 UTC**, routing to **V4 Flash** non-thinking/thinking — `deepseek-reasoner` → Flash, **not Pro** (capability change, not a rename). DeepSeek V4 Pro discount permanence is `[REPORTED]` — budget both rates.
 
 ## Sibling relationship (spec §5)
 
