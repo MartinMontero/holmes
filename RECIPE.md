@@ -30,7 +30,7 @@ spawned) is the convention any new platform-sensitive proof must follow.
 | AC-DL-2 dependency-denylist gate | holmes-guard (`acdl2-scan` bin); `Cargo.lock` | `cargo run --release --locked -p holmes-guard --bin acdl2-scan -- --root .` exits 0 with `verdict: CLEAN`, `packages scanned: 157`, `files scanned: 68`; the planted control `--lockfile crates/holmes-guard/tests/fixtures/planted.lock` exits non-zero with `verdict: FAIL` |
 | Recipe safety scan (Lock 1d) | holmes-guard (`recipe-scan` bin); `recipes/` | `cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path recipes` exits 0 with `verdict: CLEAN` and `files scanned: 2`; the planted control `--path crates/holmes-guard/tests/fixtures/planted_recipe_smuggled.yaml` exits non-zero with `verdict: FAIL` |
 | CI joint gate | all rows above | `.github/workflows/acdl-gate.yml` contains job `acdl-joint-gate` and `.github/workflows/supply-chain.yml` contains job `sbom-and-cve-scan` (2 filenames, 2 job names). Live required-status on `main` is GitHub-side — not locally provable; treat as REPORTED unless checked on the PR page |
-| Supply-chain posture (cargo audit posture, D-13) | `osv-scanner.toml` | the `RUSTSEC-####-####` ID set in `osv-scanner.toml` equals exactly **4** IDs: RUSTSEC-2024-0384, RUSTSEC-2024-0436, RUSTSEC-2025-0012, RUSTSEC-2025-0134 (mirrors the CI rider-b assertion; the live OSV/Grype scan itself runs in `sbom-and-cve-scan`) |
+| Supply-chain posture (cargo audit posture, D-13 + D-14) | `osv-scanner.toml` | the advisory ID set in `osv-scanner.toml` equals exactly **5** IDs: RUSTSEC-2024-0384, RUSTSEC-2024-0436, RUSTSEC-2025-0012, RUSTSEC-2025-0134 (D-13 unmaintained-crate four) + GHSA-qwgh-2vcv-g2f7 (D-14 block-buffer, scored-but-unfixable, Martin option A 2026-10-29) — matched by an ID-format regex covering both RUSTSEC and GHSA shapes (mirrors gate.ps1 `supply-chain-posture`; the CI rider-b assertion moves to the same five in the companion workflow commit; the live OSV/Grype scan itself runs in `sbom-and-cve-scan`) |
 | Windows-portability fixtures (GOOSE_PATH pattern) | holmes-guard tests | `crates/holmes-guard/tests/acdl1_spawn.rs` contains **both** `#[cfg(windows)]` with `C:\holmes\goose.exe` and `#[cfg(not(windows))]` with `/opt/holmes/goose` — platform-branched constants, hermetic assertions |
 | Spec canon (`docs/holmes-spec-v2.md`) | — | `docs/holmes-spec-v2.md` exists and contains the sync-rule marker `repo copy wins` (bolded in source, `docs/holmes-spec-v2.md` line 7) |
 
@@ -53,3 +53,15 @@ path changes, a port precondition changes — the PR body **flags the drift
 explicitly** (old value → new value → why). A drifted proof is never
 silently edited, in this file or in `gate.ps1`. An unexplained drift is a
 blocked PR, not a documentation update.
+
+### Change log (DRIFT RULE)
+
+- **2026-10-29 — supply-chain posture row: 4 → 5 IDs.** Old: "equals
+  exactly **4** IDs (RUSTSEC-2024-0384, -0436, 2025-0012, -0134)". New:
+  exactly **5**, adding GHSA-qwgh-2vcv-g2f7. Why: block-buffer 0.10.4 is
+  scored (CVSS 6.3) but unfixable by bump (the sha2 0.11 chain resolves
+  block-buffer 0.11.0, also affected); Martin ruled option A (ratify the
+  5th suppression), 2026-10-29. gate.ps1 `$OsvIdsExpected`/
+  `Test-SupplyChainPosture` and this row moved together; the CI rider-b
+  assert moves in the companion `.github/workflows/supply-chain.yml`
+  commit (workflow-scope edit, owner-side).
