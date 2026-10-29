@@ -40,9 +40,12 @@ $script:Expected = @{
 $script:Acdl2PackagesExpected = 157
 $script:Acdl2FilesExpected    = 68
 $script:RecipeFilesExpected   = 2
+# The ledgered suppression set (D-13 four + D-14 block-buffer, option A
+# 2026-10-29). Drift in osv-scanner.toml vs this list = supply-chain-posture FAIL.
 $script:OsvIdsExpected        = @(
     'RUSTSEC-2024-0384', 'RUSTSEC-2024-0436',
-    'RUSTSEC-2025-0012', 'RUSTSEC-2025-0134'
+    'RUSTSEC-2025-0012', 'RUSTSEC-2025-0134',
+    'GHSA-qwgh-2vcv-g2f7'
 )
 
 # Native-call wrapper: cargo writes progress to stderr even on success,
@@ -127,10 +130,10 @@ function Test-CiGateDefinitions {
 
 function Test-SupplyChainPosture {
     $raw = Get-Content 'osv-scanner.toml' -Raw
-    $ids = @([regex]::Matches($raw, 'RUSTSEC-\d{4}-\d{4}') | ForEach-Object { $_.Value } | Sort-Object -Unique)
+    $ids = @([regex]::Matches($raw, '(RUSTSEC-\d{4}-\d{4}|GHSA-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4})') | ForEach-Object { $_.Value } | Sort-Object -Unique)
     $expected = @($script:OsvIdsExpected | Sort-Object)
-    $ok = ($ids.Count -eq 4) -and (($ids -join ',') -eq ($expected -join ','))
-    $detail = "osv-scanner.toml suppression set = $($ids.Count) IDs [$($ids -join ', ')] (expected exactly the ledgered D-13 four)"
+    $ok = ($ids.Count -eq 5) -and (($ids -join ',') -eq ($expected -join ','))
+    $detail = "osv-scanner.toml suppression set = $($ids.Count) IDs [$($ids -join ', ')] (expected exactly the ledgered five: D-13 four + D-14 block-buffer)"
     return @{ Ok = $ok; Detail = $detail }
 }
 

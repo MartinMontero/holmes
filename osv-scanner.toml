@@ -1,37 +1,49 @@
-# OSV-Scanner suppressions — ratified allowlist (D-13, Martin, 2026-07-19).
+# OSV-Scanner suppressions — ratified allowlist (D-13, Martin, 2026-07-19;
+# extended D-14, Martin, 2026-10-29 — the block-buffer ruling, option A).
 #
-# EXACTLY these four IDs are suppressed, and no others. All four are
+# EXACTLY these five IDs are suppressed, and no others. Four are
 # `informational: unmaintained` RUSTSEC notices (no CVSS, no fix
 # available), reached transitively through `neo4rs` 0.8.0 (MIT), the
-# Bolt driver for The Wall (D-12 rider d). The supply-chain gate stays
-# **fail-closed for every scored or fixable advisory** — this file only
-# silences unmaintained-crate notices, each with a written rationale and
-# an expiry.
+# Bolt driver for The Wall (D-12 rider d). The fifth (GHSA-qwgh-2vcv-g2f7,
+# D-14) is a SCORED (CVSS 6.3 Medium) but genuinely unfixable advisory —
+# the only suppression of a scored finding this file carries, ratified
+# separately. The supply-chain gate stays **fail-closed for every scored
+# or fixable advisory** except the D-14 exception below, in writing.
 #
-# Rider (b), enforced in CI (.github/workflows/supply-chain.yml): a step
-# asserts this file's ignored-ID set equals exactly the ledgered four.
-# Adding a fifth suppression fails the gate until a new D-item ratifies it.
+# Rider (b), enforced in CI (.github/workflows/supply-chain.yml) and in
+# gate.ps1 (supply-chain-posture): a step asserts this file's ignored-ID
+# set equals exactly the ledgered five. Any sixth suppression fails the
+# gate until a new D-item ratifies it.
 #
 # Review triggers (rider a): a `neo4rs` 0.9 **stable** release reopens the
 # bump-vs-allowlist decision; `ignoreUntil` is a hard 90-day calendar
 # backstop — on expiry each advisory fails the gate again until re-ratified.
+# For D-14: any RustCrypto `digest` release bounding `block-buffer ^0.12`
+# reopens the bump path (the sha2 0.11 chain currently resolves
+# block-buffer 0.11.0, which is also affected — that is why no bump
+# exists today).
 
 [[IgnoredVulns]]
 id = "RUSTSEC-2024-0436"
-ignoreUntil = 2026-10-17T00:00:00Z
+ignoreUntil = 2027-01-25T00:00:00Z
 reason = "paste 1.0.15 — informational: unmaintained (crate archived; no CVSS, no fix). Transitive via neo4rs 0.8.0 (proc-macro helper). Successor: pastey. Re-evaluate on neo4rs 0.9 stable; 90-day backstop."
 
 [[IgnoredVulns]]
 id = "RUSTSEC-2025-0012"
-ignoreUntil = 2026-10-17T00:00:00Z
+ignoreUntil = 2027-01-25T00:00:00Z
 reason = "backoff 0.4.0 — informational: unmaintained (no CVSS, no fix). Transitive via neo4rs 0.8.0 (retry). Successor: backon (already in neo4rs 0.9 rc). Re-evaluate on neo4rs 0.9 stable; 90-day backstop."
 
 [[IgnoredVulns]]
 id = "RUSTSEC-2024-0384"
-ignoreUntil = 2026-10-17T00:00:00Z
+ignoreUntil = 2027-01-25T00:00:00Z
 reason = "instant 0.1.13 — informational: unmaintained (no CVSS, no fix). Transitive via backoff (retry timing). Cleared when backoff is dropped in neo4rs 0.9. Re-evaluate on neo4rs 0.9 stable; 90-day backstop."
 
 [[IgnoredVulns]]
 id = "RUSTSEC-2025-0134"
-ignoreUntil = 2026-10-17T00:00:00Z
+ignoreUntil = 2027-01-25T00:00:00Z
 reason = "rustls-pemfile 2.2.0 — informational: unmaintained (repo archived Aug 2025; superseded by rustls-pki-types >=1.9; no CVSS, no fix). Transitive via neo4rs's TLS stack. Mitigation: the Bolt link is localhost-only to the supervised Neo4j child, and the tree is pinned via --locked. Re-evaluate on neo4rs 0.9 stable; 90-day backstop."
+
+[[IgnoredVulns]]
+id = "GHSA-qwgh-2vcv-g2f7"
+ignoreUntil = 2027-01-25T00:00:00Z
+reason = "block-buffer 0.10.4 — SCORED (CVSS 6.3 Medium, 'panic corrupts inline buffer position') but UNFIXABLE today: the fix requires block-buffer >= 0.12.1, and the only bump path (sha2 0.10 -> 0.11 / digest 0.11) resolves block-buffer 0.11.0, which is also affected. Reached via sha2 0.10 -> digest 0.10 (holmes-wall weight-provenance hashing — local-only use, no attacker-controlled input). D-14, Martin option A, 2026-10-29. Re-evaluate on a RustCrypto digest release bounding block-buffer ^0.12; 90-day backstop."
