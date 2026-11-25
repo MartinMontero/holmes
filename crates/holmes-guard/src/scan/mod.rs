@@ -15,8 +15,15 @@
 //!
 //! Exemptions are compiled in [`exemptions`] and applied *visibly*: every
 //! exemption used appears in the report; nothing is skipped silently.
+//!
+//! Fails closed: an input the gate cannot read (I/O error, not UTF-8 and no
+//! UTF-16 BOM, NUL bytes) or a lockfile it cannot parse is itself a
+//! violation ([`ViolationKind::UnreadableInput`]), never a silent skip.
+//! Noise rules for the matchers live in [`matching`] and can only remove a
+//! hit, never add one.
 
 pub mod exemptions;
+pub mod matching;
 pub mod recipes;
 
 use crate::policy;
@@ -33,6 +40,9 @@ pub enum ViolationKind {
     RouterGatewayPackage,
     /// §2 (second half): excluded model-family id in a manifest/config/code.
     ExcludedModelFamilyIdentifier,
+    /// An input the gate could not read or parse. `subject` is the reason.
+    /// Fail-closed: a scan that could not see an input cannot pass it.
+    UnreadableInput,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -50,7 +60,9 @@ pub struct Violation {
 impl Violation {
     /// Human-readable §3 provenance line.
     pub fn path_note(&self) -> String {
-        if !self.traced {
+        if self.kind == ViolationKind::UnreadableInput {
+            "input could not be read or parsed; the gate fails closed".to_owned()
+        } else if !self.traced {
             format!(
                 "listed in {} (format carries no dependency edges — path not traced)",
                 self.location
@@ -86,8 +98,16 @@ impl ScanReport {
 pub enum SeedMatch {
     /// Token equals the seed exactly.
     Exact,
-    /// Seed appears anywhere in the token (families that concatenate).
+    /// Seed appears anywhere in the token (families that concatenate),
+    /// after [`matching::mask_word_noise`] removes word-boundary noise
+    /// (`tagptr` is tag + ptr, not GPT).
     Substring,
+    /// The seed is an ordinary word as well as a vendor name, so it counts
+    /// only in the vendor's own position: the whole name, the npm scope
+    /// (`@meta/x`), or the leading token of the scope or name followed by
+    /// one of `products` (`meta-llama-*`). `pest_meta`, `ptr_meta` and
+    /// `import-meta-resolve` use the word, not the vendor.
+    Vendor { products: &'static [&'static str] },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -131,9 +151,11 @@ pub const PACKAGE_SEEDS: &[Seed] = &[
     },
     Seed {
         token: "meta",
-        matching: SeedMatch::Exact,
+        matching: SeedMatch::Vendor {
+            products: &["llama", "ai"],
+        },
         class: SeedClass::Namespace,
-        rationale: "Meta vendor namespace",
+        rationale: "Meta vendor namespace (vendor position only: the English word is common)",
     },
     Seed {
         token: "facebook",
@@ -180,8 +202,28 @@ fn seed_hit(token: &str, seed: &Seed) -> bool {
     }
     match seed.matching {
         SeedMatch::Exact => token == seed.token,
-        SeedMatch::Substring => token.contains(seed.token),
+        SeedMatch::Substring => matching::mask_word_noise(token).contains(seed.token),
+        // Judged on the whole name in `vendor_position_hit`.
+        SeedMatch::Vendor { .. } => false,
     }
+}
+
+/// `SeedMatch::Vendor`: the seed is the whole name, the npm scope, or the
+/// leading token of the scope or of the name followed by a product token.
+fn vendor_position_hit(normalized: &str, vendor: &str, products: &[&str]) -> bool {
+    let (scope, rest) = match normalized.strip_prefix('@').and_then(|s| s.split_once('/')) {
+        Some((scope, rest)) => (Some(scope), rest),
+        None => (None, normalized),
+    };
+    let leads = |part: &str| {
+        let t = policy::tokenize(part);
+        match t.as_slice() {
+            [only] => only == vendor,
+            [first, second, ..] => first == vendor && products.contains(&second.as_str()),
+            [] => false,
+        }
+    };
+    scope.is_some_and(|s| leads(s)) || leads(rest)
 }
 
 /// §2 verdict for a single package name. Router class takes precedence in
@@ -191,22 +233,26 @@ pub fn check_package_name(name: &str, location: &str, out: &mut Vec<Violation>) 
     let normalized = name.trim().to_ascii_lowercase();
     let tokens = policy::tokenize(&normalized);
     let mut namespace_hit = false;
-    for token in &tokens {
-        for seed in PACKAGE_SEEDS {
-            if seed_hit(token, seed) {
-                match seed.class {
-                    SeedClass::Router => {
-                        out.push(Violation {
-                            kind: ViolationKind::RouterGatewayPackage,
-                            subject: normalized.clone(),
-                            location: location.to_owned(),
-                            dependency_path: vec![normalized.clone()],
-                            traced: false,
-                        });
-                        return;
-                    }
-                    SeedClass::Namespace => namespace_hit = true,
+    for seed in PACKAGE_SEEDS {
+        let hit = match seed.matching {
+            SeedMatch::Vendor { products } => {
+                vendor_position_hit(&normalized, seed.token, products)
+            }
+            _ => tokens.iter().any(|token| seed_hit(token, seed)),
+        };
+        if hit {
+            match seed.class {
+                SeedClass::Router => {
+                    out.push(Violation {
+                        kind: ViolationKind::RouterGatewayPackage,
+                        subject: normalized.clone(),
+                        location: location.to_owned(),
+                        dependency_path: vec![normalized.clone()],
+                        traced: false,
+                    });
+                    return;
                 }
+                SeedClass::Namespace => namespace_hit = true,
             }
         }
     }
@@ -250,24 +296,70 @@ struct LockPackage {
     deps: Vec<String>,
 }
 
-/// (packages, edges_available) parsed from one lockfile, format inferred from
-/// its filename.
-fn parse_lockfile(path: &Path, text: &str) -> (Vec<LockPackage>, bool) {
+/// One parsed lockfile. `problem` is set when the text has content the
+/// parser did not recognise — the gate then fails closed on that file
+/// instead of passing it with zero packages.
+struct ParsedLock {
+    packages: Vec<LockPackage>,
+    edges: bool,
+    problem: Option<&'static str>,
+}
+
+/// Parse one lockfile, format inferred from its filename.
+fn parse_lockfile(path: &Path, text: &str) -> ParsedLock {
     let name = path
         .file_name()
         .map(|n| n.to_string_lossy().to_ascii_lowercase())
         .unwrap_or_default();
-    if name.ends_with(".json") {
-        (parse_npm(text), false)
+    let has_content = text.lines().any(|l| {
+        let t = l.trim();
+        !t.is_empty() && !t.starts_with('#')
+    });
+    let (packages, edges, problem) = if name.ends_with(".json") {
+        let p = parse_npm(text);
+        let bad = p.is_empty() && has_content && !text.contains("\"packages\"");
+        (
+            p,
+            false,
+            bad.then_some(
+                "npm lockfile has no \"packages\" map (lockfileVersion 1 layout is not read)",
+            ),
+        )
     } else if name == "yarn.lock" {
-        (parse_yarn(text), false)
+        let p = parse_yarn(text);
+        let bad = p.is_empty() && has_content;
+        (
+            p,
+            false,
+            bad.then_some("yarn lockfile: no package entries recognised"),
+        )
     } else if name.ends_with(".yaml") || name.ends_with(".yml") {
-        (parse_pnpm(text), false)
+        let p = parse_pnpm(text);
+        let bad = p.is_empty() && has_content && !text.contains("lockfileVersion");
+        (
+            p,
+            false,
+            bad.then_some("pnpm lockfile: no lockfileVersion and no package entries"),
+        )
     } else if name.ends_with(".txt") || name.contains("requirements") {
-        (parse_pip(text), false)
+        (parse_pip(text), false, None)
     } else {
         // Cargo.lock / uv.lock / poetry.lock and other TOML [[package]] lockfiles.
-        (parse_toml(text), true)
+        let p = parse_toml(text);
+        let empty_ok = text.lines().any(|l| l.trim() == "package = []");
+        let problem = if p.iter().any(|pkg| pkg.name.is_empty()) {
+            Some("TOML lockfile: a [[package]] entry has no parsable name")
+        } else if p.is_empty() && has_content && !empty_ok {
+            Some("TOML lockfile: no [[package]] entries recognised")
+        } else {
+            None
+        };
+        (p, true, problem)
+    };
+    ParsedLock {
+        packages,
+        edges,
+        problem,
     }
 }
 
@@ -477,10 +569,19 @@ fn trace_dependency_path(offender: &str, packages: &[LockPackage]) -> Vec<String
 /// Walk one lockfile: parse packages, check each name, attach dependency
 /// paths (§3). Appends to `report`.
 pub fn scan_lockfile(path: &Path, text: &str, report: &mut ScanReport) {
-    let (packages, edges) = parse_lockfile(path, text);
+    let ParsedLock {
+        packages,
+        edges,
+        problem,
+    } = parse_lockfile(path, text);
     let location = path.display().to_string();
     report.lockfiles_walked.push(location.clone());
-    for pkg in &packages {
+    if let Some(why) = problem {
+        report
+            .violations
+            .push(unreadable(location.clone(), why.to_owned()));
+    }
+    for pkg in packages.iter().filter(|p| !p.name.is_empty()) {
         report.packages_scanned += 1;
         let mut hits = Vec::new();
         check_package_name(&pkg.name, &location, &mut hits);
@@ -501,23 +602,64 @@ pub fn scan_lock_text(text: &str, location: &str, report: &mut ScanReport) {
 
 // ── §2 (second half) — source-file model-family identifier sweep ──────────
 
-/// Excluded model-family identifiers in one file's text.
+/// Excluded model-family identifiers in one file's text. Families come from
+/// `policy::excluded_model_token`; [`matching`] removes word-boundary noise
+/// and requires a model context for bare o-series tokens.
 pub fn scan_text_for_model_ids(rel_path: &str, text: &str) -> Vec<Violation> {
     let mut out = Vec::new();
+    let mut state = matching::SweepState::default();
     for (idx, line) in text.lines().enumerate() {
-        for token in policy::tokenize(line) {
-            if policy::excluded_model_token(&token) {
-                out.push(Violation {
-                    kind: ViolationKind::ExcludedModelFamilyIdentifier,
-                    subject: token,
-                    location: format!("{rel_path}:{}", idx + 1),
-                    dependency_path: Vec::new(),
-                    traced: false,
-                });
-            }
+        for subject in matching::line_hits(line, &mut state) {
+            out.push(Violation {
+                kind: ViolationKind::ExcludedModelFamilyIdentifier,
+                subject,
+                location: format!("{rel_path}:{}", idx + 1),
+                dependency_path: Vec::new(),
+                traced: false,
+            });
         }
     }
     out
+}
+
+fn unreadable(location: String, reason: String) -> Violation {
+    Violation {
+        kind: ViolationKind::UnreadableInput,
+        subject: reason,
+        location,
+        dependency_path: Vec::new(),
+        traced: false,
+    }
+}
+
+/// Read one input as text, or say why it cannot be read. UTF-8 (BOM
+/// optional) and UTF-16 with a BOM decode. Anything else, and text holding
+/// NUL bytes (binary, or UTF-16 without a BOM, where every identifier would
+/// be split apart), is unreadable: the caller fails closed on it.
+fn read_input(path: &Path) -> Result<String, String> {
+    let bytes = fs::read(path).map_err(|e| format!("cannot read: {e}"))?;
+    let text = if let Some(rest) = bytes.strip_prefix(b"\xEF\xBB\xBF") {
+        String::from_utf8(rest.to_vec()).map_err(|_| "not valid UTF-8".to_owned())?
+    } else if let Some(rest) = bytes.strip_prefix(b"\xFF\xFE") {
+        decode_utf16(rest, u16::from_le_bytes)?
+    } else if let Some(rest) = bytes.strip_prefix(b"\xFE\xFF") {
+        decode_utf16(rest, u16::from_be_bytes)?
+    } else {
+        String::from_utf8(bytes).map_err(|_| "not valid UTF-8 and no UTF-16 BOM".to_owned())?
+    };
+    if text.contains('\0') {
+        return Err("contains NUL bytes (binary, or UTF-16 without a BOM)".to_owned());
+    }
+    Ok(text)
+}
+
+fn decode_utf16(bytes: &[u8], unit: fn([u8; 2]) -> u16) -> Result<String, String> {
+    if bytes.len() % 2 != 0 {
+        return Err("UTF-16 BOM but odd byte length".to_owned());
+    }
+    char::decode_utf16(bytes.chunks_exact(2).map(|c| unit([c[0], c[1]])))
+        .collect::<Result<String, _>>()
+        .map_err(|_| "UTF-16 BOM but invalid UTF-16".to_owned())
 }
 
 // ── the full gate ─────────────────────────────────────────────────────────
@@ -534,8 +676,11 @@ pub fn scan_workspace_full(root: &Path, explicit_lockfiles: &[PathBuf]) -> io::R
         explicit_lockfiles.to_vec()
     };
     for lf in &lockfiles {
-        if let Ok(text) = fs::read_to_string(lf) {
-            scan_lockfile(lf, &text, &mut report);
+        match read_input(lf) {
+            Ok(text) => scan_lockfile(lf, &text, &mut report),
+            Err(why) => report
+                .violations
+                .push(unreadable(lf.display().to_string(), why)),
         }
     }
 
@@ -543,8 +688,12 @@ pub fn scan_workspace_full(root: &Path, explicit_lockfiles: &[PathBuf]) -> io::R
     collect_files(root, Path::new(""), &mut files)?;
     files.sort();
     for rel in files {
-        let Ok(text) = fs::read_to_string(root.join(&rel)) else {
-            continue;
+        let text = match read_input(&root.join(&rel)) {
+            Ok(text) => text,
+            Err(why) => {
+                report.violations.push(unreadable(rel, why));
+                continue;
+            }
         };
         report.files_scanned += 1;
         let hits = scan_text_for_model_ids(&rel, &text);

@@ -211,8 +211,11 @@ pub fn excluded_model_token(token: &str) -> bool {
         || is_o_series(token)
 }
 
-/// OpenAI o-series reasoning ids: "o" followed only by 1–3 digits.
-fn is_o_series(token: &str) -> bool {
+/// OpenAI o-series reasoning ids: "o" followed only by 1–3 digits. Public so
+/// the AC-DL-2 source sweep can require a model context for this one
+/// family (bare `o1`..`o7` are also order ids and category codes) without
+/// keeping its own copy of the pattern.
+pub fn is_o_series(token: &str) -> bool {
     let Some(rest) = token.strip_prefix('o') else {
         return false;
     };
