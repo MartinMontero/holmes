@@ -12,7 +12,7 @@
     recipe-scan), this gate CALLS it -- nothing is re-implemented here.
 
     -SelfTest: plants a failing proof (holmes-smoke's expected test count
-    is set to 45 -- holmes-guard's count, impossible for holmes-smoke's 2),
+    is set to 51 -- holmes-guard's count, impossible for holmes-smoke's 2),
     confirms the FAIL fires and the exit code is non-zero, restores the
     real expectation (2), reruns clean, and prints both transcripts as
     evidence. Exits 0 only if the plant fired AND the restored run passes.
@@ -32,13 +32,13 @@ Set-Location $Root
 
 # --- tunables (the RECIPE.md proof numbers; drift here = DRIFT RULE) -----
 $script:Expected = @{
-    'holmes-guard' = 45
+    'holmes-guard' = 51
     'holmes-core'  = 71
     'holmes-wall'  = 24
     'holmes-smoke' = 2
 }
 $script:Acdl2PackagesExpected = 157
-$script:Acdl2FilesExpected    = 68
+$script:Acdl2FilesExpected    = 70
 $script:RecipeFilesExpected   = 2
 # The ledgered suppression set (D-13 four + D-14 block-buffer, option A
 # 2026-10-29). Drift in osv-scanner.toml vs this list = supply-chain-posture FAIL.
@@ -198,9 +198,9 @@ if (-not $SelfTest) {
 # --- -SelfTest: prove the gate can FAIL ------------------------------------
 
 Write-Output '=== SELF-TEST Run A: planting a failing proof ==='
-Write-Output ("plant: holmes-smoke expected-passed {0} -> 45 (that is holmes-guard's count; holmes-smoke has 2). The gate must FAIL holmes-smoke and exit non-zero." -f $script:Expected['holmes-smoke'])
+Write-Output ("plant: holmes-smoke expected-passed {0} -> 51 (that is holmes-guard's count; holmes-smoke has 2). The gate must FAIL holmes-smoke and exit non-zero." -f $script:Expected['holmes-smoke'])
 $realSmoke = $script:Expected['holmes-smoke']
-$script:Expected['holmes-smoke'] = 45
+$script:Expected['holmes-smoke'] = 51
 Invoke-Gate
 $runAExit = $script:LastExit
 $smokeResult = $script:Results | Where-Object { $_.Name -eq 'holmes-smoke' }

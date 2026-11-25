@@ -23,11 +23,11 @@ spawned) is the convention any new platform-sensitive proof must follow.
 
 | Subsystem | Needs | Proof |
 |---|---|---|
-| holmes-guard (L1a egress proxy, L1b resolution, L2 sanitized spawn, AC-DL-2 scanner, recipe scanner) | Rust toolchain (cargo); loopback 127.0.0.1:11434 free | `cargo test --release --locked -p holmes-guard` exits 0 and summed `N passed` across all suites = **45** (6 lib + 39 integration: acdl1_proxy 8, acdl1_resolution 8, acdl1_spawn 5, acdl1_structural 1, acdl2_scanner 14, recipe_scanner 3) |
+| holmes-guard (L1a egress proxy, L1b resolution, L2 sanitized spawn, AC-DL-2 scanner, recipe scanner) | Rust toolchain (cargo); loopback 127.0.0.1:11434 free | `cargo test --release --locked -p holmes-guard` exits 0 and summed `N passed` across all suites = **51** (9 lib + 42 integration: acdl1_proxy 8, acdl1_resolution 8, acdl1_spawn 5, acdl1_structural 1, acdl2_noise_corpus 3, acdl2_scanner 14, recipe_scanner 3) |
 | holmes-core (embedding contract, ACH analysis locks, safety/emission gate, observability locks) | holmes-guard | `cargo test --release --locked -p holmes-core` exits 0 and summed `N passed` = **71** (47 lib + 24 integration: analysis_locks 4, embedding_contract 3, no_blueprint_exports 2, observability_locks 6, safety_locks 9) |
 | holmes-wall (memory, Neo4j, supervise, provenance) | holmes-guard; neo4rs 0.8.0 pinned in `Cargo.lock` | `cargo test --release --locked -p holmes-wall` exits 0 and summed `N passed` = **24** (21 lib + no_delete_audit 1 + wall_locks 2) |
 | holmes-smoke (Phase 0c ACP round-trip harness) | holmes-core + holmes-guard + holmes-wall | `cargo test --release --locked -p holmes-smoke` exits 0 and summed `N passed` = **2** |
-| AC-DL-2 dependency-denylist gate | holmes-guard (`acdl2-scan` bin); `Cargo.lock` | `cargo run --release --locked -p holmes-guard --bin acdl2-scan -- --root .` exits 0 with `verdict: CLEAN`, `packages scanned: 157`, `files scanned: 68`; the planted control `--lockfile crates/holmes-guard/tests/fixtures/planted.lock` exits non-zero with `verdict: FAIL` |
+| AC-DL-2 dependency-denylist gate | holmes-guard (`acdl2-scan` bin); `Cargo.lock` | `cargo run --release --locked -p holmes-guard --bin acdl2-scan -- --root .` exits 0 with `verdict: CLEAN`, `packages scanned: 157`, `files scanned: 70`; the planted control `--lockfile crates/holmes-guard/tests/fixtures/planted.lock` exits non-zero with `verdict: FAIL` |
 | Recipe safety scan (Lock 1d) | holmes-guard (`recipe-scan` bin); `recipes/` | `cargo run --release --locked -p holmes-guard --bin recipe-scan -- --path recipes` exits 0 with `verdict: CLEAN` and `files scanned: 2`; the planted control `--path crates/holmes-guard/tests/fixtures/planted_recipe_smuggled.yaml` exits non-zero with `verdict: FAIL` |
 | CI joint gate | all rows above | `.github/workflows/acdl-gate.yml` contains job `acdl-joint-gate` and `.github/workflows/supply-chain.yml` contains job `sbom-and-cve-scan` (2 filenames, 2 job names). Live required-status on `main` is GitHub-side — not locally provable; treat as REPORTED unless checked on the PR page |
 | Supply-chain posture (cargo audit posture, D-13 + D-14) | `osv-scanner.toml` | the advisory ID set in `osv-scanner.toml` equals exactly **5** IDs: RUSTSEC-2024-0384, RUSTSEC-2024-0436, RUSTSEC-2025-0012, RUSTSEC-2025-0134 (D-13 unmaintained-crate four) + GHSA-qwgh-2vcv-g2f7 (D-14 block-buffer, scored-but-unfixable, Martin option A 2026-10-29) — matched by an ID-format regex covering both RUSTSEC and GHSA shapes (mirrors gate.ps1 `supply-chain-posture`; the CI rider-b assertion moves to the same five in the companion workflow commit; the live OSV/Grype scan itself runs in `sbom-and-cve-scan`) |
@@ -65,3 +65,15 @@ blocked PR, not a documentation update.
   `Test-SupplyChainPosture` and this row moved together; the CI rider-b
   assert moves in the companion `.github/workflows/supply-chain.yml`
   commit (workflow-scope edit, owner-side).
+- **2026-11-25 — holmes-guard row: 45 → 51 tests; AC-DL-2 row: files
+  scanned 68 → 70.** Old: "= **45** (6 lib + 39 integration ...)" and
+  "`files scanned: 68`". New: **51** (9 lib + 42 integration, adding
+  `acdl2_noise_corpus` 3) and `files scanned: 70`; `packages scanned: 157`
+  unchanged. Why: W0 scanner-noise fix (BuilderOS lessons strategy, W0).
+  +3 lib tests in the new `crates/holmes-guard/src/scan/matching.rs`
+  (noise rules) and +3 integration tests in the new
+  `crates/holmes-guard/tests/acdl2_noise_corpus.rs` (false/true-positive
+  corpus, fail-closed inputs); those two new `.rs` files are the +2 swept
+  files (both under compiled exemption paths). gate.ps1 `$Expected`,
+  `$Acdl2FilesExpected` and the `-SelfTest` plant (45 → 51, still
+  holmes-guard's count) moved with this row.
